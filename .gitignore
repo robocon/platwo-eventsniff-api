@@ -1,0 +1,11 @@
+# Configuration
+private/src/Main/DB.php
+private/src/Main/DataModel/Image.php
+
+# Netbeans and phpStorm
+nbproject/*
+.idea
+
+# ETC.
+doc/*
+vendor/*
