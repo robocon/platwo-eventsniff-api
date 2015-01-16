@@ -30,7 +30,7 @@ class OAuthService extends BaseService {
     public function facebook($params, Context $ctx){
         file_put_contents('test.txt', print_r($params, true));
 
-        FacebookSession::setDefaultApplication('717935634950887', 'b43f5c57b6af38948dbb3a6a4ce47eae');
+        FacebookSession::setDefaultApplication('903039293070396', '256d9274a1cc7962952408b32b135e7a');
 
         $v = new Validator($params);
         $v->rule('required', ['facebook_token']);
@@ -48,6 +48,8 @@ class OAuthService extends BaseService {
             ))->execute()->getGraphObject(GraphUser::className());
             $me->getName();
             $fbId = $me->getId();
+            
+            // Search facebook_id from database
             $item = $this->getUsersCollection()->findOne(['fb_id'=> $fbId], ['access_token', 'type']);
 
             if(is_null($item)){
@@ -85,9 +87,11 @@ class OAuthService extends BaseService {
 
                 // get picture from facebook
                 $pictureSource = file_get_contents('http://graph.facebook.com/'.$fbId.'/picture?type=large');
-                if(strlen($pictureSource) == 0){
+                if($pictureSource === false OR $pictureSource == 0){
                     throw new ServiceException(ResponseHelper::error("Can't read facebook profile picture."));
                 }
+                
+                // Upload facebook profile picture to Media Server
                 $pic = Image::upload(base64_encode($pictureSource));
                 $item['picture'] = $pic->toArray();
 

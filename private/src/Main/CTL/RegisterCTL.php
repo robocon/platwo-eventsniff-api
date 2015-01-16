@@ -19,6 +19,16 @@ use Main\Service\UserService;
 class RegisterCTL extends BaseCTL {
 
     /**
+     * @api {post} /register POST /register
+     * @apiDescription Register with email
+     * @apiName Register
+     * @apiGroup User
+     * @apiParam {String} username Your username using for login to system
+     * @apiParam {String} email Email address
+     * @apiParam {String} password Your password
+     * @apiParam {String} gender male or female
+     * @apiParam {String} birth_date Your birth date
+     * 
      * @POST
      */
     public function add(){

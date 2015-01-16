@@ -16,6 +16,21 @@ use Main\Service\OAuthService;
  */
 class OAuthCTL extends BaseCTL {
     /**
+     * 
+     * @api {post} /oauth/facebook POST /oauth/facebook
+     * @apiDescription Register with facebook
+     * @apiName OauthFacebook
+     * @apiGroup OAuth
+     * @apiParam {String} facebook_token
+     * @apiParam {String} ios_device_token Token from your mobile
+     * @apiParam {String} android_token Token from your mobile
+     * @apiSuccessExample {json} Success-Response:
+     * {
+     *  "user_id": "54506d34da354df2078b4569",
+     *  "access_token": "9f0f853517eaaed3c0b74838e6e95693",
+     *  "type": "normal",
+     * }
+     * 
      * @POST
      * @uri /facebook
      */

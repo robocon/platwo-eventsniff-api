@@ -66,7 +66,7 @@ class EventCTL extends BaseCTL {
     /**
      * Save data from mobile that has send a picture and user_id
      *
-     * @api {post} /event/gallery [POST] /event/gallery
+     * @api {post} /event/gallery POST /event/gallery
      * @apiDescription Booking event with first picture
      * @apiName PostEventGallery
      * @apiGroup Event
@@ -106,7 +106,7 @@ class EventCTL extends BaseCTL {
     }
     
     /**
-     * @api {post} /event/gallery/:id [POST] /event/gallery/:id
+     * @api {post} /event/gallery/:id POST /event/gallery/:id
      * @apiDescription Save picture after first picture
      * @apiName PostAddEventGallery
      * @apiGroup Event
@@ -140,7 +140,7 @@ class EventCTL extends BaseCTL {
     /**
      * Update event data from eventdetail
      * 
-     * @api {put} /event/:id [PUT] /event/:id
+     * @api {put} /event/:id PUT /event/:id
      * @apiDescription Update event details
      * @apiName PutEvent
      * @apiGroup Event
