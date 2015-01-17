@@ -8,29 +8,22 @@
 
 namespace Main\Service;
 
-use Main\Context\Context;
-use Main\DB;
-use Main\Exception\Service\ServiceException;
-use Main\Helper\ArrayHelper;
-use Main\Helper\MongoHelper;
-use Main\Helper\ResponseHelper;
-use Valitron\Validator;
+use Main\DB,
+    Main\Context\Context;
 
 /**
- * Description of SniffService
+ * Description of CountryService
  *
  * @author robocon
  */
-class SniffService extends BaseService {
-    
+class CountryService extends BaseService {
     public function getCollection(){
         $db = DB::getDB();
-        return $db->tag;
+        return $db->countries;
     }
     
     public function get($options = array(), Context $ctx) {
         $items = $this->getCollection()->find();
-        $length = $items->count(true);
         
         $data = [];
         foreach($items as $item){
@@ -40,10 +33,6 @@ class SniffService extends BaseService {
             ];
         }
         
-        $res = [
-            'length' => $length,
-            'data' => $data,
-        ];
-        return $res;
+        return ['data' => $data];
     }
 }

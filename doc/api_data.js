@@ -135,6 +135,46 @@ define({ "api": [
     "groupTitle": "Event"
   },
   {
+    "type": "get",
+    "url": "/location/cities/:country_id",
+    "title": "GET /location/cities/:country_id",
+    "description": "<p>Get all city from country</p> ",
+    "name": "LocationCities",
+    "group": "Location",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n     \"data\": [\n         {\n             \"id\": \"54b8e0e010f0edcf048b4568\",\n             \"name\" \"Krabi\",\n         },\n         {\n             \"id\": \"54b8e0e010f0edcf048b4569\",\n             \"name\" \"Bangkok\",\n         },\n         ...\n     ]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/LocationCTL.php",
+    "groupTitle": "Location"
+  },
+  {
+    "type": "get",
+    "url": "/location/countries",
+    "title": "GET /location/countries",
+    "description": "<p>Get all country</p> ",
+    "name": "LocationCountries",
+    "group": "Location",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n     \"data\": [\n         {\n             \"id\": \"54b8dfa810f0edcf048b4567\",\n             \"name\" \"thailand\",\n         },\n         ...\n     ]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/LocationCTL.php",
+    "groupTitle": "Location"
+  },
+  {
     "type": "post",
     "url": "/oauth/facebook",
     "title": "POST /oauth/facebook",
