@@ -8,12 +8,12 @@
 
 namespace Main\CTL;
 
-use Main\Exception\Service\ServiceException;
-use Main\Helper\MongoHelper;
-use Main\Service\EventService;
-use Main\Service\GalleryService;
-use Main\Service\TagService;
-use Main\Service\LocationService;
+use Main\Exception\Service\ServiceException,
+    Main\Helper\MongoHelper,
+    Main\Service\EventService,
+    Main\Service\GalleryService,
+    Main\Service\TagService,
+    Main\Service\LocationService;
 
 /**
  * Class EventCTL
@@ -25,13 +25,16 @@ use Main\Service\LocationService;
 class EventCTL extends BaseCTL {
     
     /**
+     * @api {get} /event GET /event
+     * @apiDescription Get all event
+     * @apiName GetEvents
+     * @apiGroup Event
+     * 
      * @GET
      */
     public function gets() {
         try {
             $items = EventService::getInstance()->gets($this->reqInfo->params(), $this->getCtx());
-//            var_dump($items);
-//            exit;
             return $items;
         } catch (ServiceException $e) {
             return $e->getResponse();

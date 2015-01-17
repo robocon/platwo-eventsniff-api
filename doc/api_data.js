@@ -1,5 +1,16 @@
 define({ "api": [
   {
+    "type": "get",
+    "url": "/event",
+    "title": "GET /event",
+    "description": "<p>Get all event</p> ",
+    "name": "GetEvents",
+    "group": "Event",
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/EventCTL.php",
+    "groupTitle": "Event"
+  },
+  {
     "type": "post",
     "url": "/event/gallery/:id",
     "title": "POST /event/gallery/:id",

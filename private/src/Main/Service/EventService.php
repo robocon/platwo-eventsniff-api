@@ -8,13 +8,14 @@
 
 namespace Main\Service;
 
-use Main\Context\Context;
-use Main\DB;
-use Main\Exception\Service\ServiceException;
-use Main\Helper\ArrayHelper;
-use Main\Helper\MongoHelper;
-use Main\Helper\ResponseHelper;
-use Valitron\Validator;
+use Main\Context\Context,
+    Main\DB,
+    Main\Exception\Service\ServiceException,
+    Main\Helper\ArrayHelper,
+    Main\Helper\MongoHelper,
+    Main\Helper\ResponseHelper,
+    Main\Helper\URL,
+    Valitron\Validator;
 
 class EventService extends BaseService {
 
@@ -25,14 +26,19 @@ class EventService extends BaseService {
     
     public function gets($options = [], Context $ctx) {
         
-        if (empty($options)) {
-            $options['limit'] = 0;
-        }
+        $default = array(
+            "page"=> 1,
+            "limit"=> 15
+        );
+        $options = array_merge($default, $options);
+        $skip = ($options['page']-1) * $options['limit'];
         
         $items = $this->getCollection()
                 ->find(['build' => 1])
-                ->limit($options['limit']);
-        $total = $items->count(true);
+                ->limit($options['limit'])
+                ->skip($skip);
+        $length = $items->count(true);
+        $total = $this->getCollection()->count(['build' => 1]);
         
         $data = [];
         foreach ($items as $item) {
@@ -49,10 +55,23 @@ class EventService extends BaseService {
         }
         
         $res = [
+            'length' => $length,
             'total' => $total,
             'data' => $data,
+            'paging'=> [
+                'page'=> (int)$options['page'],
+                'limit'=> (int)$options['limit']
+            ]
         ];
-
+        
+        if ($length > 0 && $length <= $total ) {
+            $res['paging']['next'] = URL::absolute('/event'.'?'.  http_build_query(['page' => (int)$options['page']+1]));
+        
+            if ($options['page'] > 1) {
+                $res['pagging']['prev'] = URL::absolute('/event'.'?'.  http_build_query(['page' => (int)$options['page']]));
+            }
+        }
+        
         return $res;
     }
     
