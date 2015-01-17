@@ -7,14 +7,15 @@
  */
 
 namespace Main\CTL;
-use Main\DB;
-use Main\Helper\APNHelper;
-use Main\Helper\ArrayHelper;
-use Main\Helper\MongoHelper;
 
-use Facebook\FacebookSession;
-use Facebook\FacebookRequest;
-use Facebook\GraphUser;
+use Main\DB,
+    Main\Helper\APNHelper,
+    Main\Helper\ArrayHelper,
+    Main\Helper\MongoHelper,
+    Facebook\FacebookSession,
+    Facebook\FacebookRequest,
+    Facebook\GraphUser,
+    Main\Helper\FacebookHelper;
 
 /**
  * @Restful
@@ -28,14 +29,15 @@ class TestCTL extends BaseCTL {
      */
     public function facebook() {
         
-        FacebookSession::setDefaultApplication('903039293070396', '256d9274a1cc7962952408b32b135e7a');
+        FacebookSession::setDefaultApplication(FacebookHelper::$app_id, FacebookHelper::$app_secret);
         $session = new FacebookSession($this->reqInfo->urlParam('facebook_id'));
-        
+//        var_dump($session);
+//        exit;
         $me = (new FacebookRequest(
             $session, 'GET', '/me'
         ))->execute()->getGraphObject(GraphUser::className());
-//        var_dump($me->getId());
-//        exit;
+//        var_dump($me);
+        exit;
         
         
         $request = new FacebookRequest(

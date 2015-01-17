@@ -28,7 +28,14 @@ class EventCTL extends BaseCTL {
      * @GET
      */
     public function gets() {
-        
+        try {
+            $items = EventService::getInstance()->gets($this->reqInfo->params(), $this->getCtx());
+//            var_dump($items);
+//            exit;
+            return $items;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
     }
 
     /**
@@ -39,7 +46,7 @@ class EventCTL extends BaseCTL {
 
             $item = EventService::getInstance()->add($this->reqInfo->params(), $this->getCtx());
             MongoHelper::standardIdEntity($item);
-
+            
             // Store image into gallery
             $data = [
                 'pictures' => [

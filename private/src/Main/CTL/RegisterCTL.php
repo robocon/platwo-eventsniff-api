@@ -8,9 +8,10 @@
 
 namespace Main\CTL;
 
-use Main\Exception\Service\ServiceException;
-use Main\Helper\MongoHelper;
-use Main\Service\UserService;
+use Main\Exception\Service\ServiceException,
+    Main\Helper\MongoHelper,
+    Main\Service\UserService;
+
 
 /**
  * @Restful
@@ -47,6 +48,4 @@ class RegisterCTL extends BaseCTL {
             return $ex->getResponse();
         }
     }
-
-
 }

@@ -8,18 +8,19 @@
 
 namespace Main\Service;
 
-use Facebook\FacebookRequest;
-use Facebook\FacebookRequestException;
-use Facebook\FacebookSession;
-use Facebook\GraphUser;
-use Main\Context\Context;
-use Main\DataModel\Image;
-use Main\DB;
-use Main\Exception\Service\ServiceException;
-use Main\Helper\MongoHelper;
-use Main\Helper\ResponseHelper;
-use Main\Helper\UserHelper;
-use Valitron\Validator;
+use Facebook\FacebookRequest,
+    Facebook\FacebookRequestException,
+    Facebook\FacebookSession,
+    Facebook\GraphUser,
+    Main\Context\Context,
+    Main\DataModel\Image,
+    Main\DB,
+    Main\Exception\Service\ServiceException,
+    Main\Helper\MongoHelper,
+    Main\Helper\ResponseHelper,
+    Main\Helper\UserHelper,
+    Main\Helper\FacebookHelper,
+    Valitron\Validator;
 
 class OAuthService extends BaseService {
     public function getUsersCollection(){
@@ -30,7 +31,7 @@ class OAuthService extends BaseService {
     public function facebook($params, Context $ctx){
         file_put_contents('test.txt', print_r($params, true));
 
-        FacebookSession::setDefaultApplication('903039293070396', '256d9274a1cc7962952408b32b135e7a');
+        FacebookSession::setDefaultApplication(FacebookHelper::$app_id, FacebookHelper::$app_secret);
 
         $v = new Validator($params);
         $v->rule('required', ['facebook_token']);
@@ -78,23 +79,25 @@ class OAuthService extends BaseService {
                     'type'=> 'normal',
                     'setting'=> UserHelper::defaultSetting(),
                     'display_notification_number' => 0,
+                    'detail' => '',
 
                     // set default last login
                     'last_login' => new \MongoTimestamp()
                 ];
+                
                 $item['access_token'] = $this->generateToken(MongoHelper::standardId($item['_id']));
 //                $item['app_id'] = $ctx->getAppId();
 
                 // get picture from facebook
                 $pictureSource = file_get_contents('http://graph.facebook.com/'.$fbId.'/picture?type=large');
-                if($pictureSource === false OR $pictureSource == 0){
+                if($pictureSource === false){
                     throw new ServiceException(ResponseHelper::error("Can't read facebook profile picture."));
                 }
-                
+
                 // Upload facebook profile picture to Media Server
                 $pic = Image::upload(base64_encode($pictureSource));
                 $item['picture'] = $pic->toArray();
-
+                
                 $this->getUsersCollection()->insert($item);
                 $this->getUsersCollection()->ensureIndex(['access_token'=> 1, 'app_id'=> 1]);
             }

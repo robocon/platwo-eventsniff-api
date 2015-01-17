@@ -41,12 +41,10 @@ class UserService extends BaseService {
 
         $v = new Validator($entity);
         $v->rule('required', ["username", "email", "password", "gender", "birth_date"]);
-//        $v->rule('required', ["username", "email", "password", "gender"]);
         $v->rule('email', ["email"]);
         $v->rule('lengthBetween', 'username', 4, 32);
         $v->rule('lengthBetween', 'password', 4, 32);
         $v->rule('in', 'gender', ['male', 'female']);
-//        $v->rule('date', 'birth_date');
 
         if(!$v->validate()) {
             throw new ServiceException(ResponseHelper::validateError($v->errors()));

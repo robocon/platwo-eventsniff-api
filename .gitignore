@@ -1,6 +1,7 @@
 # Configuration
 private/src/Main/DB.php
 private/src/Main/DataModel/Image.php
+private/src/Main/Helper/FacebookHelper.php
 
 # Netbeans and phpStorm
 nbproject/*

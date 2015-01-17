@@ -22,7 +22,48 @@ class EventService extends BaseService {
         $db = DB::getDB();
         return $db->event;
     }
+    
+    public function gets($options = [], Context $ctx) {
+        
+        if (empty($options)) {
+            $options['limit'] = 0;
+        }
+        
+        $items = $this->getCollection()
+                ->find(['build' => 1])
+                ->limit($options['limit']);
+        $total = $items->count(true);
+        
+        $data = [];
+        foreach ($items as $item) {
+            
+            $item['id'] = $item['_id']->{'$id'};
+            unset($item['_id']);
+            
+            $item['date_end'] = MongoHelper::timeToStr($item['date_end']);
+            $item['date_start'] = MongoHelper::timeToStr($item['date_start']);
+            $item['time_edit'] = MongoHelper::timeToStr($item['time_edit']);
+            $item['time_stamp'] = MongoHelper::timeToStr($item['time_stamp']);
+            
+            $data[] = $item;
+        }
+        
+        $res = [
+            'total' => $total,
+            'data' => $data,
+        ];
 
+        return $res;
+    }
+    
+    /**
+     * Add from website
+     * 
+     * @param type $params
+     * @param Context $ctx
+     * @return type
+     * @throws ServiceException
+     */
     public function add($params, Context $ctx){
 
 
@@ -82,7 +123,8 @@ class EventService extends BaseService {
         $params['build'] = 0;
         $params['approve'] = 0;
         $params['time_stamp'] = new \MongoTimestamp();
-        $insert = ArrayHelper::filterKey(['user_id', 'build', 'approve', 'time_stamp'], $params);
+        $params['alarm'] = 0;
+        $insert = ArrayHelper::filterKey(['user_id', 'build', 'approve', 'time_stamp', 'alarm'], $params);
         
         $this->getCollection()->insert($insert);
         return $insert;
