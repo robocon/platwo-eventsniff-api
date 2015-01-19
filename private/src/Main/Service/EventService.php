@@ -34,11 +34,11 @@ class EventService extends BaseService {
         $skip = ($options['page']-1) * $options['limit'];
         
         $items = $this->getCollection()
-                ->find(['build' => 1])
+                ->find(['build' => 1, 'approve' => 1])
                 ->limit($options['limit'])
                 ->skip($skip);
         $length = $items->count(true);
-        $total = $this->getCollection()->count(['build' => 1]);
+        $total = $this->getCollection()->count(['build' => 1, 'approve' => 1]);
         
         $data = [];
         foreach ($items as $item) {
