@@ -48,11 +48,11 @@ class EventCTL extends BaseCTL {
      * @apiGroup Event
      * 
      * @GET
-     * @uri /[a:id] 
+     * @uri /[a:event_id] 
      */
     public function get() {
         try {
-            EventService::getInstance()->get($this->reqInfo->params(), $this->getCtx());
+            EventService::getInstance()->get($this->reqInfo->urlParam('event_id'), $this->getCtx());
         } catch (ServiceException $e) {
             return $e->getResponse();
         }

@@ -10,6 +10,7 @@ namespace Main\Service;
 
 use Main\Context\Context,
     Main\DB,
+    Main\DataModel\Image,
     Main\Exception\Service\ServiceException,
     Main\Helper\ArrayHelper,
     Main\Helper\MongoHelper,
@@ -22,6 +23,11 @@ class EventService extends BaseService {
     public function getCollection(){
         $db = DB::getDB();
         return $db->event;
+    }
+    
+    public function getGalleryCollection(){
+         $db = DB::getDB();
+        return $db->gallery;
     }
     
     public function gets($options = [], Context $ctx) {
@@ -45,6 +51,18 @@ class EventService extends BaseService {
             
             $item['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
+            
+            // Get last Picture
+            $picture = $this->getGalleryCollection()
+                    ->find(['event_id' => $item['id']])
+                    ->sort(['_id' => -1]) // Look like DESC in MySQL
+                    ->limit(1);
+            
+            if ($picture->count(true)) {
+                foreach($picture as $pic){
+                    $item['thumb'] = Image::load($pic['picture'])->toArrayResponse();
+                }
+            }
             
             $item['date_end'] = MongoHelper::timeToStr($item['date_end']);
             $item['date_start'] = MongoHelper::timeToStr($item['date_start']);
@@ -73,6 +91,14 @@ class EventService extends BaseService {
         }
         
         return $res;
+    }
+    
+    public function get($id, Context $ctx) {
+        
+        $id = MongoHelper::mongoId($id);
+        $item = $this->getCollection()->findOne(['_id' => $id]);
+        var_dump($item);
+        exit;
     }
     
     /**
