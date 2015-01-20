@@ -10,3 +10,4 @@ nbproject/*
 # ETC.
 vendor/*
 rundoc.sh
+test.sh
