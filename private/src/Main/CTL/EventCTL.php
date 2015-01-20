@@ -51,7 +51,11 @@ class EventCTL extends BaseCTL {
      * @uri /[a:id] 
      */
     public function get() {
-        
+        try {
+            EventService::getInstance()->get($this->reqInfo->params(), $this->getCtx());
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
     }
 
     /**
