@@ -19,6 +19,9 @@ class AutoRoute {
         $route = self::mapAllCTL();
         $match = $route->match();
 
+        var_dump($route);
+        var_dump($match);
+        exit;
         ob_end_clean();
         header("Connection: close");
         ignore_user_abort(); // optional
