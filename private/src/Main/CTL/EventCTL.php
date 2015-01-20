@@ -41,6 +41,15 @@ class EventCTL extends BaseCTL {
         }
     }
     
+    /**
+     * @api {get} /event/[:event_id] GET /event/[:event_id]
+     * @apiDescription Get event from id [not complete yet]
+     * @apiName GetEvent
+     * @apiGroup Event
+     * 
+     * @GET
+     * @uri /[a:id] 
+     */
     public function get() {
         
     }
