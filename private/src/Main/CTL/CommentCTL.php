@@ -31,6 +31,9 @@ class CommentCTL extends BaseCTL {
      * @apiDescription Comment into event
      * @apiName CommentSave
      * @apiGroup Comment
+     * @apiParam {String} event_id Event id
+     * @apiParam {String} detail Comment details
+     * @apiParam {String} user_id User id
      * @apiSuccessExample {json} Success-Response:
      * {
      *  "detail": "hello world",

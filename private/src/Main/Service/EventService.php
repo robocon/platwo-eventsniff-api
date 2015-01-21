@@ -286,4 +286,35 @@ class EventService extends BaseService {
         
         return $set;
     }
+    
+    public function alarm($params, Context $ctx) {
+        
+        $v = new Validator($params);
+        $v->rules([
+                'required' => [ ['event_id'], ['active'] ],
+                'integer' => [ ['active'] ],
+                'length' => [['active', 1]]
+            ]);
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        // Set this ID First
+        $event_id = MongoHelper::mongoId($params['event_id']);
+        
+        $find_event = $this->getCollection()->findOne(['_id' => $event_id]);
+        if ($find_event === null) {
+            return ResponseHelper::error("Can not find this event :(");
+        }
+        
+        $this->getCollection()->update(
+            ['_id' => $event_id], 
+            ['$set'=> [
+                'alarm' => $params['active']
+                ]
+            ]);
+        
+        return $params;
+        
+    }
 }

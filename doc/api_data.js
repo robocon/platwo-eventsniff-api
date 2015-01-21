@@ -6,6 +6,33 @@ define({ "api": [
     "description": "<p>Comment into event</p> ",
     "name": "CommentSave",
     "group": "Comment",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "event_id",
+            "description": "<p>Event id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "detail",
+            "description": "<p>Comment details</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User id</p> "
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {
@@ -213,6 +240,46 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n    \"name\": \"Example title\",\n    \"detail\": \"Example detail\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"build\": 1,\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"id\": \"54ba1bc910f0edb8048b456c\",\n    \"tags\": [\n        {\n            \"tag_id\": \"6f2da37e72bf9e100b40567c\",\n            \"id\": \"54bf3afc10f0ed11048b456d\"\n        },\n        {...},\n    ],\n    \"location\": {\n        \"name\": \"\",\n        \"position\": \"19.906496, 99.834254\",\n        \"event_id\": \"54ba1bc910f0edb8048b456c\",\n        \"id\": \"54bf3afc10f0ed11048b4570\"\n    },\n    \"status\": 200\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/EventCTL.php",
+    "groupTitle": "Event"
+  },
+  {
+    "type": "put",
+    "url": "/event/alarm/:event_id/:active",
+    "title": "PUT /event/alarm/:event_id/:active",
+    "description": "<p>Update alarm an event</p> ",
+    "name": "PutEventAlarm",
+    "group": "Event",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "event_id",
+            "description": "<p>Event id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "Integer",
+            "optional": false,
+            "field": "active",
+            "description": "<p>0 is Disable, 1 is Enable</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"event_id\": \"54ba191510f0edb7048b456a\",\n    \"active\": 1\n}",
           "type": "json"
         }
       ]

@@ -347,9 +347,38 @@ class EventCTL extends BaseCTL {
         } catch (ServiceException $e) {
             return $e->getResponse();
         }
-
-
-
+    }
+    
+    /**
+     * 
+     * @return type
+     * 
+     * @api {put} /event/alarm/:event_id/:active PUT /event/alarm/:event_id/:active
+     * @apiDescription Update alarm an event
+     * @apiName PutEventAlarm
+     * @apiGroup Event
+     * @apiParam {String} event_id Event id
+     * @apiParam {Integer} active 0 is Disable, 1 is Enable
+     * @apiSuccessExample {json} Success-Response:
+        {
+            "event_id": "54ba191510f0edb7048b456a",
+            "active": 1
+        }
+     * 
+     * @PUT
+     * @uri /alarm/[a:event_id]/[i:active]
+     */
+    public function alarm() {
+        try {
+            $params = [
+                'event_id' => $this->reqInfo->urlParam('event_id'),
+                'active' => (int)$this->reqInfo->urlParam('active'),
+            ];
             
+            $update = EventService::getInstance()->alarm($params, $this->getCtx());
+            return $update;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
     }
 }
