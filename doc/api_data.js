@@ -1,19 +1,68 @@
 define({ "api": [
   {
+    "type": "post",
+    "url": "/comment/:event_id",
+    "title": "POST /comment/:event_id",
+    "description": "<p>Comment into event</p> ",
+    "name": "CommentSave",
+    "group": "Comment",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n \"detail\": \"hello world\",\n \"user_id\": \"54ba29c210f0edb8048b457a\",\n \"event_id\": \"54ba191510f0edb7048b456a\",\n \"time_stamp\": \"2015-01-21 11:09:11\",\n \"user\": {\n     \"name\": \"Kritsanasak Kuntaros\",\n     \"picture\": {\n         \"id\": \"54ba8cd690cc1350158b4619jpg\",\n         \"width\": 180,\n         \"height\": 180,\n         \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba8cd690cc1350158b4619jpg\\/\"\n     }\n },\n \"id\": \"54bf266710f0ed12048b456a\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/CommentCTL.php",
+    "groupTitle": "Comment"
+  },
+  {
+    "type": "get",
+    "url": "/event/:event_id",
+    "title": "GET /event/:event_id",
+    "description": "<p>Get event from id [not complete yet]</p> ",
+    "name": "GetEvent",
+    "group": "Event",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"alarm\": 0,\n    \"approve\": 1,\n    \"build\": 1,\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"detail\": \"Example detail\",\n    \"name\": \"Example title\",\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"time_stamp\": \"1970-01-01 07:00:00\",\n    \"user_id\": \"1\",\n    \"id\": \"54ba191510f0edb7048b456a\",\n    \"pictures\": [\n        {\n            \"id\": \"54ba7c3590cc13ab048b4628png\",\n            \"width\": 100,\n            \"height\": 100,\n            \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7c3590cc13ab048b4628png\\/\"\n        },\n        {...}\n    ],\n    \"total_sniffer\": 2,\n    \"sniffer\": [\n    {\n        \"id\": \"54ba29c210f0edb8048b457a\",\n        \"picture\": {\n            \"id\": \"54ba8cd690cc1350158b4619jpg\",\n            \"width\": 180,\n            \"height\": 180,\n            \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba8cd690cc1350158b4619jpg\\/\"\n        }\n    }\n    ],\n    \"total_comment\": 2,\n    \"comments\": [\n        {\n            \"detail\": \"hello world\",\n            \"user_id\": \"54ba29c210f0edb8048b457a\",\n            \"event_id\": \"54ba191510f0edb7048b456a\",\n            \"time_stamp\": \"2015-01-21 11:09:11\",\n            \"id\": \"54bf266710f0ed12048b456a\",\n            \"user\": {\n                \"display_name\": \"Kritsanasak Kuntaros\",\n                \"picture\": {\n                    \"id\": \"54ba8cd690cc1350158b4619jpg\",\n                    \"width\": 180,\n                    \"height\": 180,\n                    \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba8cd690cc1350158b4619jpg\\/\"\n                }\n            }\n        },\n        {...}\n    ]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/EventCTL.php",
+    "groupTitle": "Event"
+  },
+  {
     "type": "get",
     "url": "/event",
     "title": "GET /event",
     "description": "<p>Get all event</p> ",
     "name": "GetEvents",
     "group": "Event",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"length\": 1,\n    \"total\": 1,\n    \"data\": [\n        {\n            \"alarm\": 0,\n            \"approve\": 1,\n            \"build\": 1,\n            \"credit\": \"https:\\/\\/www.google.com\",\n            \"date_end\": \"1970-01-01 07:00:00\",\n            \"date_start\": \"1970-01-01 07:00:00\",\n            \"detail\": \"Example detail\",\n            \"name\": \"Example title\",\n            \"time_edit\": \"1970-01-01 07:00:00\",\n            \"time_stamp\": \"1970-01-01 07:00:00\",\n            \"user_id\": \"1\",\n            \"id\": \"54ba191510f0edb7048b456a\",\n            \"thumb\": {\n                \"id\": \"54ba7c3590cc13ab048b4628png\",\n                \"width\": 100,\n                \"height\": 100,\n                \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7c3590cc13ab048b4628png\\/\"\n            }\n        },\n        { ... }\n    ],\n    \"paging\": {\n    \"page\": 1,\n    \"limit\": 15,\n    \"next\": \"http:\\/\\/eventsniff.dev\\/event?page=2\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
     "version": "0.0.0",
     "filename": "./private/src/Main/CTL/EventCTL.php",
     "groupTitle": "Event"
   },
   {
     "type": "post",
-    "url": "/event/gallery/:id",
-    "title": "POST /event/gallery/:id",
+    "url": "/event/gallery/:event_id",
+    "title": "POST /event/gallery/:event_id",
     "description": "<p>Save picture after first picture</p> ",
     "name": "PostAddEventGallery",
     "group": "Event",
@@ -43,6 +92,15 @@ define({ "api": [
           }
         ]
       }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"picture\": {\n        \"id\": \"54bf9d0b90cc13625e8b4577png\",\n        \"width\": 100,\n        \"height\": 100,\n        \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54bf9d0b90cc13625e8b4577png\\/\"\n    },\n    \"user_id\": \"1\",\n    \"event_id\": \"54b5e76510f0edc9068b4572\",\n    \"id\": \"54b5e76510f0edc9068b4572\",\n    \"status\": 200\n}",
+          "type": "json"
+        }
+      ]
     },
     "version": "0.0.0",
     "filename": "./private/src/Main/CTL/EventCTL.php",
@@ -74,6 +132,15 @@ define({ "api": [
           }
         ]
       }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"event_id\": \"54b5e76510f0edc9068b4572\",\n    \"user_id\": \"1\",\n    \"id\": \"54bf399610f0ed11048b456b\",\n    \"picture\": {\n        \"id\": \"54bf9ca890cc13aa048b4617png\",\n        \"width\": 100,\n        \"height\": 100,\n        \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54bf9ca890cc13aa048b4617png\\/\"\n    },\n    \"status\": 200\n}",
+          "type": "json"
+        }
+      ]
     },
     "version": "0.0.0",
     "filename": "./private/src/Main/CTL/EventCTL.php",
@@ -140,6 +207,15 @@ define({ "api": [
           }
         ]
       }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"name\": \"Example title\",\n    \"detail\": \"Example detail\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"build\": 1,\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"id\": \"54ba1bc910f0edb8048b456c\",\n    \"tags\": [\n        {\n            \"tag_id\": \"6f2da37e72bf9e100b40567c\",\n            \"id\": \"54bf3afc10f0ed11048b456d\"\n        },\n        {...},\n    ],\n    \"location\": {\n        \"name\": \"\",\n        \"position\": \"19.906496, 99.834254\",\n        \"event_id\": \"54ba1bc910f0edb8048b456c\",\n        \"id\": \"54bf3afc10f0ed11048b4570\"\n    },\n    \"status\": 200\n}",
+          "type": "json"
+        }
+      ]
     },
     "version": "0.0.0",
     "filename": "./private/src/Main/CTL/EventCTL.php",
@@ -244,6 +320,46 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\n     \"length\": 19,\n     \"data\": [\n         {\n             \"id\": \"6f2da37e72bf9e100b40567c\",\n             \"name\" \"Awards\",\n         },\n         {\n             \"id\": \"e9c5c932c205770da433d3de\",\n             \"name\" \"Conferences\",\n         },\n         ...\n     ]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/SniffCTL.php",
+    "groupTitle": "Sniff"
+  },
+  {
+    "type": "post",
+    "url": "/follow/:event_id/:user_id",
+    "title": "POST /follow/:event_id/:user_id",
+    "description": "<p>Follow an event</p> ",
+    "name": "SniffFollow",
+    "group": "Sniff",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n \"event_id\":\"54ba191510f0edb7048b456a\",\n \"user_id\":\"54ba29c210f0edb8048b457a\",\n \"id\":\"54be2e6610f0ed53058b456b\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/SniffCTL.php",
+    "groupTitle": "Sniff"
+  },
+  {
+    "type": "delete",
+    "url": "/follow/:event_id/:user_id",
+    "title": "DELETE /follow/:event_id/:user_id",
+    "description": "<p>Unfollow an event</p> ",
+    "name": "SniffUnfollow",
+    "group": "Sniff",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n \"event_id\":\"54ba191510f0edb7048b456a\",\n \"user_id\":\"54ba29c210f0edb8048b457a\",\n}",
           "type": "json"
         }
       ]

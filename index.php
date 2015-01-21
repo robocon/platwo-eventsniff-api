@@ -7,5 +7,6 @@
  */
 
 require_once 'bootstrap.php';
+include 'common.php';
 
 \Main\App::start();

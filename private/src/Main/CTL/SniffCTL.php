@@ -8,20 +8,85 @@
 
 namespace Main\CTL;
 
-use Main\Exception\Service\ServiceException;
-use Main\Service\SniffService;
+use Main\Exception\Service\ServiceException,
+    Main\Helper\MongoHelper,
+    Main\Service\SniffService;
 
 /**
  * @Restful
  * @uri /sniff
  */
 class SniffCTL extends BaseCTL {
+    
     /**
      * @GET
+     * @uri /follower/[a:event_id]
      */
     public function gets() {
         
-        return array('asdf' => 'asdfasf');
+        exit;
+    }
+        
+    /**
+     * @api {post} /follow/:event_id/:user_id POST /follow/:event_id/:user_id
+     * @apiDescription Follow an event
+     * @apiName SniffFollow
+     * @apiGroup Sniff
+     * @apiSuccessExample {json} Success-Response:
+     * {
+     *  "event_id":"54ba191510f0edb7048b456a",
+     *  "user_id":"54ba29c210f0edb8048b457a",
+     *  "id":"54be2e6610f0ed53058b456b"
+     * }
+     * 
+     * @POST
+     * @uri /follow/[a:event_id]/[a:user_id]
+     */
+    public function follow() {
+        
+        $params = [];
+        $params['event_id'] = $this->reqInfo->urlParam('event_id');
+        $params['user_id'] = $this->reqInfo->urlParam('user_id');
+        
+        try {
+            $item = SniffService::getInstance()->follow($params, $this->getCtx());
+            MongoHelper::standardIdEntity($item);
+            
+            return $item;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+        
+    }
+    
+    /**
+     * @api {delete} /follow/:event_id/:user_id DELETE /follow/:event_id/:user_id
+     * @apiDescription Unfollow an event
+     * @apiName SniffUnfollow
+     * @apiGroup Sniff
+     * @apiSuccessExample {json} Success-Response:
+     * {
+     *  "event_id":"54ba191510f0edb7048b456a",
+     *  "user_id":"54ba29c210f0edb8048b457a",
+     * }
+     * 
+     * @DELETE
+     * @uri /follow/[a:event_id]/[a:user_id]
+     */
+    public function unfollow() {
+        
+        $params = [];
+        $params['event_id'] = $this->reqInfo->urlParam('event_id');
+        $params['user_id'] = $this->reqInfo->urlParam('user_id');
+        
+        try {
+            $item = SniffService::getInstance()->unfollow($params, $this->getCtx());
+            MongoHelper::standardIdEntity($item);
+            
+            return $item;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
     }
     
     /**
@@ -56,4 +121,5 @@ class SniffCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
+
 }

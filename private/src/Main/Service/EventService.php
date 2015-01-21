@@ -30,6 +30,21 @@ class EventService extends BaseService {
         return $db->gallery;
     }
     
+    public function getSnifferCollection(){
+         $db = DB::getDB();
+        return $db->sniffer;
+    }
+    
+    public function getCommentCollection(){
+         $db = DB::getDB();
+        return $db->comment;
+    }
+    
+    public function getUsersCollection(){
+         $db = DB::getDB();
+        return $db->users;
+    }
+    
     public function gets($options = [], Context $ctx) {
         
         $default = array(
@@ -64,10 +79,10 @@ class EventService extends BaseService {
                 }
             }
             
-            $item['date_end'] = MongoHelper::timeToStr($item['date_end']);
-            $item['date_start'] = MongoHelper::timeToStr($item['date_start']);
-            $item['time_edit'] = MongoHelper::timeToStr($item['time_edit']);
-            $item['time_stamp'] = MongoHelper::timeToStr($item['time_stamp']);
+            $item['date_end'] = MongoHelper::intToTime($item['date_end']);
+            $item['date_start'] = MongoHelper::intToTime($item['date_start']);
+            $item['time_edit'] = MongoHelper::intToTime($item['time_edit']);
+            $item['time_stamp'] = MongoHelper::intToTime($item['time_stamp']);
             
             $data[] = $item;
         }
@@ -97,8 +112,80 @@ class EventService extends BaseService {
         
         $id = MongoHelper::mongoId($id);
         $item = $this->getCollection()->findOne(['_id' => $id]);
-        var_dump($item);
-        exit;
+        
+        $item['id'] = $item['_id']->{'$id'};
+        unset($item['_id']);
+        
+        $item['date_end'] = MongoHelper::timeToStr($item['date_end']);
+        $item['date_start'] = MongoHelper::timeToStr($item['date_start']);
+        $item['time_edit'] = MongoHelper::timeToStr($item['time_edit']);
+        $item['time_stamp'] = MongoHelper::timeToStr($item['time_stamp']);
+        
+        // Get latest 5 pictures
+        $gallery = $this->getGalleryCollection()
+            ->find(['event_id' => $item['id']])
+            ->sort(['_id' => -1])
+            ->limit(5);
+        $item['pictures'] = [];
+        
+        if ($gallery->count(true)) {
+            $pictures = [];
+            foreach ($gallery as $picture) {
+                $pictures[] = Image::load($picture['picture'])->toArrayResponse();
+            }
+            $item['pictures'] = $pictures;
+        }
+        
+        // Get latest 20 sniffer
+        $sniffers = $this->getSnifferCollection()
+            ->find(['event_id' => $item['id']])
+            ->sort(['_id' => -1])
+            ->limit(20);
+        $item['total_sniffer'] = $this->getSnifferCollection()->count();
+        $item['sniffer'] = [];
+        if ($sniffers->count(true)) {
+            $user_lists = [];
+            foreach($sniffers as $sniffer){
+                $sniffer['id'] = $sniffer['_id']->{'$id'};
+                unset($sniffer['_id']);
+                
+                // Get user detail
+                $user = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($sniffer['user_id'])));
+                $user_lists[] = [
+                    'id' => $user['_id']->{'$id'},
+                    'picture' => Image::load($user['picture'])->toArrayResponse()
+                ];
+            }
+            $item['sniffer'] = $user_lists;
+        }
+        
+        $comment_lists = $this->getCommentCollection()
+            ->find(['event_id' => $item['id']])
+            ->sort(['_id' => -1])
+            ->limit(3);
+        $item['total_comment'] = $this->getCommentCollection()->count();
+        $item['comments'] = [];
+        if ($comment_lists->count(true)) {
+            $comments = [];
+            
+            foreach($comment_lists as $comment){
+                $comment['id'] = $comment['_id']->{'$id'};
+                unset($comment['_id']);
+                
+                // Get user detail
+                $user = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($comment['user_id'])));
+                $comment['user'] = [
+                    'display_name' => $user['display_name'],
+                    'picture' => Image::load($user['picture'])->toArrayResponse()
+                ];
+                $comment['time_stamp'] = MongoHelper::timeToStr($comment['time_stamp']);
+                    
+                $comments[] = $comment;
+            }
+            $item['comments'] = $comments;
+        }
+        
+        return $item;
     }
     
     /**

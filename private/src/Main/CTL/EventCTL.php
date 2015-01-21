@@ -24,11 +24,47 @@ use Main\Exception\Service\ServiceException,
  */
 class EventCTL extends BaseCTL {
     
+
+    
     /**
      * @api {get} /event GET /event
      * @apiDescription Get all event
      * @apiName GetEvents
      * @apiGroup Event
+     * @apiSuccessExample {json} Success-Response:
+    {
+        "length": 1,
+        "total": 1,
+        "data": [
+            {
+                "alarm": 0,
+                "approve": 1,
+                "build": 1,
+                "credit": "https:\/\/www.google.com",
+                "date_end": "1970-01-01 07:00:00",
+                "date_start": "1970-01-01 07:00:00",
+                "detail": "Example detail",
+                "name": "Example title",
+                "time_edit": "1970-01-01 07:00:00",
+                "time_stamp": "1970-01-01 07:00:00",
+                "user_id": "1",
+                "id": "54ba191510f0edb7048b456a",
+                "thumb": {
+                    "id": "54ba7c3590cc13ab048b4628png",
+                    "width": 100,
+                    "height": 100,
+                    "url": "http:\/\/110.164.70.60\/get\/54ba7c3590cc13ab048b4628png\/"
+                }
+            },
+            { ... }
+        ],
+        "paging": {
+        "page": 1,
+        "limit": 15,
+        "next": "http:\/\/eventsniff.dev\/event?page=2"
+        }
+    }
+     * 
      * 
      * @GET
      */
@@ -42,17 +78,74 @@ class EventCTL extends BaseCTL {
     }
     
     /**
-     * @api {get} /event/[:event_id] GET /event/[:event_id]
+     * @api {get} /event/:event_id GET /event/:event_id
      * @apiDescription Get event from id [not complete yet]
      * @apiName GetEvent
      * @apiGroup Event
+     * @apiSuccessExample {json} Success-Response:
+    {
+        "alarm": 0,
+        "approve": 1,
+        "build": 1,
+        "credit": "https:\/\/www.google.com",
+        "date_end": "1970-01-01 07:00:00",
+        "date_start": "1970-01-01 07:00:00",
+        "detail": "Example detail",
+        "name": "Example title",
+        "time_edit": "1970-01-01 07:00:00",
+        "time_stamp": "1970-01-01 07:00:00",
+        "user_id": "1",
+        "id": "54ba191510f0edb7048b456a",
+        "pictures": [
+            {
+                "id": "54ba7c3590cc13ab048b4628png",
+                "width": 100,
+                "height": 100,
+                "url": "http:\/\/110.164.70.60\/get\/54ba7c3590cc13ab048b4628png\/"
+            },
+            {...}
+        ],
+        "total_sniffer": 2,
+        "sniffer": [
+        {
+            "id": "54ba29c210f0edb8048b457a",
+            "picture": {
+                "id": "54ba8cd690cc1350158b4619jpg",
+                "width": 180,
+                "height": 180,
+                "url": "http:\/\/110.164.70.60\/get\/54ba8cd690cc1350158b4619jpg\/"
+            }
+        }
+        ],
+        "total_comment": 2,
+        "comments": [
+            {
+                "detail": "hello world",
+                "user_id": "54ba29c210f0edb8048b457a",
+                "event_id": "54ba191510f0edb7048b456a",
+                "time_stamp": "2015-01-21 11:09:11",
+                "id": "54bf266710f0ed12048b456a",
+                "user": {
+                    "display_name": "Kritsanasak Kuntaros",
+                    "picture": {
+                        "id": "54ba8cd690cc1350158b4619jpg",
+                        "width": 180,
+                        "height": 180,
+                        "url": "http:\/\/110.164.70.60\/get\/54ba8cd690cc1350158b4619jpg\/"
+                    }
+                }
+            },
+            {...}
+        ]
+    }
      * 
      * @GET
      * @uri /[a:event_id] 
      */
     public function get() {
         try {
-            EventService::getInstance()->get($this->reqInfo->urlParam('event_id'), $this->getCtx());
+            $item = EventService::getInstance()->get($this->reqInfo->urlParam('event_id'), $this->getCtx());
+            return $item;
         } catch (ServiceException $e) {
             return $e->getResponse();
         }
@@ -79,10 +172,6 @@ class EventCTL extends BaseCTL {
 
             EventService::getInstance()->updateThumb($item['id'], $pictures['0'], $this->getCtx());
 
-            /**
-             * @TODO
-             * - Add into tag
-             */
             return $item;
 
         } catch(ServiceException $e) {
@@ -99,6 +188,19 @@ class EventCTL extends BaseCTL {
      * @apiGroup Event
      * @apiParam {String} picture Picture in base64_encode
      * @apiParam {String} user_id User id
+     * @apiSuccessExample {json} Success-Response:
+    {
+        "event_id": "54b5e76510f0edc9068b4572",
+        "user_id": "1",
+        "id": "54bf399610f0ed11048b456b",
+        "picture": {
+            "id": "54bf9ca890cc13aa048b4617png",
+            "width": 100,
+            "height": 100,
+            "url": "http:\/\/110.164.70.60\/get\/54bf9ca890cc13aa048b4617png\/"
+        },
+        "status": 200
+    }
      * 
      * @POST
      * @uri /gallery
@@ -119,6 +221,7 @@ class EventCTL extends BaseCTL {
             ];
             
             $res = [
+                'event_id' => $event['id'],
                 'user_id' => $event['user_id'],
                 'id' => $event['id'],
             ];
@@ -133,13 +236,26 @@ class EventCTL extends BaseCTL {
     }
     
     /**
-     * @api {post} /event/gallery/:id POST /event/gallery/:id
+     * @api {post} /event/gallery/:event_id POST /event/gallery/:event_id
      * @apiDescription Save picture after first picture
      * @apiName PostAddEventGallery
      * @apiGroup Event
      * @apiParam {String} id Event id
      * @apiParam {String} picture Picture in base64_encode
      * @apiParam {String} user_id User id
+     * @apiSuccessExample {json} Success-Response:
+    {
+        "picture": {
+            "id": "54bf9d0b90cc13625e8b4577png",
+            "width": 100,
+            "height": 100,
+            "url": "http:\/\/110.164.70.60\/get\/54bf9d0b90cc13625e8b4577png\/"
+        },
+        "user_id": "1",
+        "event_id": "54b5e76510f0edc9068b4572",
+        "id": "54b5e76510f0edc9068b4572",
+        "status": 200
+    }
      * 
      * @POST
      * @uri /gallery/[a:id]
@@ -156,6 +272,7 @@ class EventCTL extends BaseCTL {
             $res = [];
             $res['picture'] = GalleryService::getInstance()->add($data, $this->getCtx());
             $res['user_id'] = $data['user_id'];
+            $res['event_id'] = $data['event_id'];
             $res['id'] = $data['event_id'];
             $res['status'] = 200;
             return $res;
@@ -178,6 +295,31 @@ class EventCTL extends BaseCTL {
      * @apiParam {String} date_end Event datetime
      * @apiParam {String} credit Something where are you get this event from 
      * @apiParam {String} user_id User id
+     * @apiSuccessExample {json} Success-Response:
+{
+    "name": "Example title",
+    "detail": "Example detail",
+    "date_start": "1970-01-01 07:00:00",
+    "date_end": "1970-01-01 07:00:00",
+    "credit": "https:\/\/www.google.com",
+    "build": 1,
+    "time_edit": "1970-01-01 07:00:00",
+    "id": "54ba1bc910f0edb8048b456c",
+    "tags": [
+        {
+            "tag_id": "6f2da37e72bf9e100b40567c",
+            "id": "54bf3afc10f0ed11048b456d"
+        },
+        {...},
+    ],
+    "location": {
+        "name": "",
+        "position": "19.906496, 99.834254",
+        "event_id": "54ba1bc910f0edb8048b456c",
+        "id": "54bf3afc10f0ed11048b4570"
+    },
+    "status": 200
+}
      * 
      * @PUT
      * @uri /[a:id]
@@ -189,9 +331,9 @@ class EventCTL extends BaseCTL {
             // Update an event
             $res = EventService::getInstance()->edit($this->reqInfo->urlParam('id'), $this->reqInfo->params(), $this->getCtx());
             
-            $res['date_start'] = MongoHelper::timeToInt($res['date_start']);
-            $res['date_end'] = MongoHelper::timeToInt($res['date_start']);
-            $res['time_edit'] = MongoHelper::timeToInt($res['date_start']);
+            $res['date_start'] = MongoHelper::timeToStr($res['date_start']);
+            $res['date_end'] = MongoHelper::timeToStr($res['date_start']);
+            $res['time_edit'] = MongoHelper::timeToStr($res['date_start']);
             $res['id'] = $this->reqInfo->urlParam('id');
             
             $res['tags'] = TagService::getInstance()->add($this->reqInfo->urlParam('id'), $this->reqInfo->params(), $this->getCtx());

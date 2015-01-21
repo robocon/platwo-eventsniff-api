@@ -8,13 +8,13 @@
 
 namespace Main\Service;
 
-use Main\Context\Context;
-use Main\DB;
-use Main\Exception\Service\ServiceException;
-use Main\Helper\ArrayHelper;
-use Main\Helper\MongoHelper;
-use Main\Helper\ResponseHelper;
-use Valitron\Validator;
+use Main\Context\Context,
+    Main\DB,
+    Main\Exception\Service\ServiceException,
+    Main\Helper\ArrayHelper,
+    Main\Helper\MongoHelper,
+    Main\Helper\ResponseHelper,
+    Valitron\Validator;
 
 /**
  * Description of SniffService
@@ -26,6 +26,11 @@ class SniffService extends BaseService {
     public function getCollection(){
         $db = DB::getDB();
         return $db->tag;
+    }
+    
+    public function getSnifferCollection(){
+        $db = DB::getDB();
+        return $db->sniffer;
     }
     
     public function get($options = array(), Context $ctx) {
@@ -45,5 +50,59 @@ class SniffService extends BaseService {
             'data' => $data,
         ];
         return $res;
+    }
+    
+    
+    public function follow($params, Context $ctx) {
+        $v = new Validator($params);
+        $v->rule('required', ['event_id', 'user_id']);
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        // Filter to check user and event exist?
+        $search = $this->filter_follow($params);
+        
+        if ($search === null) {
+            $insert = ArrayHelper::filterKey(['event_id', 'user_id'], $params);
+            $this->getSnifferCollection()->insert($insert);
+            
+            return $insert;
+        }else{
+            return ResponseHelper::error("User already exist in this event");
+        }
+        
+    }
+    
+    public function unfollow($params, Context $ctx) {
+        $v = new Validator($params);
+        $v->rule('required', ['event_id', 'user_id']);
+
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        // Filter to check user and event exist?
+        $search = $this->filter_follow($params);
+        
+        if ($search !== null) {
+            $delete = ArrayHelper::filterKey(['event_id', 'user_id'], $params);
+            $this->getSnifferCollection()->remove($delete);
+        
+            return $delete;
+        }else{
+            return ResponseHelper::error("Can not find this user and event :(");
+        }
+        
+    }
+    
+    public function filter_follow($params){
+        // Filter to check user and event exist?
+        $search = $this->getSnifferCollection()->findOne([
+            'event_id' => $params['event_id'],
+            'user_id' => $params['user_id'],
+        ]);
+        
+        return $search;
     }
 }
