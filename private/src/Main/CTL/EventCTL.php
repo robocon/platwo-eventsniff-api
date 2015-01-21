@@ -240,7 +240,7 @@ class EventCTL extends BaseCTL {
      * @apiDescription Save picture after first picture
      * @apiName PostAddEventGallery
      * @apiGroup Event
-     * @apiParam {String} id Event id
+     * @apiParam {String} event_id Event id
      * @apiParam {String} picture Picture in base64_encode
      * @apiParam {String} user_id User id
      * @apiSuccessExample {json} Success-Response:
@@ -284,11 +284,11 @@ class EventCTL extends BaseCTL {
     /**
      * Update event data from eventdetail
      * 
-     * @api {put} /event/:id PUT /event/:id
+     * @api {put} /event/:event_id PUT /event/:event_id
      * @apiDescription Update event details
      * @apiName PutEvent
      * @apiGroup Event
-     * @apiParam {String} id Event id
+     * @apiParam {String} event_id Event id
      * @apiParam {String} name Event name
      * @apiParam {Text} detail Event description
      * @apiParam {String} date_start Event datetime E.g. 2014-01-15 11:00:00

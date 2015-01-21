@@ -100,7 +100,7 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "id",
+            "field": "event_id",
             "description": "<p>Event id</p> "
           },
           {
@@ -175,8 +175,8 @@ define({ "api": [
   },
   {
     "type": "put",
-    "url": "/event/:id",
-    "title": "PUT /event/:id",
+    "url": "/event/:event_id",
+    "title": "PUT /event/:event_id",
     "description": "<p>Update event details</p> ",
     "name": "PutEvent",
     "group": "Event",
@@ -187,7 +187,7 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "id",
+            "field": "event_id",
             "description": "<p>Event id</p> "
           },
           {
@@ -402,6 +402,26 @@ define({ "api": [
     "description": "<p>Follow an event</p> ",
     "name": "SniffFollow",
     "group": "Sniff",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "event_id",
+            "description": "<p>Event id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User id</p> "
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {

@@ -32,6 +32,8 @@ class SniffCTL extends BaseCTL {
      * @apiDescription Follow an event
      * @apiName SniffFollow
      * @apiGroup Sniff
+     * @apiParam {String} event_id Event id
+     * @apiParam {String} user_id User id
      * @apiSuccessExample {json} Success-Response:
      * {
      *  "event_id":"54ba191510f0edb7048b456a",
