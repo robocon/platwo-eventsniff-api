@@ -90,7 +90,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"data\": [\n        {\n            \"id\": \"54c0ad7410f0ed5e048b4567\",\n            \"name\": \"Promotion\"\n        },\n        {\n            \"id\": \"54c0ad7410f0ed5e048b4568\",\n            \"name\": \"Award\"\n        },\n        {\n            \"id\": \"54c0ad7410f0ed5e048b4569\",\n            \"name\": \"Conference\"\n        }\n    ]\n}",
+          "content": "{\n    \"data\": [\n        {\n            \"id\": \"54c0ad7410f0ed5e048b4567\",\n            \"name\": \"Promotion\"\n            \"thumb\": {\n                \"id\": \"54ba7edc90cc137f238b45ffpng\",\n                \"width\": 100,\n                \"height\": 100,\n                \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7edc90cc137f238b45ffpng\\/\"\n            }\n        },\n        {...},\n        \n    ]\n}",
           "type": "json"
         }
       ]

@@ -415,15 +415,15 @@ class EventCTL extends BaseCTL {
             {
                 "id": "54c0ad7410f0ed5e048b4567",
                 "name": "Promotion"
+                "thumb": {
+                    "id": "54ba7edc90cc137f238b45ffpng",
+                    "width": 100,
+                    "height": 100,
+                    "url": "http:\/\/110.164.70.60\/get\/54ba7edc90cc137f238b45ffpng\/"
+                }
             },
-            {
-                "id": "54c0ad7410f0ed5e048b4568",
-                "name": "Award"
-            },
-            {
-                "id": "54c0ad7410f0ed5e048b4569",
-                "name": "Conference"
-            }
+            {...},
+            
         ]
     }
      * 

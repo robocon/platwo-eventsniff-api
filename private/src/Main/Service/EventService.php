@@ -89,10 +89,10 @@ class EventService extends BaseService {
                 }
             }
             
-            $item['date_end'] = MongoHelper::intToTime($item['date_end']);
-            $item['date_start'] = MongoHelper::intToTime($item['date_start']);
-            $item['time_edit'] = MongoHelper::intToTime($item['time_edit']);
-            $item['time_stamp'] = MongoHelper::intToTime($item['time_stamp']);
+            $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
+            $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+            $item['time_edit'] = MongoHelper::dateToYmd($item['time_edit']);
+            $item['time_stamp'] = MongoHelper::dateToYmd($item['time_stamp']);
             
             $data[] = $item;
         }
@@ -358,10 +358,8 @@ class EventService extends BaseService {
                             'event_id' => $event['_id']->{'$id'}
                         ],['picture']);
                         
-                        
-                        $category['picture'] = Image::load($picture['picture'])->toArrayResponse();
+                        $category['thumb'] = Image::load($picture['picture'])->toArrayResponse();
                         $new_lists[] = $category;
-                        
                     }
                 }
             }
