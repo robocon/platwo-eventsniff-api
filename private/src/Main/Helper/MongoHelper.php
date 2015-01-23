@@ -92,4 +92,8 @@ class MongoHelper {
     public static function getTimeStamp() {
         return date('Y-m-d H:i:s');
     }
+    
+    public static function dateToYmd($item) {
+        return date('Y-m-d H:i:s', $item->sec);
+    }
 }

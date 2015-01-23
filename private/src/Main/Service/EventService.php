@@ -286,11 +286,11 @@ class EventService extends BaseService {
         
         $set['name'] = $params['name'];
         $set['detail'] = $params['detail'];
-        $set['date_start'] = new \MongoTimestamp(strtotime($params['date_start']));
-        $set['date_end'] = new \MongoTimestamp(strtotime($params['date_end']));
+        $set['date_start'] = new \MongoDate(strtotime($params['date_start']));
+        $set['date_end'] = new \MongoDate(strtotime($params['date_end']));
         $set['credit'] = $params['credit'];
         $set['build'] = 1;
-        $set['time_edit'] = new \MongoTimestamp();
+        $set['time_edit'] = new \MongoDate(time());
         
         $this->getCollection()->update(['_id'=> $id], ['$set'=> $set]);
         
@@ -330,14 +330,40 @@ class EventService extends BaseService {
     public function category_list($category_lists, Context $ctx) {
         
         $new_lists = [];
+        
+        $date = new \DateTime();
+        $set_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_time = new \MongoDate($set_time);
+
         foreach($category_lists as $category){
             
             $event_tags = $this->getEventTagCollection()->find(['tag_id' => $category['id']]);
             
             // Count an event from event_tag
             $event_tags_count = $event_tags->count(true);
+            
             if ($event_tags_count > 0) {
-                $new_lists[] = $category;
+                
+                foreach($event_tags as $tag){
+                    
+                    // Find an event_id and filter with date_start must less than current date
+                    $event = $this->getCollection()->findOne([
+                        '_id' => new \MongoId($tag['event_id']),
+                        'date_start' => ['$gt' => $current_time]
+                    ],['_id']);
+//                  
+                    if($event !== null){
+                        
+                        $picture = $this->getGalleryCollection()->findOne([
+                            'event_id' => $event['_id']->{'$id'}
+                        ],['picture']);
+                        
+                        
+                        $category['picture'] = Image::load($picture['picture'])->toArrayResponse();
+                        $new_lists[] = $category;
+                        
+                    }
+                }
             }
         }
         return $new_lists;

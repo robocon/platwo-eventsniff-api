@@ -335,9 +335,9 @@ class EventCTL extends BaseCTL {
             // Update an event
             $res = EventService::getInstance()->edit($this->reqInfo->urlParam('id'), $this->reqInfo->params(), $this->getCtx());
             
-            $res['date_start'] = MongoHelper::timeToStr($res['date_start']);
-            $res['date_end'] = MongoHelper::timeToStr($res['date_start']);
-            $res['time_edit'] = MongoHelper::timeToStr($res['date_start']);
+            $res['date_start'] = MongoHelper::dateToYmd($res['date_start']);
+            $res['date_end'] = MongoHelper::dateToYmd($res['date_end']);
+            $res['time_edit'] = MongoHelper::dateToYmd($res['time_edit']);
             $res['id'] = $this->reqInfo->urlParam('id');
             
             // Check an event already tag or not
