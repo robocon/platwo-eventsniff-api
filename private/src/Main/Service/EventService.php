@@ -366,4 +366,30 @@ class EventService extends BaseService {
         }
         return $new_lists;
     }
+    
+    public function now(Context $ctx) {
+        
+        $date = new \DateTime();
+        $set_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_time = new \MongoDate($set_time);
+        
+        $items = $this->getCollection()->find([
+            'date_start' => ['$gt' => $current_time]
+        ],['name'])
+        ->sort(['date_start' => 1])
+        ->limit(10);
+        
+        $lists = [];
+        foreach($items as $item){
+            
+            $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['_id']->{'$id'}],['picture']);
+            $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
+            $item['id'] = $item['_id']->{'$id'};
+            unset($item['_id']);
+            
+            $lists[] = $item;
+        }
+        
+        return $lists;
+    }
 }

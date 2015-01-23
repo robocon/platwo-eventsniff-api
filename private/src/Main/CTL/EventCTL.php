@@ -461,4 +461,40 @@ class EventCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
+    
+    /**
+     * @api {get} /event/today_event GET /event/today_event
+     * @apiDescription Show an event from the future
+     * @apiName GetEventToday
+     * @apiGroup Event
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data": [
+        {
+            "name": "Title example",
+            "thumb": {
+                "id": "54ba7edc90cc137f238b45ffpng",
+                "width": 100,
+                "height": 100,
+                "url": "http:\/\/110.164.70.60\/get\/54ba7edc90cc137f238b45ffpng\/"
+            },
+            "id": "54ba1bc910f0edb8048b456c"
+        },
+        {...}
+    ]
+}
+     * 
+     * @GET
+     * @uri /today_event
+     */
+    public function today_event() {
+        try {
+            
+            $res['data'] = EventService::getInstance()->now($this->getCtx());
+            return $res;
+            
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }
