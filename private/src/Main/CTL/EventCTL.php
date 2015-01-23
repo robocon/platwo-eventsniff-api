@@ -10,10 +10,13 @@ namespace Main\CTL;
 
 use Main\Exception\Service\ServiceException,
     Main\Helper\MongoHelper,
+    Main\Helper\ResponseHelper,
+    Valitron\Validator,
     Main\Service\EventService,
     Main\Service\GalleryService,
     Main\Service\TagService,
-    Main\Service\LocationService;
+    Main\Service\LocationService,
+    Main\Service\SniffService;
 
 /**
  * Class EventCTL
@@ -295,6 +298,9 @@ class EventCTL extends BaseCTL {
      * @apiParam {String} date_end Event datetime
      * @apiParam {String} credit Something where are you get this event from 
      * @apiParam {String} user_id User id
+     * @apiParam {String} location Lat Lng from google map
+     * @apiParam {String} location_name Location name
+     * @apiParam {String} lang Language like en, th. Default is en
      * @apiSuccessExample {json} Success-Response:
 {
     "name": "Example title",
@@ -308,15 +314,13 @@ class EventCTL extends BaseCTL {
     "tags": [
         {
             "tag_id": "6f2da37e72bf9e100b40567c",
-            "id": "54bf3afc10f0ed11048b456d"
+            "name": "Promotion"
         },
         {...},
     ],
     "location": {
-        "name": "",
+        "name": "CNX",
         "position": "19.906496, 99.834254",
-        "event_id": "54ba1bc910f0edb8048b456c",
-        "id": "54bf3afc10f0ed11048b4570"
     },
     "status": 200
 }
@@ -336,11 +340,28 @@ class EventCTL extends BaseCTL {
             $res['time_edit'] = MongoHelper::timeToStr($res['date_start']);
             $res['id'] = $this->reqInfo->urlParam('id');
             
-            $res['tags'] = TagService::getInstance()->add($this->reqInfo->urlParam('id'), $this->reqInfo->params(), $this->getCtx());
-
-            $location = LocationService::getInstance()->add($this->reqInfo->urlParam('id'), $this->reqInfo->params(), $this->getCtx());
-            MongoHelper::standardIdEntity($location);
-            $res['location'] = $location;
+            // Check an event already tag or not
+            $check_tags = TagService::getInstance()->check($res['id'], $this->getCtx());
+            if ($check_tags > 0) {
+                
+                // Edit tags
+                $res['tags'] = TagService::getInstance()->edit($res['id'], $this->reqInfo->params(), $this->getCtx());
+            }else{
+                
+                // Add tags
+                $res['tags'] = TagService::getInstance()->add($this->reqInfo->urlParam('id'), $this->reqInfo->params(), $this->getCtx());
+            }
+            
+            // Check a location already tag or not
+            $check_location = LocationService::getInstance()->check($res['id'], $this->getCtx());
+            if ($check_location > 0) {
+                $res['location'] = LocationService::getInstance()->edit($res['id'], $this->reqInfo->params(), $this->getCtx());
+            }else{
+                $location = LocationService::getInstance()->add($this->reqInfo->urlParam('id'), $this->reqInfo->params(), $this->getCtx());
+                MongoHelper::standardIdEntity($location);
+                $res['location'] = $location;
+            }
+            
             $res['status'] = 200;
             return $res;
             
@@ -377,6 +398,65 @@ class EventCTL extends BaseCTL {
             
             $update = EventService::getInstance()->alarm($params, $this->getCtx());
             return $update;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
+    
+    /**
+     * @api {get} /event/category_lists/:lang GET /event/category_lists/:lang
+     * @apiDescription List an event that is not empty
+     * @apiName GetEventCategory
+     * @apiGroup Event
+     * @apiParam {String} lang Language like en, th. Default is en
+     * @apiSuccessExample {json} Success-Response:
+    {
+        "data": [
+            {
+                "id": "54c0ad7410f0ed5e048b4567",
+                "name": "Promotion"
+            },
+            {
+                "id": "54c0ad7410f0ed5e048b4568",
+                "name": "Award"
+            },
+            {
+                "id": "54c0ad7410f0ed5e048b4569",
+                "name": "Conference"
+            }
+        ]
+    }
+     * 
+     * @GET
+     * @uri /category_lists/[a:lang]
+     */
+    public function category() {
+        try {
+            
+            $params = [
+                'lang' => $this->reqInfo->urlParam('lang'),
+            ];
+            
+            $v = new Validator($params);
+            $v->rules([
+                    'required' => [ ['lang'] ],
+                    'length' => [['lang', 2]]
+                ]);
+            if(!$v->validate()){
+                throw new ServiceException(ResponseHelper::validateError($v->errors()));
+            }
+            
+            // Get categories
+            $category_lists = SniffService::getInstance()->gets($params['lang'], [], $this->getCtx());
+            
+            // Filter categories
+            $category = EventService::getInstance()->category_list($category_lists['data'], $this->getCtx());
+            
+            $res = [
+                'data' => $category,
+            ];
+            
+            return $res;
         } catch (ServiceException $e) {
             return $e->getResponse();
         }

@@ -33,15 +33,19 @@ class SniffService extends BaseService {
         return $db->sniffer;
     }
     
-    public function get($options = array(), Context $ctx) {
-        $items = $this->getCollection()->find();
+    public function gets($lang, $options = array(), Context $ctx) {
+        
+        // default lang is en
+        $lang = empty($lang) ? 'en' : $lang;
+        
+        $items = $this->getCollection()->find([], [$lang]);
         $length = $items->count(true);
         
         $data = [];
         foreach($items as $item){
             $data[] = [
                 'id' => $item['_id']->{'$id'}, 
-                'name' => $item['name']
+                'name' => $item[$lang]
             ];
         }
         

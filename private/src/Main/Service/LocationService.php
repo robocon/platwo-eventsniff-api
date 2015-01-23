@@ -26,6 +26,11 @@ class LocationService extends BaseService {
         return $db->location;
     }
     
+    public function check($event_id, Context $ctx) {
+        $item = $this->getCollection()->find(['event_id' => $event_id]);
+        return $item->count(true);
+    }
+    
     public function add($event_id, $params, Context $ctx) {
         
         $params['event_id'] = $event_id;
@@ -36,9 +41,39 @@ class LocationService extends BaseService {
         if(!$v->validate()){
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
-        $insert = ['name' => '', 'position' => $params['location'], 'event_id' => $event_id];
+        
+        if (empty($params['location_name'])) {
+            $params['location_name'] = '';
+        }
+        
+        $insert = ['name' => $params['location_name'], 'position' => $params['location'], 'event_id' => $event_id];
         $this->getCollection()->insert($insert);
         
-        return $insert;
+        $res = ['name' => $params['location_name'], 'position' => $params['location']];
+        return $res;
+    }
+    
+    public function edit($event_id, $params, Context $ctx) {
+        
+        $params['event_id'] = $event_id;
+        
+        $v = new Validator($params);
+        $v->rule('required', ['event_id', 'location']);
+
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        if (empty($params['location_name'])) {
+            $params['location_name'] = '';
+        }
+        
+        $set = ['position' => $params['location'], 'location_name' => $params['location_name']];
+        
+        // update
+        $this->getCollection()->update(['event_id'=> $event_id], ['$set'=> $set]);
+        
+        $res = ['name' => $params['location_name'], 'position' => $params['location']];
+        return $res;
     }
 }

@@ -68,6 +68,39 @@
   },
   {
     "type": "get",
+    "url": "/event/category_lists/:lang",
+    "title": "GET /event/category_lists/:lang",
+    "description": "<p>List an event that is not empty</p> ",
+    "name": "GetEventCategory",
+    "group": "Event",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "lang",
+            "description": "<p>Language like en, th. Default is en</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"data\": [\n        {\n            \"id\": \"54c0ad7410f0ed5e048b4567\",\n            \"name\": \"Promotion\"\n        },\n        {\n            \"id\": \"54c0ad7410f0ed5e048b4568\",\n            \"name\": \"Award\"\n        },\n        {\n            \"id\": \"54c0ad7410f0ed5e048b4569\",\n            \"name\": \"Conference\"\n        }\n    ]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/EventCTL.php",
+    "groupTitle": "Event"
+  },
+  {
+    "type": "get",
     "url": "/event",
     "title": "GET /event",
     "description": "<p>Get all event</p> ",
@@ -231,6 +264,27 @@
             "optional": false,
             "field": "user_id",
             "description": "<p>User id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "location",
+            "description": "<p>Lat Lng from google map</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "location_name",
+            "description": "<p>Location name</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "lang",
+            "description": "<p>Language like en, th. Default is en</p> "
           }
         ]
       }
@@ -239,7 +293,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"name\": \"Example title\",\n    \"detail\": \"Example detail\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"build\": 1,\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"id\": \"54ba1bc910f0edb8048b456c\",\n    \"tags\": [\n        {\n            \"tag_id\": \"6f2da37e72bf9e100b40567c\",\n            \"id\": \"54bf3afc10f0ed11048b456d\"\n        },\n        {...},\n    ],\n    \"location\": {\n        \"name\": \"\",\n        \"position\": \"19.906496, 99.834254\",\n        \"event_id\": \"54ba1bc910f0edb8048b456c\",\n        \"id\": \"54bf3afc10f0ed11048b4570\"\n    },\n    \"status\": 200\n}",
+          "content": "{\n    \"name\": \"Example title\",\n    \"detail\": \"Example detail\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"build\": 1,\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"id\": \"54ba1bc910f0edb8048b456c\",\n    \"tags\": [\n        {\n            \"tag_id\": \"6f2da37e72bf9e100b40567c\",\n            \"name\": \"Promotion\"\n        },\n        {...},\n    ],\n    \"location\": {\n        \"name\": \"CNX\",\n        \"position\": \"19.906496, 99.834254\",\n    },\n    \"status\": 200\n}",
           "type": "json"
         }
       ]
@@ -377,16 +431,29 @@
   },
   {
     "type": "get",
-    "url": "/sniff/category",
-    "title": "GET /sniff/category",
+    "url": "/sniff/category/:lang",
+    "title": "GET /sniff/category/:lang",
     "description": "<p>Get all category</p> ",
     "name": "SniffCategory",
     "group": "Sniff",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "lang",
+            "description": "<p>Language like en, th. Default is en</p> "
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n     \"length\": 19,\n     \"data\": [\n         {\n             \"id\": \"6f2da37e72bf9e100b40567c\",\n             \"name\" \"Awards\",\n         },\n         {\n             \"id\": \"e9c5c932c205770da433d3de\",\n             \"name\" \"Conferences\",\n         },\n         ...\n     ]\n}",
+          "content": "{\n     \"length\": 20,\n     \"data\": [\n         {\n             \"id\": \"6f2da37e72bf9e100b40567c\",\n             \"name\" \"Awards\",\n         },\n         {\n             \"id\": \"e9c5c932c205770da433d3de\",\n             \"name\" \"Conferences\",\n         },\n         ...\n     ]\n}",
           "type": "json"
         }
       ]

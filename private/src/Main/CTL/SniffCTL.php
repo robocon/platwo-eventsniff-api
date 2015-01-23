@@ -92,13 +92,14 @@ class SniffCTL extends BaseCTL {
     }
     
     /**
-     * @api {get} /sniff/category GET /sniff/category
+     * @api {get} /sniff/category/:lang GET /sniff/category/:lang
      * @apiDescription Get all category
      * @apiName SniffCategory
      * @apiGroup Sniff
+     * @apiParam {String} lang Language like en, th. Default is en
      * @apiSuccessExample {json} Success-Response:
      * {
-     *      "length": 19,
+     *      "length": 20,
      *      "data": [
      *          {
      *              "id": "6f2da37e72bf9e100b40567c",
@@ -113,11 +114,11 @@ class SniffCTL extends BaseCTL {
      * }
      * 
      * @GET
-     * @uri /category
+     * @uri /category/[a:lang]
      */
     public function category() {
         try {
-            $categories = SniffService::getInstance()->get(array(), $this->getCtx());
+            $categories = SniffService::getInstance()->gets($this->reqInfo->urlParam('lang'), array(), $this->getCtx());
             return $categories;
         } catch (ServiceException $e) {
             return $e->getResponse();

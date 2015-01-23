@@ -15,13 +15,30 @@ use Main\DB,
     Facebook\FacebookSession,
     Facebook\FacebookRequest,
     Facebook\GraphUser,
-    Main\Helper\FacebookHelper;
+    Main\Helper\FacebookHelper,
+    Main\Service\UserService;
 
 /**
  * @Restful
  * @uri /test
  */
 class TestCTL extends BaseCTL {
+    
+        
+    public function getCollection(){
+        $db = DB::getDB();
+        return $db->cities;
+    }
+    
+    public function countryCollection(){
+        $db = DB::getDB();
+        return $db->countries;
+    }
+    
+    public function getTagCollection(){
+        $db = DB::getDB();
+        return $db->tag;
+    }
     
     /**
      * @GET
@@ -201,17 +218,6 @@ exit;
         }
         return $res;
     }
-    
-    public function getCollection(){
-        $db = DB::getDB();
-        return $db->cities;
-    }
-    
-    public function countryCollection(){
-        $db = DB::getDB();
-        return $db->countries;
-    }
-
 
     /**
      * @GET
@@ -237,5 +243,34 @@ exit;
         }
         
         exit;
+    }
+    
+    /**
+     * @GET
+     * @uri /import_category
+     */
+    public function importCategory(){
+        
+        try {
+            $params = [
+                'access_token' => $_SERVER['HTTP_P2AUTH_TOKEN'],
+            ];
+            $user = UserService::getInstance()->me($params, $this->getCtx());
+            if ($user !== null) {
+                $str = file_get_contents('./private/json/category.json');
+                $items = json_decode($str, true);
+                foreach($items['category'] as $category){
+                    $this->getTagCollection()->insert(array(
+                        'en' => $category['en'],
+                        'th' => $category['th']
+                    ));
+                }
+            }
+            
+            return ['status'=>'200'];
+            
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
     }
 }

@@ -45,6 +45,16 @@ class EventService extends BaseService {
         return $db->users;
     }
     
+    public function getTagCollection(){
+         $db = DB::getDB();
+        return $db->tag;
+    }
+    
+    public function getEventTagCollection(){
+         $db = DB::getDB();
+        return $db->event_tag;
+    }
+    
     public function gets($options = [], Context $ctx) {
         
         $default = array(
@@ -315,6 +325,21 @@ class EventService extends BaseService {
             ]);
         
         return $params;
+    }
+    
+    public function category_list($category_lists, Context $ctx) {
         
+        $new_lists = [];
+        foreach($category_lists as $category){
+            
+            $event_tags = $this->getEventTagCollection()->find(['tag_id' => $category['id']]);
+            
+            // Count an event from event_tag
+            $event_tags_count = $event_tags->count(true);
+            if ($event_tags_count > 0) {
+                $new_lists[] = $category;
+            }
+        }
+        return $new_lists;
     }
 }
