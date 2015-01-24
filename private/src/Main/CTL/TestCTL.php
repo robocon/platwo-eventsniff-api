@@ -218,32 +218,6 @@ exit;
         }
         return $res;
     }
-
-    /**
-     * @GET
-     * @uri /import
-     */
-    public function import() {
-        
-//        $country = $this->countryCollection()->insert(array('name' => 'thailand'));
-//        var_dump($country);
-//        exit;
-        
-        $str = file_get_contents('./thai.json');
-        $items = json_decode($str, true);
-        
-        foreach($items as $key => $item){
-            
-//            var_dump($item);
-            $this->getCollection()->insert(array(
-                'country_id' => '54b8dfa810f0edcf048b4567',
-                'name' => $item['name']
-            ));
-            
-        }
-        
-        exit;
-    }
     
     /**
      * @GET
@@ -271,6 +245,41 @@ exit;
             
         } catch (ServiceException $e) {
             return $e->getResponse();
+        }
+    }
+    
+    
+    /**
+     * @GET
+     * @uri /country
+     */
+    public function importCountry() {
+        try {
+            $params = [
+                'access_token' => $_SERVER['HTTP_P2AUTH_TOKEN'],
+            ];
+            
+            $user = UserService::getInstance()->me($params, $this->getCtx());
+            if ($user !== null) {
+                $str = file_get_contents('./private/json/states.json');
+                $items = json_decode($str, true);;
+                foreach($items['Countries'] as $country){
+                    
+                    $data = ['name' => $country['n']];
+                    $this->countryCollection()->insert($data);
+                    
+                    foreach ($country['s'] as $state) {
+                        $sta = [
+                            'country_id' => $data['_id']->{'$id'},
+                            'name' => $state['n'],
+                        ];
+                        $this->getCollection()->insert($sta);
+                    }
+                }
+            }
+            return ['status'=>'200'];
+        } catch (\Exception $e) {
+            return $e->getMessage();
         }
     }
 }

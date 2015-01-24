@@ -58,7 +58,7 @@ class MongoHelper {
     }
 
     public static function mongoId($id){
-        if(!($id instanceof \MongoId)){
+        if(!$id instanceof \MongoId){
             $id = new \MongoId($id);
         }
         return $id;
@@ -87,10 +87,6 @@ class MongoHelper {
             $int = new \MongoTimestamp($int);
         }
         return $int;
-    }
-    
-    public static function getTimeStamp() {
-        return date('Y-m-d H:i:s');
     }
     
     public static function dateToYmd($item) {
