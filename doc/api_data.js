@@ -130,7 +130,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"length\": 1,\n    \"total\": 1,\n    \"data\": [\n        {\n            \"alarm\": 0,\n            \"approve\": 1,\n            \"build\": 1,\n            \"credit\": \"https:\\/\\/www.google.com\",\n            \"date_end\": \"1970-01-01 07:00:00\",\n            \"date_start\": \"1970-01-01 07:00:00\",\n            \"detail\": \"Example detail\",\n            \"name\": \"Example title\",\n            \"time_edit\": \"1970-01-01 07:00:00\",\n            \"time_stamp\": \"1970-01-01 07:00:00\",\n            \"user_id\": \"1\",\n            \"id\": \"54ba191510f0edb7048b456a\",\n            \"thumb\": {\n                \"id\": \"54ba7c3590cc13ab048b4628png\",\n                \"width\": 100,\n                \"height\": 100,\n                \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7c3590cc13ab048b4628png\\/\"\n            }\n        },\n        { ... }\n    ],\n    \"paging\": {\n    \"page\": 1,\n    \"limit\": 15,\n    \"next\": \"http:\\/\\/eventsniff.dev\\/event?page=2\"\n    }\n}",
+          "content": "{\n    \"length\": 1,\n    \"total\": 1,\n    \"data\": [\n        {\n            \"alarm\": 0,\n            \"approve\": 1,\n            \"build\": 1,\n            \"credit\": \"https:\\/\\/www.google.com\",\n            \"date_end\": \"1970-01-01 07:00:00\",\n            \"date_start\": \"1970-01-01 07:00:00\",\n            \"detail\": \"Example detail\",\n            \"name\": \"Example title\",\n            \"time_edit\": \"1970-01-01 07:00:00\",\n            \"time_stamp\": \"1970-01-01 07:00:00\",\n            \"user_id\": \"1\",\n            \"id\": \"54ba191510f0edb7048b456a\",\n            \"thumb\": {\n                \"id\": \"54ba7c3590cc13ab048b4628png\",\n                \"width\": 100,\n                \"height\": 100,\n                \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7c3590cc13ab048b4628png\\/\"\n            }\n        },\n        { ... }\n    ],\n    \"paging\": {\n        \"page\": 1,\n        \"limit\": 15,\n        \"next\": \"http:\\/\\/eventsniff.dev\\/event?page=2\"\n    }\n}",
           "type": "json"
         }
       ]
@@ -301,6 +301,13 @@ define({ "api": [
           },
           {
             "group": "Parameter",
+            "type": "Array",
+            "optional": false,
+            "field": "tags",
+            "description": "<p>Category id E.g. [&#39;uj65tg&#39;, &#39;o8akuj&#39;, &#39;we8qw5&#39;]</p> "
+          },
+          {
+            "group": "Parameter",
             "type": "String",
             "optional": false,
             "field": "lang",
@@ -313,7 +320,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"name\": \"Example title\",\n    \"detail\": \"Example detail\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"build\": 1,\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"id\": \"54ba1bc910f0edb8048b456c\",\n    \"tags\": [\n        {\n            \"tag_id\": \"6f2da37e72bf9e100b40567c\",\n            \"name\": \"Promotion\"\n        },\n        {...},\n    ],\n    \"location\": {\n        \"name\": \"CNX\",\n        \"position\": \"19.906496, 99.834254\",\n    },\n    \"status\": 200\n}",
+          "content": "{\n    \"name\": \"Example title\",\n    \"detail\": \"Example detail\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"id\": \"54ba1bc910f0edb8048b456c\",\n    \"tags\": [\n        {\n            \"tag_id\": \"6f2da37e72bf9e100b40567c\",\n            \"name\": \"Promotion\"\n        },\n        {...},\n    ],\n    \"location\": {\n        \"name\": \"CNX\",\n        \"position\": \"19.906496, 99.834254\",\n    },\n    \"status\": 200\n}",
           "type": "json"
         }
       ]
@@ -484,8 +491,8 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/follow/:event_id/:user_id",
-    "title": "POST /follow/:event_id/:user_id",
+    "url": "/sniff/follow/:event_id/:user_id",
+    "title": "POST /sniff/follow/:event_id/:user_id",
     "description": "<p>Follow an event</p> ",
     "name": "SniffFollow",
     "group": "Sniff",
@@ -524,8 +531,8 @@ define({ "api": [
   },
   {
     "type": "delete",
-    "url": "/follow/:event_id/:user_id",
-    "title": "DELETE /follow/:event_id/:user_id",
+    "url": "/sniff/follow/:event_id/:user_id",
+    "title": "DELETE /sniff/follow/:event_id/:user_id",
     "description": "<p>Unfollow an event</p> ",
     "name": "SniffUnfollow",
     "group": "Sniff",

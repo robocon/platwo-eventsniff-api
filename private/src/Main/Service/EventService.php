@@ -24,79 +24,79 @@ class EventService extends BaseService {
         $db = DB::getDB();
         return $db->event;
     }
-    
+
     public function getGalleryCollection(){
          $db = DB::getDB();
         return $db->gallery;
     }
-    
+
     public function getSnifferCollection(){
          $db = DB::getDB();
         return $db->sniffer;
     }
-    
+
     public function getCommentCollection(){
          $db = DB::getDB();
         return $db->comment;
     }
-    
+
     public function getUsersCollection(){
          $db = DB::getDB();
         return $db->users;
     }
-    
+
     public function getTagCollection(){
          $db = DB::getDB();
         return $db->tag;
     }
-    
+
     public function getEventTagCollection(){
          $db = DB::getDB();
         return $db->event_tag;
     }
-    
+
     public function gets($options = [], Context $ctx) {
-        
+
         $default = array(
             "page"=> 1,
             "limit"=> 15
         );
         $options = array_merge($default, $options);
         $skip = ($options['page']-1) * $options['limit'];
-        
+
         $items = $this->getCollection()
                 ->find(['build' => 1, 'approve' => 1])
                 ->limit($options['limit'])
                 ->skip($skip);
         $length = $items->count(true);
         $total = $this->getCollection()->count(['build' => 1, 'approve' => 1]);
-        
+
         $data = [];
         foreach ($items as $item) {
-            
+
             $item['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
-            
+
             // Get last Picture
             $picture = $this->getGalleryCollection()
                     ->find(['event_id' => $item['id']])
                     ->sort(['_id' => -1]) // Look like DESC in MySQL
                     ->limit(1);
-            
+
             if ($picture->count(true)) {
                 foreach($picture as $pic){
                     $item['thumb'] = Image::load($pic['picture'])->toArrayResponse();
                 }
             }
-            
+
             $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
             $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
             $item['time_edit'] = MongoHelper::dateToYmd($item['time_edit']);
             $item['time_stamp'] = MongoHelper::dateToYmd($item['time_stamp']);
-            
+
             $data[] = $item;
         }
-        
+
         $res = [
             'length' => $length,
             'total' => $total,
@@ -106,38 +106,38 @@ class EventService extends BaseService {
                 'limit'=> (int)$options['limit']
             ]
         ];
-        
+
         if ($length > 0 && $length <= $total ) {
             $res['paging']['next'] = URL::absolute('/event'.'?'.  http_build_query(['page' => (int)$options['page']+1]));
-        
+
             if ($options['page'] > 1) {
                 $res['pagging']['prev'] = URL::absolute('/event'.'?'.  http_build_query(['page' => (int)$options['page']]));
             }
         }
-        
+
         return $res;
     }
-    
+
     public function get($id, Context $ctx) {
-        
+
         $id = MongoHelper::mongoId($id);
         $item = $this->getCollection()->findOne(['_id' => $id]);
-        
+
         $item['id'] = $item['_id']->{'$id'};
         unset($item['_id']);
-        
-        $item['date_end'] = MongoHelper::timeToStr($item['date_end']);
-        $item['date_start'] = MongoHelper::timeToStr($item['date_start']);
-        $item['time_edit'] = MongoHelper::timeToStr($item['time_edit']);
-        $item['time_stamp'] = MongoHelper::timeToStr($item['time_stamp']);
-        
+
+        $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
+        $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+        $item['time_edit'] = MongoHelper::dateToYmd($item['time_edit']);
+        $item['time_stamp'] = MongoHelper::dateToYmd($item['time_stamp']);
+
         // Get latest 5 pictures
         $gallery = $this->getGalleryCollection()
             ->find(['event_id' => $item['id']])
             ->sort(['_id' => -1])
             ->limit(5);
         $item['pictures'] = [];
-        
+
         if ($gallery->count(true)) {
             $pictures = [];
             foreach ($gallery as $picture) {
@@ -145,20 +145,20 @@ class EventService extends BaseService {
             }
             $item['pictures'] = $pictures;
         }
-        
+
         // Get latest 20 sniffer
         $sniffers = $this->getSnifferCollection()
             ->find(['event_id' => $item['id']])
             ->sort(['_id' => -1])
             ->limit(20);
-        $item['total_sniffer'] = $this->getSnifferCollection()->count();
+        $item['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['id']])->count();
         $item['sniffer'] = [];
         if ($sniffers->count(true)) {
             $user_lists = [];
             foreach($sniffers as $sniffer){
                 $sniffer['id'] = $sniffer['_id']->{'$id'};
                 unset($sniffer['_id']);
-                
+
                 // Get user detail
                 $user = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($sniffer['user_id'])));
                 $user_lists[] = [
@@ -168,20 +168,21 @@ class EventService extends BaseService {
             }
             $item['sniffer'] = $user_lists;
         }
-        
+
+        // get latest 3 comment
         $comment_lists = $this->getCommentCollection()
             ->find(['event_id' => $item['id']])
             ->sort(['_id' => -1])
             ->limit(3);
-        $item['total_comment'] = $this->getCommentCollection()->count();
+        $item['total_comment'] = $this->getCommentCollection()->find(['event_id' => $item['id']])->count();
         $item['comments'] = [];
         if ($comment_lists->count(true)) {
             $comments = [];
-            
+
             foreach($comment_lists as $comment){
                 $comment['id'] = $comment['_id']->{'$id'};
                 unset($comment['_id']);
-                
+
                 // Get user detail
                 $user = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($comment['user_id'])));
                 $comment['user'] = [
@@ -189,18 +190,18 @@ class EventService extends BaseService {
                     'picture' => Image::load($user['picture'])->toArrayResponse()
                 ];
                 $comment['time_stamp'] = MongoHelper::timeToStr($comment['time_stamp']);
-                    
+
                 $comments[] = $comment;
             }
             $item['comments'] = $comments;
         }
-        
+
         return $item;
     }
-    
+
     /**
      * Add from website
-     * 
+     *
      * @param type $params
      * @param Context $ctx
      * @return type
@@ -243,62 +244,61 @@ class EventService extends BaseService {
 
         $this->getCollection()->update(['_id'=> $id], ['$set'=> $set]);
     }
-    
+
     /**
      * Add event from mobile
-     * 
+     *
      * @param array $params
      * @param Context $ctx
      * @return type
      * @throws ServiceException
      */
     public function mobile_add($params, Context $ctx) {
-        
+
         $v = new Validator($params);
         $v->rule('required', ['user_id']);
 
         if(!$v->validate()){
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
-        
+
         // Set build and approve to 0 if send from mobile
         $params['build'] = 0;
         $params['approve'] = 0;
         $params['time_stamp'] = new \MongoTimestamp();
         $params['alarm'] = 0;
         $insert = ArrayHelper::filterKey(['user_id', 'build', 'approve', 'time_stamp', 'alarm'], $params);
-        
+
         $this->getCollection()->insert($insert);
         return $insert;
     }
-    
+
     public function edit($id, $params, Context $ctx) {
-        
+
         // Set this ID First
         $id = MongoHelper::mongoId($id);
-        
+
         $v = new Validator($params);
         $v->rule('required', ['name', 'detail', 'date_start', 'date_end', 'credit']);
 
         if(!$v->validate()){
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
-        
+
         $set['name'] = $params['name'];
         $set['detail'] = $params['detail'];
         $set['date_start'] = new \MongoDate(strtotime($params['date_start']));
         $set['date_end'] = new \MongoDate(strtotime($params['date_end']));
         $set['credit'] = $params['credit'];
-        $set['build'] = 1;
         $set['time_edit'] = new \MongoDate(time());
-        
+
         $this->getCollection()->update(['_id'=> $id], ['$set'=> $set]);
-        
+
         return $set;
     }
-    
+
     public function alarm($params, Context $ctx) {
-        
+
         $v = new Validator($params);
         $v->rules([
                 'required' => [ ['event_id'], ['active'] ],
@@ -308,56 +308,56 @@ class EventService extends BaseService {
         if(!$v->validate()){
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
-        
+
         // Set this ID First
         $event_id = MongoHelper::mongoId($params['event_id']);
-        
+
         $find_event = $this->getCollection()->findOne(['_id' => $event_id]);
         if ($find_event === null) {
             return ResponseHelper::error("Can not find this event :(");
         }
-        
+
         $this->getCollection()->update(
-            ['_id' => $event_id], 
+            ['_id' => $event_id],
             ['$set'=> [
                 'alarm' => $params['active']
                 ]
             ]);
-        
+
         return $params;
     }
-    
+
     public function category_list($category_lists, Context $ctx) {
-        
+
         $new_lists = [];
-        
+
         $date = new \DateTime();
         $set_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_time = new \MongoDate($set_time);
 
         foreach($category_lists as $category){
-            
+
             $event_tags = $this->getEventTagCollection()->find(['tag_id' => $category['id']]);
-            
+
             // Count an event from event_tag
             $event_tags_count = $event_tags->count(true);
-            
+
             if ($event_tags_count > 0) {
-                
+
                 foreach($event_tags as $tag){
-                    
+
                     // Find an event_id and filter with date_start must less than current date
                     $event = $this->getCollection()->findOne([
                         '_id' => new \MongoId($tag['event_id']),
                         'date_start' => ['$gt' => $current_time]
                     ],['_id']);
-//                  
+//
                     if($event !== null){
-                        
+
                         $picture = $this->getGalleryCollection()->findOne([
                             'event_id' => $event['_id']->{'$id'}
                         ],['picture']);
-                        
+
                         $category['thumb'] = Image::load($picture['picture'])->toArrayResponse();
                         $new_lists[] = $category;
                     }
@@ -366,30 +366,30 @@ class EventService extends BaseService {
         }
         return $new_lists;
     }
-    
+
     public function now(Context $ctx) {
-        
+
         $date = new \DateTime();
         $set_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_time = new \MongoDate($set_time);
-        
+
         $items = $this->getCollection()->find([
             'date_start' => ['$gt' => $current_time]
         ],['name'])
         ->sort(['date_start' => 1])
         ->limit(10);
-        
+
         $lists = [];
         foreach($items as $item){
-            
+
             $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['_id']->{'$id'}],['picture']);
             $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
             $item['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
-            
+
             $lists[] = $item;
         }
-        
+
         return $lists;
     }
 }

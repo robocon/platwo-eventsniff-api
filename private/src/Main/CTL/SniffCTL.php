@@ -28,7 +28,7 @@ class SniffCTL extends BaseCTL {
     }
         
     /**
-     * @api {post} /follow/:event_id/:user_id POST /follow/:event_id/:user_id
+     * @api {post} /sniff/follow/:event_id/:user_id POST /sniff/follow/:event_id/:user_id
      * @apiDescription Follow an event
      * @apiName SniffFollow
      * @apiGroup Sniff
@@ -62,7 +62,7 @@ class SniffCTL extends BaseCTL {
     }
     
     /**
-     * @api {delete} /follow/:event_id/:user_id DELETE /follow/:event_id/:user_id
+     * @api {delete} /sniff/follow/:event_id/:user_id DELETE /sniff/follow/:event_id/:user_id
      * @apiDescription Unfollow an event
      * @apiName SniffUnfollow
      * @apiGroup Sniff

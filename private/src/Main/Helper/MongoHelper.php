@@ -82,13 +82,19 @@ class MongoHelper {
         $item['updated_at'] = $now;
     }
 
+    /**
+     * Convert php time() to MongoTimestamp
+     */
     public static function intToTime($int){
         if(!($int instanceof \MongoTimestamp)){
             $int = new \MongoTimestamp($int);
         }
         return $int;
     }
-    
+
+    /**
+     * Mongo->sec to php date('Y-m-d H:i:s')
+     */
     public static function dateToYmd($item) {
         return date('Y-m-d H:i:s', $item->sec);
     }

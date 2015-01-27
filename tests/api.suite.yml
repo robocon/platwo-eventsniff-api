@@ -1,6 +1,6 @@
 class_name: ApiTester
 modules:
-    enabled: [PhpBrowser, REST, ApiHelper, Facebook]
+    enabled: [PhpBrowser, ApiHelper, REST, Facebook]
     config:
         PhpBrowser:
             url: http://eventsniff.dev/

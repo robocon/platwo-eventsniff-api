@@ -20,15 +20,13 @@ use Main\Exception\Service\ServiceException,
 
 /**
  * Class EventCTL
- * 
+ *
  * @package Main\CTL
  * @Restful
  * @uri /event
  */
 class EventCTL extends BaseCTL {
-    
 
-    
     /**
      * @api {get} /event GET /event
      * @apiDescription Get all event
@@ -62,13 +60,12 @@ class EventCTL extends BaseCTL {
             { ... }
         ],
         "paging": {
-        "page": 1,
-        "limit": 15,
-        "next": "http:\/\/eventsniff.dev\/event?page=2"
+            "page": 1,
+            "limit": 15,
+            "next": "http:\/\/eventsniff.dev\/event?page=2"
         }
     }
-     * 
-     * 
+     *
      * @GET
      */
     public function gets() {
@@ -79,7 +76,7 @@ class EventCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
-    
+
     /**
      * @api {get} /event/:event_id GET /event/:event_id
      * @apiDescription Get event from id [not complete yet]
@@ -141,9 +138,9 @@ class EventCTL extends BaseCTL {
             {...}
         ]
     }
-     * 
+     *
      * @GET
-     * @uri /[a:event_id] 
+     * @uri /[a:event_id]
      */
     public function get() {
         try {
@@ -162,7 +159,7 @@ class EventCTL extends BaseCTL {
 
             $item = EventService::getInstance()->add($this->reqInfo->params(), $this->getCtx());
             MongoHelper::standardIdEntity($item);
-            
+
             // Store image into gallery
             $data = [
                 'pictures' => [
@@ -204,40 +201,40 @@ class EventCTL extends BaseCTL {
         },
         "status": 200
     }
-     * 
+     *
      * @POST
      * @uri /gallery
      */
     public function event_gallery(){
-        
+
         try {
-            
+
             // Add into event with only user_id for the first time
             $event = EventService::getInstance()->mobile_add($this->reqInfo->params(), $this->getCtx());
             MongoHelper::standardIdEntity($event);
-        
+
             // Store image into gallery
             $data = [
                 'picture' => $this->reqInfo->param('picture'),
                 'user_id' => $event['user_id'],
                 'event_id' => $event['id'],
             ];
-            
+
             $res = [
                 'event_id' => $event['id'],
                 'user_id' => $event['user_id'],
                 'id' => $event['id'],
             ];
-            
+
             $res['picture'] = GalleryService::getInstance()->add($data, $this->getCtx());
             $res['status'] = 200;
             return $res;
-            
+
         } catch (ServiceException $e) {
             return $e->getResponse();
         }
     }
-    
+
     /**
      * @api {post} /event/gallery/:event_id POST /event/gallery/:event_id
      * @apiDescription Save picture after first picture
@@ -259,19 +256,19 @@ class EventCTL extends BaseCTL {
         "id": "54b5e76510f0edc9068b4572",
         "status": 200
     }
-     * 
+     *
      * @POST
      * @uri /gallery/[a:id]
      */
     public function add_event_gallery() {
         try {
-            
+
             $data = [
                 'picture' => $this->reqInfo->param('picture'),
                 'user_id' => $this->reqInfo->param('user_id'),
                 'event_id' => $this->reqInfo->urlParam('id')
             ];
-            
+
             $res = [];
             $res['picture'] = GalleryService::getInstance()->add($data, $this->getCtx());
             $res['user_id'] = $data['user_id'];
@@ -283,10 +280,10 @@ class EventCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
-    
+
     /**
      * Update event data from eventdetail
-     * 
+     *
      * @api {put} /event/:event_id PUT /event/:event_id
      * @apiDescription Update event details
      * @apiName PutEvent
@@ -296,10 +293,11 @@ class EventCTL extends BaseCTL {
      * @apiParam {Text} detail Event description
      * @apiParam {String} date_start Event datetime E.g. 2014-01-15 11:00:00
      * @apiParam {String} date_end Event datetime
-     * @apiParam {String} credit Something where are you get this event from 
+     * @apiParam {String} credit Something where are you get this event from
      * @apiParam {String} user_id User id
      * @apiParam {String} location Lat Lng from google map
      * @apiParam {String} location_name Location name
+     * @apiParam {Array} tags Category id E.g. ['uj65tg', 'o8akuj', 'we8qw5']
      * @apiParam {String} lang Language like en, th. Default is en
      * @apiSuccessExample {json} Success-Response:
 {
@@ -308,7 +306,6 @@ class EventCTL extends BaseCTL {
     "date_start": "1970-01-01 07:00:00",
     "date_end": "1970-01-01 07:00:00",
     "credit": "https:\/\/www.google.com",
-    "build": 1,
     "time_edit": "1970-01-01 07:00:00",
     "id": "54ba1bc910f0edb8048b456c",
     "tags": [
@@ -324,34 +321,37 @@ class EventCTL extends BaseCTL {
     },
     "status": 200
 }
-     * 
+     *
      * @PUT
      * @uri /[a:id]
      */
     public function edit() {
-        
+
         try {
-            
+
             // Update an event
             $res = EventService::getInstance()->edit($this->reqInfo->urlParam('id'), $this->reqInfo->params(), $this->getCtx());
-            
+
             $res['date_start'] = MongoHelper::dateToYmd($res['date_start']);
             $res['date_end'] = MongoHelper::dateToYmd($res['date_end']);
             $res['time_edit'] = MongoHelper::dateToYmd($res['time_edit']);
             $res['id'] = $this->reqInfo->urlParam('id');
-            
+
             // Check an event already tag or not
             $check_tags = TagService::getInstance()->check($res['id'], $this->getCtx());
+
+            var_dump($this->reqInfo->param('tags'));
+            exit;
             if ($check_tags > 0) {
-                
+
                 // Edit tags
                 $res['tags'] = TagService::getInstance()->edit($res['id'], $this->reqInfo->params(), $this->getCtx());
             }else{
-                
+
                 // Add tags
                 $res['tags'] = TagService::getInstance()->add($this->reqInfo->urlParam('id'), $this->reqInfo->params(), $this->getCtx());
             }
-            
+
             // Check a location already tag or not
             $check_location = LocationService::getInstance()->check($res['id'], $this->getCtx());
             if ($check_location > 0) {
@@ -361,19 +361,19 @@ class EventCTL extends BaseCTL {
                 MongoHelper::standardIdEntity($location);
                 $res['location'] = $location;
             }
-            
+
             $res['status'] = 200;
             return $res;
-            
+
         } catch (ServiceException $e) {
             return $e->getResponse();
         }
     }
-    
+
     /**
-     * 
+     *
      * @return type
-     * 
+     *
      * @api {put} /event/alarm/:event_id/:active PUT /event/alarm/:event_id/:active
      * @apiDescription Update alarm an event
      * @apiName PutEventAlarm
@@ -385,7 +385,7 @@ class EventCTL extends BaseCTL {
             "event_id": "54ba191510f0edb7048b456a",
             "active": 1
         }
-     * 
+     *
      * @PUT
      * @uri /alarm/[a:event_id]/[i:active]
      */
@@ -395,14 +395,14 @@ class EventCTL extends BaseCTL {
                 'event_id' => $this->reqInfo->urlParam('event_id'),
                 'active' => (int)$this->reqInfo->urlParam('active'),
             ];
-            
+
             $update = EventService::getInstance()->alarm($params, $this->getCtx());
             return $update;
         } catch (ServiceException $e) {
             return $e->getResponse();
         }
     }
-    
+
     /**
      * @api {get} /event/category_lists/:lang GET /event/category_lists/:lang
      * @apiDescription List an event that is not empty
@@ -423,20 +423,20 @@ class EventCTL extends BaseCTL {
                 }
             },
             {...},
-            
+
         ]
     }
-     * 
+     *
      * @GET
      * @uri /category_lists/[a:lang]
      */
     public function category() {
         try {
-            
+
             $params = [
                 'lang' => $this->reqInfo->urlParam('lang'),
             ];
-            
+
             $v = new Validator($params);
             $v->rules([
                     'required' => [ ['lang'] ],
@@ -445,23 +445,23 @@ class EventCTL extends BaseCTL {
             if(!$v->validate()){
                 throw new ServiceException(ResponseHelper::validateError($v->errors()));
             }
-            
+
             // Get categories
             $category_lists = SniffService::getInstance()->gets($params['lang'], [], $this->getCtx());
-            
+
             // Filter categories
             $category = EventService::getInstance()->category_list($category_lists['data'], $this->getCtx());
-            
+
             $res = [
                 'data' => $category,
             ];
-            
+
             return $res;
         } catch (ServiceException $e) {
             return $e->getResponse();
         }
     }
-    
+
     /**
      * @api {get} /event/today_event GET /event/today_event
      * @apiDescription Show an event from the future
@@ -483,16 +483,16 @@ class EventCTL extends BaseCTL {
         {...}
     ]
 }
-     * 
+     *
      * @GET
      * @uri /today_event
      */
     public function today_event() {
         try {
-            
+
             $res['data'] = EventService::getInstance()->now($this->getCtx());
             return $res;
-            
+
         } catch (ServiceException $e) {
             return $e->getResponse();
         }
