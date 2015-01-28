@@ -140,7 +140,7 @@ class EventCTL extends BaseCTL {
     }
      *
      * @GET
-     * @uri /[a:event_id]
+     * @uri /[h:event_id]
      */
     public function get() {
         try {
@@ -258,7 +258,7 @@ class EventCTL extends BaseCTL {
     }
      *
      * @POST
-     * @uri /gallery/[a:id]
+     * @uri /gallery/[h:id]
      */
     public function add_event_gallery() {
         try {
@@ -323,7 +323,7 @@ class EventCTL extends BaseCTL {
 }
      *
      * @PUT
-     * @uri /[a:id]
+     * @uri /[h:id]
      */
     public function edit() {
 
@@ -385,7 +385,7 @@ class EventCTL extends BaseCTL {
         }
      *
      * @PUT
-     * @uri /alarm/[a:event_id]/[i:active]
+     * @uri /alarm/[h:event_id]/[i:active]
      */
     public function alarm() {
         try {
@@ -488,7 +488,7 @@ class EventCTL extends BaseCTL {
 }
      *
      * @GET
-     * @uri /today_event/[a:lang]
+     * @uri /today/[a:lang]
      */
     public function today_event() {
         try {
@@ -510,6 +510,43 @@ class EventCTL extends BaseCTL {
             $res['length'] = count($res['data']);
             return $res;
 
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
+    
+    /**
+     * @api {get} /event/upcoming GET /event/upcoming
+     * @apiDescription Show an upcoming event 
+     * @apiName GetEventUpcoming
+     * @apiGroup Event
+     * @apiSuccessExample {json} Success-Response:
+{
+  "data": [
+    {
+        "date_start": "2015-02-04 17:13:01",
+        "detail": "test add detail 1422439981",
+        "name": "test add name 1422439981",
+        "id": "54c8b62d10f0ed1e048b4584",
+        "thumb": {
+            "id": "54c9193a90cc13ac048b4638png",
+            "width": 25,
+            "height": 25,
+            "url": "http://110.164.70.60/get/54c9193a90cc13ac048b4638png/"
+        }
+    }
+  ],
+  "length": 1
+}
+     * 
+     * @GET
+     * @uri /upcoming
+     */
+    public function upcoming() {
+        try {
+            $items = EventService::getInstance()->upcoming($this->getCtx());
+            
+            return ['data' => $items, 'length' => count($items)];
         } catch (ServiceException $e) {
             return $e->getResponse();
         }

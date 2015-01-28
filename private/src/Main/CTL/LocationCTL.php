@@ -71,7 +71,7 @@ class LocationCTL extends BaseCTL {
      * }
      * 
      * @GET
-     * @uri /cities/[a:country_id]
+     * @uri /cities/[h:country_id]
      */
     public function cities() {
         try {

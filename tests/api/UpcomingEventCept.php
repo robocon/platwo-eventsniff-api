@@ -1,7 +1,7 @@
-<?php
+<?php 
 $I = new ApiTester($scenario);
-$I->wantTo('Show today event');
-$I->sendGET('event/today_event/en');
+$I->wantTo('Show upcoming event');
+$I->sendGET('event/upcoming');
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
 $data = $I->grabDataFromJsonResponse('data');

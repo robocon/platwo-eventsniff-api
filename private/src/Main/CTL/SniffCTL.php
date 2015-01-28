@@ -20,7 +20,7 @@ class SniffCTL extends BaseCTL {
     
     /**
      * @GET
-     * @uri /follower/[a:event_id]
+     * @uri /follower/[h:event_id]
      */
     public function gets() {
         
@@ -42,7 +42,7 @@ class SniffCTL extends BaseCTL {
      * }
      * 
      * @POST
-     * @uri /follow/[a:event_id]/[a:user_id]
+     * @uri /follow/[h:event_id]/[h:user_id]
      */
     public function follow() {
         
@@ -73,7 +73,7 @@ class SniffCTL extends BaseCTL {
      * }
      * 
      * @DELETE
-     * @uri /follow/[a:event_id]/[a:user_id]
+     * @uri /follow/[h:event_id]/[h:user_id]
      */
     public function unfollow() {
         

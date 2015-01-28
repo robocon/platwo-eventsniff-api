@@ -53,7 +53,7 @@ class CommentCTL extends BaseCTL {
      * }
      * 
      * @POST
-     * @uri /[a:event_id]
+     * @uri /[h:event_id]
      */
     public function save() {
         try {
@@ -78,7 +78,7 @@ class CommentCTL extends BaseCTL {
      * @return type
      * 
      * @GET
-     * @uri /[a:event_id]
+     * @uri /[h:event_id]
      */
     public function gets() {
         try {

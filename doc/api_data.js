@@ -134,6 +134,26 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/event/upcoming",
+    "title": "GET /event/upcoming",
+    "description": "<p>Show an upcoming event</p> ",
+    "name": "GetEventUpcoming",
+    "group": "Event",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n  \"data\": [\n    {\n        \"date_start\": \"2015-02-04 17:13:01\",\n        \"detail\": \"test add detail 1422439981\",\n        \"name\": \"test add name 1422439981\",\n        \"id\": \"54c8b62d10f0ed1e048b4584\",\n        \"thumb\": {\n            \"id\": \"54c9193a90cc13ac048b4638png\",\n            \"width\": 25,\n            \"height\": 25,\n            \"url\": \"http://110.164.70.60/get/54c9193a90cc13ac048b4638png/\"\n        }\n    }\n  ],\n  \"length\": 1\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/EventCTL.php",
+    "groupTitle": "Event"
+  },
+  {
+    "type": "get",
     "url": "/event",
     "title": "GET /event",
     "description": "<p>Get all event</p> ",

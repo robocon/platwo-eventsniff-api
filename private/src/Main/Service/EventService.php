@@ -20,36 +20,57 @@ use Main\Context\Context,
 
 class EventService extends BaseService {
 
+    /**
+     * Collection event
+     */
     public function getCollection(){
         $db = DB::getDB();
         return $db->event;
     }
 
+    /**
+     * Collection gallery
+     */
     public function getGalleryCollection(){
          $db = DB::getDB();
         return $db->gallery;
     }
 
+    /**
+     * Collection sniffer
+     */
     public function getSnifferCollection(){
          $db = DB::getDB();
         return $db->sniffer;
     }
 
+    /**
+     * Collection comment
+     */
     public function getCommentCollection(){
          $db = DB::getDB();
         return $db->comment;
     }
 
+    /**
+     * Collection users
+     */
     public function getUsersCollection(){
          $db = DB::getDB();
         return $db->users;
     }
 
+    /**
+     * Collection tag
+     */
     public function getTagCollection(){
          $db = DB::getDB();
         return $db->tag;
     }
 
+    /**
+     * Collection event_tag
+     */
     public function getEventTagCollection(){
          $db = DB::getDB();
         return $db->event_tag;
@@ -465,10 +486,36 @@ class EventService extends BaseService {
         if ($total_event <= 10) {
             return $item_lists;
         }else {
-            /**
-             * @todo group an event
-             */
             return $new_lists;
         }
+    }
+    
+    public function upcoming(Context $ctx) {
+        
+        $date = new \DateTime();
+        $set_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_time = new \MongoDate($set_time);
+        
+        $items = $this->getCollection()->find([
+            'approve' => 1,
+            'build' => 1,
+            'date_start' => ['$gte' => $current_time],
+            'date_end' => ['$gte' => $current_time]
+        ],['name','detail','date_start'])->sort(['date_start' => 1])->limit(20);
+        
+        $res = [];
+        foreach ($items as $item) {
+            
+            $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+
+            $item['id'] = $item['_id']->{'$id'};
+            unset($item['_id']);
+            
+            $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
+            $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
+            
+            $res[] = $item;
+        }
+        return $res;
     }
 }
