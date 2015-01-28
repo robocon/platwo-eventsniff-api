@@ -60,7 +60,7 @@ $put = [
     'location' => '18.826562,98.892365',
     'location_name' => 'test location '.$test_time,
     'tags' => [
-        '54c0ad7410f0ed5e048b4567', '54c0ad7410f0ed5e048b457a', '54c0ad7410f0ed5e048b4576'
+        '54c0ad7410f0ed5e048b4572', '54c0ad7410f0ed5e048b4573', '54c0ad7410f0ed5e048b4574'
     ],
     'lang' => 'en'
 ];

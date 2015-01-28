@@ -340,8 +340,6 @@ class EventCTL extends BaseCTL {
             // Check an event already tag or not
             $check_tags = TagService::getInstance()->check($res['id'], $this->getCtx());
 
-            var_dump($this->reqInfo->param('tags'));
-            exit;
             if ($check_tags > 0) {
 
                 // Edit tags
@@ -463,10 +461,11 @@ class EventCTL extends BaseCTL {
     }
 
     /**
-     * @api {get} /event/today_event GET /event/today_event
+     * @api {get} /event/today_event/:lang GET /event/today_event/:lang
      * @apiDescription Show an event from the future
      * @apiName GetEventToday
      * @apiGroup Event
+     * @apiParam {String} lang Language like en, th. Default is en
      * @apiSuccessExample {json} Success-Response:
 {
     "data": [
@@ -478,19 +477,37 @@ class EventCTL extends BaseCTL {
                 "height": 100,
                 "url": "http:\/\/110.164.70.60\/get\/54ba7edc90cc137f238b45ffpng\/"
             },
-            "id": "54ba1bc910f0edb8048b456c"
+            "id": "54ba1bc910f0edb8048b456c",
+            "category": "54c0ad7410f0ed5e048b4567",
+            "date_start": "2015-01-24 10:15:00",
+            "type": "item"
         },
         {...}
-    ]
+    ],
+    "length": 2
 }
      *
      * @GET
-     * @uri /today_event
+     * @uri /today_event/[a:lang]
      */
     public function today_event() {
         try {
+            
+            $params = [
+                'lang' => $this->reqInfo->urlParam('lang'),
+            ];
 
-            $res['data'] = EventService::getInstance()->now($this->getCtx());
+            $v = new Validator($params);
+            $v->rules([
+                    'required' => [ ['lang'] ],
+                    'length' => [['lang', 2]]
+                ]);
+            if(!$v->validate()){
+                throw new ServiceException(ResponseHelper::validateError($v->errors()));
+            }
+            
+            $res['data'] = EventService::getInstance()->now($params['lang'], $this->getCtx());
+            $res['length'] = count($res['data']);
             return $res;
 
         } catch (ServiceException $e) {

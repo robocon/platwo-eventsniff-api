@@ -90,7 +90,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"data\": [\n        {\n            \"id\": \"54c0ad7410f0ed5e048b4567\",\n            \"name\": \"Promotion\"\n            \"thumb\": {\n                \"id\": \"54ba7edc90cc137f238b45ffpng\",\n                \"width\": 100,\n                \"height\": 100,\n                \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7edc90cc137f238b45ffpng\\/\"\n            }\n        },\n        {...},\n        \n    ]\n}",
+          "content": "{\n    \"data\": [\n        {\n            \"id\": \"54c0ad7410f0ed5e048b4567\",\n            \"name\": \"Promotion\"\n            \"thumb\": {\n                \"id\": \"54ba7edc90cc137f238b45ffpng\",\n                \"width\": 100,\n                \"height\": 100,\n                \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7edc90cc137f238b45ffpng\\/\"\n            }\n        },\n        {...},\n\n    ]\n}",
           "type": "json"
         }
       ]
@@ -101,16 +101,29 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/event/today_event",
-    "title": "GET /event/today_event",
+    "url": "/event/today_event/:lang",
+    "title": "GET /event/today_event/:lang",
     "description": "<p>Show an event from the future</p> ",
     "name": "GetEventToday",
     "group": "Event",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "lang",
+            "description": "<p>Language like en, th. Default is en</p> "
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"data\": [\n        {\n            \"name\": \"Title example\",\n            \"thumb\": {\n                \"id\": \"54ba7edc90cc137f238b45ffpng\",\n                \"width\": 100,\n                \"height\": 100,\n                \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7edc90cc137f238b45ffpng\\/\"\n            },\n            \"id\": \"54ba1bc910f0edb8048b456c\"\n        },\n        {...}\n    ]\n}",
+          "content": "{\n    \"data\": [\n        {\n            \"name\": \"Title example\",\n            \"thumb\": {\n                \"id\": \"54ba7edc90cc137f238b45ffpng\",\n                \"width\": 100,\n                \"height\": 100,\n                \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7edc90cc137f238b45ffpng\\/\"\n            },\n            \"id\": \"54ba1bc910f0edb8048b456c\",\n            \"category\": \"54c0ad7410f0ed5e048b4567\",\n            \"date_start\": \"2015-01-24 10:15:00\",\n            \"type\": \"item\"\n        },\n        {...}\n    ],\n    \"length\": 2\n}",
           "type": "json"
         }
       ]

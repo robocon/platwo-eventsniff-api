@@ -291,9 +291,10 @@ class EventService extends BaseService {
         $set['date_end'] = new \MongoDate(strtotime($params['date_end']));
         $set['credit'] = $params['credit'];
         $set['time_edit'] = new \MongoDate(time());
+        $set['build'] = 1;
 
         $this->getCollection()->update(['_id'=> $id], ['$set'=> $set]);
-
+        unset($set['build']);
         return $set;
     }
 
@@ -351,7 +352,7 @@ class EventService extends BaseService {
                         '_id' => new \MongoId($tag['event_id']),
                         'date_start' => ['$gt' => $current_time]
                     ],['_id']);
-//
+
                     if($event !== null){
 
                         $picture = $this->getGalleryCollection()->findOne([
@@ -364,32 +365,110 @@ class EventService extends BaseService {
                 }
             }
         }
+
+
         return $new_lists;
     }
 
-    public function now(Context $ctx) {
+    public function now($lang, Context $ctx) {
 
         $date = new \DateTime();
-        $set_time = strtotime($date->format('Y-m-d H:i:s'));
+        $set_time = strtotime($date->format('Y-m-d').' 00:00:00');
         $current_time = new \MongoDate($set_time);
+        
+        $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
+        $end_of_day = new \MongoDate($end_time);
+        
+        $item_lists = [];
+        $total_event = 0;
 
-        $items = $this->getCollection()->find([
-            'date_start' => ['$gt' => $current_time]
-        ],['name'])
-        ->sort(['date_start' => 1])
+        // Filter by date_start only
+        $first_items = $this->getCollection()->find([
+                'approve' => 1,
+                'build' => 1,
+                'date_start' => ['$gte' => $current_time, '$lte' => $end_of_day]
+            ],['name','date_start'])
+            ->sort(['date_start' => 1])
+            ->limit(10);
+
+        if ($first_items->count(true)) {
+            foreach ($first_items as $item) {
+                $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+                $item['type'] = 'item';
+                $item['id'] = $item['_id']->{'$id'};
+                unset($item['_id']);
+
+                $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
+                $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
+
+                $category = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
+                $item['category'] = $category['tag_id'];
+
+                $item_lists[] = $item;
+                $total_event++;
+            }
+        }
+        
+        // Filter by date_start until date_end
+        $second_items = $this->getCollection()->find([
+            'approve' => 1,
+            'build' => 1,
+            'date_start' => ['$lte' => $current_time],
+            'date_end' => ['$gte' => $current_time]
+        ], ['name','date_start'])
+        ->sort(['date_start' => -1])
         ->limit(10);
 
-        $lists = [];
-        foreach($items as $item){
+        if ($second_items->count(true)) {
+            foreach ($second_items as $item) {
+                $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+                $item['type'] = 'item';
+                $item['id'] = $item['_id']->{'$id'};
+                unset($item['_id']);
 
-            $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['_id']->{'$id'}],['picture']);
-            $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
-            $item['id'] = $item['_id']->{'$id'};
-            unset($item['_id']);
+                $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
+                $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
 
-            $lists[] = $item;
+                $category = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
+                $item['category'] = $category['tag_id'];
+
+                $item_lists[] = $item;
+                $total_event++;
+            }
         }
 
-        return $lists;
+        $new_lists = [];
+        for ($i=0; $i < $total_event; $i++) {
+            $event = $item_lists[$i];
+
+            $prev = empty($item_lists[$i-1]) ? false : $item_lists[$i-1];
+            $next = empty($item_lists[$i+1]) ? false : $item_lists[$i+1];
+
+            if ( ($prev === false OR $prev['category'] != $event['category']) && $event['category'] != $next['category']){
+                $new_lists[] = $event;
+
+            }elseif (($prev === false OR $prev['category'] != $event['category']) && $event['category'] == $next['category']) {
+                
+                $thumb = $this->getTagCollection()->findOne(['_id' => new \MongoId($event['category'])],[$lang]);
+                
+                $event['type'] = 'category';
+                $new_lists[] = $event;
+
+            }elseif ($event['category'] == $prev['category'] && ($event['category'] != $next['category'] OR $next === false) ) {
+                unset($item_lists[$i]);
+                
+            }else{
+                $new_lists[] = $event;
+            }
+        }
+
+        if ($total_event <= 10) {
+            return $item_lists;
+        }else {
+            /**
+             * @todo group an event
+             */
+            return $new_lists;
+        }
     }
 }
