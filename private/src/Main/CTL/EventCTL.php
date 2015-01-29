@@ -421,7 +421,6 @@ class EventCTL extends BaseCTL {
                 }
             },
             {...},
-
         ]
     }
      *
@@ -547,6 +546,20 @@ class EventCTL extends BaseCTL {
             $items = EventService::getInstance()->upcoming($this->getCtx());
             
             return ['data' => $items, 'length' => count($items)];
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
+    
+    /**
+     * 
+     * @GET
+     * @uri /category_set/[h:category_id]
+     */
+    public function category_set() {
+        try {
+                    
+            EventService::getInstance()->category_set($this->reqInfo->urlParam('category_id'), $this->getCtx());
         } catch (ServiceException $e) {
             return $e->getResponse();
         }
