@@ -597,4 +597,46 @@ class EventCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
+    
+    /**
+     * @api {get} /event/category/upcoming/:category_id GET /event/category/upcoming/:category_id
+     * @apiDescription Get event list when click from /event/category_lists/:lang
+     * @apiName GetEventCategoryUpcoming
+     * @apiGroup Event
+     * @apiParam {String} category_id Category Id
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data": [
+    {
+        "date_end": "2015-02-11 17:13:01",
+        "date_start": "2015-02-04 17:13:01",
+        "name": "test add name 1422439981",
+        "id": "54c8b62d10f0ed1e048b4584",
+        "thumb": {
+            "id": "54c9193a90cc13ac048b4638png",
+            "width": 25,
+            "height": 25,
+            "url": "http://110.164.70.60/get/54c9193a90cc13ac048b4638png/"
+        },
+        "total_sniffer": 0
+    },
+    {...}
+    ],
+    "length": 2
+}
+     * 
+     * @GET
+     * @uri /category/upcoming/[h:category_id]
+     */
+    public function category_upcoming() {
+        try {
+            
+            $res['data'] = EventService::getInstance()->category_upcoming($this->reqInfo->urlParam('category_id'), $this->getCtx());
+            $res['length'] = count($res['data']);
+            return $res;
+            
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }

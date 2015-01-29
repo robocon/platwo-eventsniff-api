@@ -351,8 +351,6 @@ class EventService extends BaseService {
 
     public function category_lists($category_lists, Context $ctx) {
 
-        $new_lists = [];
-
         $date = new \DateTime();
         $set_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_time = new \MongoDate($set_time);
@@ -642,5 +640,43 @@ class EventService extends BaseService {
         }
         
         return $item_lists;
+    }
+    
+    public function category_upcoming($category_id, Context $ctx) {
+        
+        $date = new \DateTime();
+        $set_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_time = new \MongoDate($set_time);
+        
+        $new_lists = [];
+        
+        $event_tags = $this->getEventTagCollection()->find(['tag_id' => $category_id]);
+        foreach ($event_tags as $item) {
+            
+            $event = $this->getCollection()->findOne([
+                'approve' => 1,
+                'build' => 1,
+                '_id' => new \MongoId($item['event_id']),
+                'date_start' => ['$gt' => $current_time]
+            ],['name', 'date_start', 'date_end']);
+            
+            if ($event !== null) {
+                $event['id'] = $event['_id']->{'$id'};
+                unset($event['_id']);
+
+                $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+                $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
+
+                $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
+                $event['thumb'] = Image::load($picture['picture'])->toArrayResponse();
+                
+                $sniffer = $this->getSnifferCollection()->find(['event_id' => $event['id']]);
+                $event['total_sniffer'] = $sniffer->count(true);
+            
+                $new_lists[] = $event;
+            }
+        }
+        
+        return $new_lists;
     }
 }
