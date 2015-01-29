@@ -447,7 +447,7 @@ class EventCTL extends BaseCTL {
             $category_lists = SniffService::getInstance()->gets($params['lang'], [], $this->getCtx());
 
             // Filter categories
-            $category = EventService::getInstance()->category_list($category_lists['data'], $this->getCtx());
+            $category = EventService::getInstance()->category_lists($category_lists['data'], $this->getCtx());
 
             $res = [
                 'data' => $category,
@@ -479,7 +479,8 @@ class EventCTL extends BaseCTL {
             "id": "54ba1bc910f0edb8048b456c",
             "category": "54c0ad7410f0ed5e048b4567",
             "date_start": "2015-01-24 10:15:00",
-            "type": "item"
+            "type": "item",
+            "total_sniffer": 10
         },
         {...}
     ],
@@ -489,7 +490,7 @@ class EventCTL extends BaseCTL {
      * @GET
      * @uri /today/[a:lang]
      */
-    public function today_event() {
+    public function today() {
         try {
             
             $params = [
@@ -505,7 +506,7 @@ class EventCTL extends BaseCTL {
                 throw new ServiceException(ResponseHelper::validateError($v->errors()));
             }
             
-            $res['data'] = EventService::getInstance()->now($params['lang'], $this->getCtx());
+            $res['data'] = EventService::getInstance()->today($params['lang'], $this->getCtx());
             $res['length'] = count($res['data']);
             return $res;
 
@@ -536,6 +537,7 @@ class EventCTL extends BaseCTL {
             "height": 25,
             "url": "http://110.164.70.60/get/54c9193a90cc13ac048b4638png/"
         }
+        "total_sniffer": 2
     },
     {...}
   ],

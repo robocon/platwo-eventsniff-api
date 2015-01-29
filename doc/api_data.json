@@ -156,7 +156,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"data\": [\n        {\n            \"name\": \"Title example\",\n            \"thumb\": {\n                \"id\": \"54ba7edc90cc137f238b45ffpng\",\n                \"width\": 100,\n                \"height\": 100,\n                \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7edc90cc137f238b45ffpng\\/\"\n            },\n            \"id\": \"54ba1bc910f0edb8048b456c\",\n            \"category\": \"54c0ad7410f0ed5e048b4567\",\n            \"date_start\": \"2015-01-24 10:15:00\",\n            \"type\": \"item\"\n        },\n        {...}\n    ],\n    \"length\": 2\n}",
+          "content": "{\n    \"data\": [\n        {\n            \"name\": \"Title example\",\n            \"thumb\": {\n                \"id\": \"54ba7edc90cc137f238b45ffpng\",\n                \"width\": 100,\n                \"height\": 100,\n                \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7edc90cc137f238b45ffpng\\/\"\n            },\n            \"id\": \"54ba1bc910f0edb8048b456c\",\n            \"category\": \"54c0ad7410f0ed5e048b4567\",\n            \"date_start\": \"2015-01-24 10:15:00\",\n            \"type\": \"item\",\n            \"total_sniffer\": 10\n        },\n        {...}\n    ],\n    \"length\": 2\n}",
           "type": "json"
         }
       ]
@@ -196,7 +196,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n  \"data\": [\n    {\n        \"date_start\": \"2015-02-04 17:13:01\",\n        \"detail\": \"test add detail 1422439981\",\n        \"name\": \"test add name 1422439981\",\n        \"id\": \"54c8b62d10f0ed1e048b4584\",\n        \"thumb\": {\n            \"id\": \"54c9193a90cc13ac048b4638png\",\n            \"width\": 25,\n            \"height\": 25,\n            \"url\": \"http://110.164.70.60/get/54c9193a90cc13ac048b4638png/\"\n        }\n    },\n    {...}\n  ],\n  \"length\": 2\n}",
+          "content": "{\n  \"data\": [\n    {\n        \"date_start\": \"2015-02-04 17:13:01\",\n        \"detail\": \"test add detail 1422439981\",\n        \"name\": \"test add name 1422439981\",\n        \"id\": \"54c8b62d10f0ed1e048b4584\",\n        \"thumb\": {\n            \"id\": \"54c9193a90cc13ac048b4638png\",\n            \"width\": 25,\n            \"height\": 25,\n            \"url\": \"http://110.164.70.60/get/54c9193a90cc13ac048b4638png/\"\n        }\n        \"total_sniffer\": 2\n    },\n    {...}\n  ],\n  \"length\": 2\n}",
           "type": "json"
         }
       ]
