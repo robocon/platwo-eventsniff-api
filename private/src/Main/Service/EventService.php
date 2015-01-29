@@ -372,6 +372,7 @@ class EventService extends BaseService {
                     $event = $this->getCollection()->findOne([
                         '_id' => new \MongoId($tag['event_id']),
                         'date_start' => ['$gt' => $current_time]
+                            
                     ],['_id']);
 
                     if($event !== null){
@@ -386,7 +387,6 @@ class EventService extends BaseService {
                 }
             }
         }
-
 
         return $new_lists;
     }
@@ -502,7 +502,12 @@ class EventService extends BaseService {
         }
     }
     
-    public function upcoming(Context $ctx) {
+    public function upcoming($options = [], Context $ctx) {
+        
+        $limit = 20;
+        if (!empty($options['limit'])) {
+            $limit = $options['limit'];
+        }
         
         $date = new \DateTime();
         $set_time = strtotime($date->format('Y-m-d H:i:s'));
@@ -515,7 +520,7 @@ class EventService extends BaseService {
                 ['date_start' => ['$gte' => $current_time]],
                 ['date_end' => ['$gte' => $current_time]]
             ]
-        ],['name','detail','date_start'])->sort(['date_start' => 1])->limit(20);
+        ],['name','detail','date_start'])->sort(['date_start' => 1])->limit($limit);
         
         $res = [];
         foreach ($items as $item) {

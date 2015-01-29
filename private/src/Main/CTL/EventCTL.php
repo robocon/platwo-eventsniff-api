@@ -427,7 +427,7 @@ class EventCTL extends BaseCTL {
      * @GET
      * @uri /category_lists/[a:lang]
      */
-    public function category() {
+    public function category_lists() {
         try {
 
             $params = [
@@ -519,6 +519,9 @@ class EventCTL extends BaseCTL {
      * @apiDescription Show an upcoming event 
      * @apiName GetEventUpcoming
      * @apiGroup Event
+     * @apiParam {String} limit [Optional] Limit event to display. Default is 20
+     * @apiParamExample {String} Request-Example:
+     * /event/upcoming?limit=2
      * @apiSuccessExample {json} Success-Response:
 {
   "data": [
@@ -533,9 +536,10 @@ class EventCTL extends BaseCTL {
             "height": 25,
             "url": "http://110.164.70.60/get/54c9193a90cc13ac048b4638png/"
         }
-    }
+    },
+    {...}
   ],
-  "length": 1
+  "length": 2
 }
      * 
      * @GET
@@ -543,7 +547,7 @@ class EventCTL extends BaseCTL {
      */
     public function upcoming() {
         try {
-            $items = EventService::getInstance()->upcoming($this->getCtx());
+            $items = EventService::getInstance()->upcoming($this->reqInfo->params(), $this->getCtx());
             
             return ['data' => $items, 'length' => count($items)];
         } catch (ServiceException $e) {
