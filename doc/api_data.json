@@ -101,8 +101,41 @@
   },
   {
     "type": "get",
-    "url": "/event/today_event/:lang",
-    "title": "GET /event/today_event/:lang",
+    "url": "/event/category_set/:category_id",
+    "title": "GET /event/category_set/:category_id",
+    "description": "<p>Get event from category on today and in range</p> ",
+    "name": "GetEventCategorySet",
+    "group": "Event",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "category_id",
+            "description": "<p>Category Id</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"data\": [\n    {\n        \"date_start\": \"2015-01-29 10:49:15\",\n        \"name\": \"test add name 1422503355\",\n        \"id\": \"54c9adb810f0ed5b048b4568\",\n        \"category\": \"54c0ad7410f0ed5e048b4572\",\n        \"thumb\": {\n            \"id\": \"54ca10c790cc13aa048b461apng\",\n            \"width\": 25,\n            \"height\": 25,\n            \"url\": \"http://110.164.70.60/get/54ca10c790cc13aa048b461apng/\"\n        }\n    },\n    {...}\n    ],\n    \"length\": 2\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/EventCTL.php",
+    "groupTitle": "Event"
+  },
+  {
+    "type": "get",
+    "url": "/event/today/:lang",
+    "title": "GET /event/today/:lang",
     "description": "<p>Show an event from the future</p> ",
     "name": "GetEventToday",
     "group": "Event",

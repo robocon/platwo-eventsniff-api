@@ -415,11 +415,15 @@ class EventService extends BaseService {
             ->sort(['date_start' => 1])
             ->limit(10);
 
+        $check_duplicate_id = [];
         if ($first_items->count(true)) {
             foreach ($first_items as $item) {
                 $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
                 $item['type'] = 'item';
                 $item['id'] = $item['_id']->{'$id'};
+                
+                $check_duplicate_id = new \MongoId($item['id']);
+                
                 unset($item['_id']);
 
                 $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
@@ -433,8 +437,6 @@ class EventService extends BaseService {
             }
         }
         
-        $check_items = $item_lists;
-        
         // Filter by date_start until date_end
         $second_items = $this->getCollection()->find([
             'approve' => 1,
@@ -442,7 +444,8 @@ class EventService extends BaseService {
             '$and' => [
                 ['date_start' => ['$lte' => $current_day]],
                 ['date_end' => ['$gte' => $current_day]]
-            ]
+            ],
+            '_id' => ['$nin' => $check_duplicate_id]
         ], ['name','date_start'])
         ->sort(['date_start' => -1])
         ->limit(10);
@@ -458,20 +461,10 @@ class EventService extends BaseService {
                 $category = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
                 $item['category'] = $category['tag_id'];
                 
-                $duplicate = false;
-                foreach ($check_items as $fitem) {
-                    if($item['id'] == $fitem['id']){
-                        $duplicate = true;
-                    }
-                }
-                
                 $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
                 $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
 
-                if ($duplicate == false) {
-                    $item_lists[] = $item;
-                }
-                
+                $item_lists[] = $item;
                 $total_event++;
             }
         }
@@ -542,8 +535,6 @@ class EventService extends BaseService {
     
     public function category_set($category_id, Context $ctx) {
         
-//        dump($category_id);
-        
         $date = new \DateTime();
         $current_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_day = new \MongoDate($current_time);
@@ -555,7 +546,6 @@ class EventService extends BaseService {
         $end_of_day = new \MongoDate($end_time);
         
         $item_lists = [];
-//        $total_event = 0;
 
         // Filter by date_start only
         $first_items = $this->getCollection()->find([
@@ -565,16 +555,26 @@ class EventService extends BaseService {
             ],['name','date_start'])
             ->sort(['date_start' => 1])
             ->limit(10);
+        
+        $check_duplicate_id = [];
+        
         foreach ($first_items as $item) {
             
-            $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
             $item['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
-                
+            
             $category = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
             $item['category'] = $category['tag_id'];
-                
-            $item_lists[] = $item;
+            
+            if ($category_id == $item['category']) {
+                $check_duplicate_id[] = new \MongoId($item['id']);
+                $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+
+                $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
+                $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
+
+                $item_lists[] = $item;
+            }
         }
         
         $second_items = $this->getCollection()->find([
@@ -583,33 +583,30 @@ class EventService extends BaseService {
             '$and' => [
                 ['date_start' => ['$lte' => $current_day]],
                 ['date_end' => ['$gte' => $current_day]]
-            ]
+            ],
+            '_id' => ['$nin' => $check_duplicate_id]
         ], ['name','date_start'])
         ->sort(['date_start' => -1])
         ->limit(10);
-        
-        dump($second_items->count(true));
-        exit;
-        
-        
         foreach ($second_items as $item) {
             
-            $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
             $item['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
-                
+            
             $category = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
             $item['category'] = $category['tag_id'];
             
-            $item_lists[] = $item;
+            if ($category_id == $item['category']) {
+                $check_duplicate_id[] = new \MongoId($item['id']);
+                $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+
+                $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
+                $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
+
+                $item_lists[] = $item;
+            }
         }
         
-        dump($item_lists);
-        
-        
-//        'date_start' => ['$lte' => $current_time],
-//            'date_end' => ['$gte' => $current_time]
-        
-        exit;
+        return $item_lists;
     }
 }

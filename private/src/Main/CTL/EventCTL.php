@@ -460,7 +460,7 @@ class EventCTL extends BaseCTL {
     }
 
     /**
-     * @api {get} /event/today_event/:lang GET /event/today_event/:lang
+     * @api {get} /event/today/:lang GET /event/today/:lang
      * @apiDescription Show an event from the future
      * @apiName GetEventToday
      * @apiGroup Event
@@ -552,6 +552,30 @@ class EventCTL extends BaseCTL {
     }
     
     /**
+     * @api {get} /event/category_set/:category_id GET /event/category_set/:category_id
+     * @apiDescription Get event from category on today and in range
+     * @apiName GetEventCategorySet
+     * @apiGroup Event
+     * @apiParam {String} category_id Category Id
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data": [
+    {
+        "date_start": "2015-01-29 10:49:15",
+        "name": "test add name 1422503355",
+        "id": "54c9adb810f0ed5b048b4568",
+        "category": "54c0ad7410f0ed5e048b4572",
+        "thumb": {
+            "id": "54ca10c790cc13aa048b461apng",
+            "width": 25,
+            "height": 25,
+            "url": "http://110.164.70.60/get/54ca10c790cc13aa048b461apng/"
+        }
+    },
+    {...}
+    ],
+    "length": 2
+}
      * 
      * @GET
      * @uri /category_set/[h:category_id]
@@ -559,7 +583,10 @@ class EventCTL extends BaseCTL {
     public function category_set() {
         try {
                     
-            EventService::getInstance()->category_set($this->reqInfo->urlParam('category_id'), $this->getCtx());
+            $res['data'] = EventService::getInstance()->category_set($this->reqInfo->urlParam('category_id'), $this->getCtx());
+            $res['length'] = count($res['data']);
+            return $res;
+            
         } catch (ServiceException $e) {
             return $e->getResponse();
         }
