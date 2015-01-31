@@ -19,12 +19,44 @@ use Main\Exception\Service\ServiceException,
 class SniffCTL extends BaseCTL {
     
     /**
+     * @api {get} /sniff/follower/:event_id GET /sniff/follower/:event_id
+     * @apiDescription Show sniffer from event_id
+     * @apiName GetSniffer
+     * @apiGroup Sniff
+     * @apiParam {String} event_id Event id
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data": [
+    {
+        "event_id": "54ba191510f0edb7048b456a",
+        "id": "54be2e6610f0ed53058b456b",
+        "user": {
+            "display_name": "Demo User",
+            "picture": {
+                "id": "54ba8cd690cc1350158b4619jpg",
+                "width": 180,
+                "height": 180,
+                "url": "http://110.164.70.60/get/54ba8cd690cc1350158b4619jpg/"
+            },
+            "id": "54ba29c210f0edb8048b457a"
+        }
+    }
+    ],
+    "length": 1
+}
+     * 
      * @GET
      * @uri /follower/[h:event_id]
      */
-    public function gets() {
-        
-        exit;
+    public function follower() {
+        try {
+            
+            $items = SniffService::getInstance()->follower($this->reqInfo->urlParam('event_id'), $this->getCtx());
+            return $items;
+            
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
     }
         
     /**

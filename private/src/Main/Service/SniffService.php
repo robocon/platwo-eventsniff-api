@@ -11,9 +11,11 @@ namespace Main\Service;
 use Main\Context\Context,
     Main\DB,
     Main\Exception\Service\ServiceException,
+    Main\DataModel\Image,
     Main\Helper\ArrayHelper,
     Main\Helper\MongoHelper,
     Main\Helper\ResponseHelper,
+    Main\Helper\URL,
     Valitron\Validator;
 
 /**
@@ -31,6 +33,11 @@ class SniffService extends BaseService {
     public function getSnifferCollection(){
         $db = DB::getDB();
         return $db->sniffer;
+    }
+    
+    public function getUsersCollection(){
+         $db = DB::getDB();
+        return $db->users;
     }
     
     public function gets($lang, $options = array(), Context $ctx) {
@@ -108,5 +115,33 @@ class SniffService extends BaseService {
         ]);
         
         return $search;
+    }
+    
+    public function follower($event_id, Context $ctx) {
+        
+        $item_lists = [];
+        $items = $this->getSnifferCollection()->find(['event_id' => $event_id]);
+        foreach ($items as $item) {
+            
+            $item['id'] = $item['_id']->{'$id'};
+            unset($item['_id']);
+            
+            $users = $this->getUsersCollection()->find(['_id' => new \MongoId($item['user_id'])],['display_name','picture']);
+            foreach($users as $user){
+                
+                $user['id'] = $user['_id']->{'$id'};
+                unset($user['_id']);
+                unset($item['user_id']);
+
+                $user['picture'] = Image::load($user['picture'])->toArrayResponse();
+
+                $item['user'] = $user;
+                $item_lists[] = $item;
+            }
+        }
+        
+        $res['data'] = $item_lists;
+        $res['length'] = count($item_lists);
+        return $res;
     }
 }

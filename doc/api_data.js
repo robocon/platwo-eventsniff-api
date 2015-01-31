@@ -657,6 +657,39 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/sniff/follower/:event_id",
+    "title": "GET /sniff/follower/:event_id",
+    "description": "<p>Show sniffer from event_id</p> ",
+    "name": "GetSniffer",
+    "group": "Sniff",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "event_id",
+            "description": "<p>Event id</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"data\": [\n    {\n        \"event_id\": \"54ba191510f0edb7048b456a\",\n        \"id\": \"54be2e6610f0ed53058b456b\",\n        \"user\": {\n            \"display_name\": \"Demo User\",\n            \"picture\": {\n                \"id\": \"54ba8cd690cc1350158b4619jpg\",\n                \"width\": 180,\n                \"height\": 180,\n                \"url\": \"http://110.164.70.60/get/54ba8cd690cc1350158b4619jpg/\"\n            },\n            \"id\": \"54ba29c210f0edb8048b457a\"\n        }\n    }\n    ],\n    \"length\": 1\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/SniffCTL.php",
+    "groupTitle": "Sniff"
+  },
+  {
+    "type": "get",
     "url": "/sniff/category/:lang",
     "title": "GET /sniff/category/:lang",
     "description": "<p>Get all category</p> ",
