@@ -200,6 +200,39 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/event/today/:lang",
+    "title": "GET /event/today/:lang",
+    "description": "<p>Show an event from the future</p> ",
+    "name": "GetEventToday",
+    "group": "Event",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "lang",
+            "description": "<p>Language like en, th. Default is en</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"data\": [\n        {\n            \"name\": \"Title example\",\n            \"thumb\": {\n                \"id\": \"54ba7edc90cc137f238b45ffpng\",\n                \"width\": 100,\n                \"height\": 100,\n                \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7edc90cc137f238b45ffpng\\/\"\n            },\n            \"id\": \"54ba1bc910f0edb8048b456c\",\n            \"date_start\": \"2015-01-24 10:15:00\",\n            \"date_end\": \"2015-01-24 10:15:00\",\n            \"type\": \"item\",\n            \"total_sniffer\": 10\n        },\n        {...}\n    ],\n    \"length\": 2\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/EventCTL.php",
+    "groupTitle": "Event"
+  },
+  {
+    "type": "get",
     "url": "/event/upcoming",
     "title": "GET /event/upcoming",
     "description": "<p>Show an upcoming event</p> ",

@@ -42,11 +42,10 @@ class LocationService extends BaseService {
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
         
-        if (empty($params['location_name'])) {
-            $params['location_name'] = '';
-        }
+        $name = empty($params['location_name']) ? '' : $params['location_name'] ;
+        unset($params['location_name']);
         
-        $insert = ['name' => $params['location_name'], 'position' => $params['location'], 'event_id' => $event_id];
+        $insert = ['name' => $name, 'position' => $params['location'], 'event_id' => $event_id];
         $this->getCollection()->insert($insert);
         
         $res = ['name' => $params['location_name'], 'position' => $params['location']];

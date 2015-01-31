@@ -408,122 +408,150 @@ class EventService extends BaseService {
         
         return $new_category_lists;
     }
-
-    public function today($lang, Context $ctx) {
-
+    
+    public function today($category_lists, Context $ctx) {
+        
         $date = new \DateTime();
         $current_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_day = new \MongoDate($current_time);
         
         $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
-        $start_of_day = new \MongoDate($start_time);
-        
         $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
-        $end_of_day = new \MongoDate($end_time);
         
-        $item_lists = [];
-        $total_event = 0;
-
-        // Filter by date_start only
-        $first_items = $this->getCollection()->find([
-                'approve' => 1,
-                'build' => 1,
-                'date_start' => ['$gte' => $start_of_day, '$lte' => $end_of_day]
-            ],['name','date_start'])
-            ->sort(['date_start' => 1])
-            ->limit(10);
-
-        $check_duplicate_id = [];
-        if ($first_items->count(true)) {
-            foreach ($first_items as $item) {
-                $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
-                $item['type'] = 'item';
-                $item['id'] = $item['_id']->{'$id'};
-                
-                $check_duplicate_id[] = new \MongoId($item['id']);
-                
-                unset($item['_id']);
-
-                $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
-                $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
-
-                $category = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
-                $item['category'] = $category['tag_id'];
-                
-                $sniffer = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
-                $item['total_sniffer'] = $sniffer->count(true);
-
-                $item_lists[] = $item;
-                $total_event++;
-            }
-        }
+        $new_category_lists = [];
+        $first_category_lists = [];
         
-        // Filter by date_start until date_end
-        $second_items = $this->getCollection()->find([
-            'approve' => 1,
-            'build' => 1,
-            '$and' => [
-                ['date_start' => ['$lte' => $current_day]],
-                ['date_end' => ['$gte' => $current_day]]
-            ],
-            '_id' => ['$nin' => $check_duplicate_id]
-        ], ['name','date_start'])
-        ->sort(['date_start' => -1])
-        ->limit(10);
-
-        if ($second_items->count(true)) {
-            foreach ($second_items as $item) {
-                
-                $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
-                $item['type'] = 'item';
-                $item['id'] = $item['_id']->{'$id'};
-                unset($item['_id']);
-
-                $category = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
-                $item['category'] = $category['tag_id'];
-                
-                $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
-                $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
-                
-                $sniffer = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
-                $item['total_sniffer'] = $sniffer->count(true);
-
-                $item_lists[] = $item;
-                $total_event++;
-            }
-        }
-        
-        if ($total_event <= 10) {
-            return $item_lists;
-        }else {
+        foreach ($category_lists['data'] as $category) {
             
-            $new_lists = [];
-            for ($i=0; $i < $total_event; $i++) {
-                $event = $item_lists[$i];
+            $event_tags = $this->getEventTagCollection()->find(['tag_id' => $category['id']]);
+            $event_tags_count = $event_tags->count(true);
+            if ($event_tags_count > 1) {
+                
+                $event_lists = [];
+                $i = 0;
+                
+                foreach ($event_tags as $item) {
 
-                $prev = empty($item_lists[$i-1]) ? false : $item_lists[$i-1];
-                $next = empty($item_lists[$i+1]) ? false : $item_lists[$i+1];
-
-                if ( ($prev === false OR $prev['category'] != $event['category']) && $event['category'] != $next['category']){
-                    $new_lists[] = $event;
-
-                }elseif (($prev === false OR $prev['category'] != $event['category']) && $event['category'] == $next['category']) {
-
-                    $thumb = $this->getTagCollection()->findOne(['_id' => new \MongoId($event['category'])],[$lang]);
-
-                    $event['type'] = 'category';
-                    $new_lists[] = $event;
-
-                }elseif ($event['category'] == $prev['category'] && ($event['category'] != $next['category'] OR $next === false) ) {
-                    unset($item_lists[$i]);
-
-                }else{
-                    $new_lists[] = $event;
+                    $event = $this->getCollection()->findOne([
+                        'approve' => 1,
+                        'build' => 1,
+                        '_id' => new \MongoId($item['event_id']),
+                        '$or' => [
+                            ['date_start' => ['$gte' => $current_day]],
+                            [
+                                '$and' => [
+                                    ['date_start' => ['$lte' => $current_day]],
+                                    ['date_end' => ['$gte' => $current_day]]
+                                ]
+                            ]
+                        ]
+                    ],['name', 'date_start', 'date_end']);
+                    
+                    if($event !== null){
+                        
+                        $event['id'] = $event['_id']->{'$id'};
+                        unset($event['_id']);
+                        
+                        $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+                        $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
+                        
+                        $set_key = (string)strtotime($event['date_start']);
+                        
+                        $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
+                        $event['thumb'] = Image::load($picture['picture'])->toArrayResponse();
+                        
+                        $sniffer = $this->getSnifferCollection()->find(['event_id' => $event['id']]);
+                        $event['total_sniffer'] = $sniffer->count(true);
+                        
+                        $event_lists[$set_key] = $event;
+                        $i++;
+                        
+                    }
                 }
-            }
-            
-            return $new_lists;
+                
+                if ($i > 0) {
+                    ksort($event_lists, SORT_NUMERIC);
+                    $get_keys = array_keys($event_lists);
+                    $first_event = (string)$get_keys['0'];
+                    $real_event = $event_lists[$first_event];
+
+                    $category['thumb'] = $real_event['thumb'];
+                    $category['total_sniffer'] = $real_event['total_sniffer'];
+                    $category['date_end'] = $real_event['date_end'];
+                    $category['type'] = 'category';
+                    $category['date_start'] = $first_event;
+                    
+                    if ($get_keys['0'] > $start_time && $get_keys['0'] < $end_time) {
+                        $first_category_lists[] = $category;
+                    }else{
+                        $new_category_lists[] = $category;
+                    }
+                }
+                
+            } // End if
+            elseif ($event_tags_count == 1) {
+                foreach ($event_tags as $item) {
+                    $event = $this->getCollection()->findOne([
+                        'approve' => 1,
+                        'build' => 1,
+                        '_id' => new \MongoId($item['event_id']),
+                        '$or' => [
+                            ['date_start' => ['$gte' => $current_day]],
+                            [
+                                '$and' => [
+                                    ['date_start' => ['$lte' => $current_day]],
+                                    ['date_end' => ['$gte' => $current_day]]
+                                ]
+                            ]
+                        ]
+                    ],['name', 'date_start', 'date_end']);
+                    if($event !== null){
+                        
+                        $event['id'] = $event['_id']->{'$id'};
+                        unset($event['_id']);
+                        
+                        $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+                        $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
+                        
+                        $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
+                        $category['thumb'] = Image::load($picture['picture'])->toArrayResponse();
+                        
+                        $sniffer = $this->getSnifferCollection()->find(['event_id' => $event['id']]);
+                        $category['total_sniffer'] = $sniffer->count(true);
+                        
+                        $category['id'] = $event['id'];
+                        $category['type'] = 'item';
+                        $category['name'] = $event['name'];
+                        $event_time = strtotime($event['date_start']);
+                        $category['date_start'] = (string)$event_time;
+                        $category['date_end'] = $event['date_end'];
+                        
+                        if ($event_time > $start_time && $event_time < $end_time) {
+                            $first_category_lists[] = $category;
+                        }else{
+                            $new_category_lists[] = $category;
+                        }
+                    }
+                } // End foreach
+            } // End if
+        } // End foreach
+        
+        usort($first_category_lists, function($a, $b){
+            return $a['date_start'] - $b['date_start'];
+        });
+        
+        usort($new_category_lists, function($a, $b){
+            return $a['date_start'] - $b['date_start'];
+        });
+        
+        $final_category = array_merge($first_category_lists, array_reverse($new_category_lists));
+        
+        $i = 0;
+        foreach ($final_category as $item) {
+            $final_category[$i]['date_start'] = date('Y-m-d H:i:s', $item['date_start']);
+            $i++;
         }
+        return $final_category;
     }
     
     public function upcoming($options = [], Context $ctx) {
