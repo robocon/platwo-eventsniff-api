@@ -48,6 +48,53 @@
   },
   {
     "type": "get",
+    "url": "/comment/:event_id",
+    "title": "GET /comment/:event_id",
+    "description": "<p>Get comments from event_id</p> ",
+    "name": "GetComment",
+    "group": "Comment",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "event_id",
+            "description": "<p>User id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "page",
+            "description": "<p>(Optional) Pagination length</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "limit",
+            "description": "<p>(Optional) Limit an event when show from each page</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"data\": [\n        {\n            \"detail\": \"test comment 1422678850\",\n            \"time_stamp\": \"2015-01-31 11:34:10\",\n            \"id\": \"54cc5b4210f0ed21048b456c\",\n            \"user\": {\n            \"display_name\": \"Kritsanasak Kuntaros\",\n            \"picture\": {\n                \"id\": \"54ba8cd690cc1350158b4619jpg\",\n                \"width\": 180,\n                \"height\": 180,\n                \"url\": \"http://110.164.70.60/get/54ba8cd690cc1350158b4619jpg/\"\n            },\n            \"id\": \"54ba29c210f0edb8048b457a\"\n        }\n        },{...}\n    ],\n    \"length\": 10,\n    \"total\": 23,\n    \"prev_count\": 3,\n    \"paging\": {\n        \"next\": \"http://eventsniff.dev/comment/54ba191510f0edb7048b456a?page=2&limit=10\",\n        \"prev\": \"http://eventsniff.dev/comment/54ba191510f0edb7048b456a?page=1&limit=10\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/CommentCTL.php",
+    "groupTitle": "Comment"
+  },
+  {
+    "type": "get",
     "url": "/event/:event_id",
     "title": "GET /event/:event_id",
     "description": "<p>Get event from id [not complete yet]</p> ",

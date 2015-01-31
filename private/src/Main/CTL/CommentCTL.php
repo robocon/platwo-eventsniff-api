@@ -74,8 +74,41 @@ class CommentCTL extends BaseCTL {
     }
     
     /**
+     * @api {get} /comment/:event_id GET /comment/:event_id
+     * @apiDescription Get comments from event_id
+     * @apiName GetComment
+     * @apiGroup Comment
+     * @apiParam {String} event_id User id
+     * @apiParam {String} page (Optional) Pagination length
+     * @apiParam {String} limit (Optional) Limit an event when show from each page
      * 
-     * @return type
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data": [
+        {
+            "detail": "test comment 1422678850",
+            "time_stamp": "2015-01-31 11:34:10",
+            "id": "54cc5b4210f0ed21048b456c",
+            "user": {
+            "display_name": "Kritsanasak Kuntaros",
+            "picture": {
+                "id": "54ba8cd690cc1350158b4619jpg",
+                "width": 180,
+                "height": 180,
+                "url": "http://110.164.70.60/get/54ba8cd690cc1350158b4619jpg/"
+            },
+            "id": "54ba29c210f0edb8048b457a"
+        }
+        },{...}
+    ],
+    "length": 10,
+    "total": 23,
+    "prev_count": 3,
+    "paging": {
+        "next": "http://eventsniff.dev/comment/54ba191510f0edb7048b456a?page=2&limit=10",
+        "prev": "http://eventsniff.dev/comment/54ba191510f0edb7048b456a?page=1&limit=10"
+    }
+}
      * 
      * @GET
      * @uri /[h:event_id]
@@ -83,12 +116,8 @@ class CommentCTL extends BaseCTL {
     public function gets() {
         try {
             
-            var_dump('PAUSE!!!');
-            exit;
-//            $params['event_id'] = $this->reqInfo->urlParam('event_id');
-
-            $item = CommentService::getInstance()->gets($this->reqInfo->urlParam('event_id'), $this->reqInfo->params(), $this->getCtx());
-//            MongoHelper::standardIdEntity($item);
+            $items = CommentService::getInstance()->gets($this->reqInfo->urlParam('event_id'), $this->reqInfo->params(), $this->getCtx());
+            return $items;
             
         } catch (ServiceException $e) {
             return $e->getResponse();

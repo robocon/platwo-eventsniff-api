@@ -132,7 +132,7 @@ class EventService extends BaseService {
             $res['paging']['next'] = URL::absolute('/event'.'?'.  http_build_query(['page' => (int)$options['page']+1]));
 
             if ($options['page'] > 1) {
-                $res['pagging']['prev'] = URL::absolute('/event'.'?'.  http_build_query(['page' => (int)$options['page']]));
+                $res['paging']['prev'] = URL::absolute('/event'.'?'.  http_build_query(['page' => (int)$options['page']]));
             }
         }
 
