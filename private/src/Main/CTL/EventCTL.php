@@ -458,60 +458,6 @@ class EventCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
-
-    /**
-     * @api {get} /event/today/:lang GET /event/today/:lang
-     * @apiDescription Show an event from the future
-     * @apiName GetEventToday
-     * @apiGroup Event
-     * @apiParam {String} lang Language like en, th. Default is en
-     * @apiSuccessExample {json} Success-Response:
-{
-    "data": [
-        {
-            "name": "Title example",
-            "thumb": {
-                "id": "54ba7edc90cc137f238b45ffpng",
-                "width": 100,
-                "height": 100,
-                "url": "http:\/\/110.164.70.60\/get\/54ba7edc90cc137f238b45ffpng\/"
-            },
-            "id": "54ba1bc910f0edb8048b456c",
-            "category": "54c0ad7410f0ed5e048b4567",
-            "date_start": "2015-01-24 10:15:00",
-            "type": "item",
-            "total_sniffer": 10
-        },
-        {...}
-    ],
-    "length": 2
-}
-     *
-     */
-    public function backup_today() {
-        try {
-            
-            $params = [
-                'lang' => $this->reqInfo->urlParam('lang'),
-            ];
-
-            $v = new Validator($params);
-            $v->rules([
-                    'required' => [ ['lang'] ],
-                    'length' => [['lang', 2]]
-                ]);
-            if(!$v->validate()){
-                throw new ServiceException(ResponseHelper::validateError($v->errors()));
-            }
-            
-            $res['data'] = EventService::getInstance()->today($params['lang'], $this->getCtx());
-            $res['length'] = count($res['data']);
-            return $res;
-
-        } catch (ServiceException $e) {
-            return $e->getResponse();
-        }
-    }
     
     /**
      * @api {get} /event/today/:lang GET /event/today/:lang

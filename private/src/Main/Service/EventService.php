@@ -114,7 +114,10 @@ class EventService extends BaseService {
             $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
             $item['time_edit'] = MongoHelper::dateToYmd($item['time_edit']);
             $item['time_stamp'] = MongoHelper::dateToYmd($item['time_stamp']);
-
+            
+            unset($item['build']);
+            unset($item['approve']);
+            
             $data[] = $item;
         }
 
@@ -129,10 +132,10 @@ class EventService extends BaseService {
         ];
 
         if ($length > 0 && $length <= $total ) {
-            $res['paging']['next'] = URL::absolute('/event'.'?'.  http_build_query(['page' => (int)$options['page']+1]));
+            $res['paging']['next'] = URL::absolute('/event'.'?'.  http_build_query(['page' => (int)$options['page']+1, 'limit' => (int)$options['limit']]));
 
             if ($options['page'] > 1) {
-                $res['paging']['prev'] = URL::absolute('/event'.'?'.  http_build_query(['page' => (int)$options['page']]));
+                $res['paging']['prev'] = URL::absolute('/event'.'?'.  http_build_query(['page' => (int)$options['page']-1, 'limit' => (int)$options['limit']]));
             }
         }
 

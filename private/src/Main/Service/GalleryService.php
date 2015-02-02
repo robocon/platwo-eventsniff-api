@@ -47,4 +47,8 @@ class GalleryService extends BaseService {
         
         return $picture;
     }
+    
+    public function gets($event_id, Context $ctx) {
+        
+    }
 }

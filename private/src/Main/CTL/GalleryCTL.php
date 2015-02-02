@@ -33,4 +33,20 @@ class GalleryCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
+    
+    /**
+     * 
+     * @GET
+     * @uri /[h:event_id]
+     */
+    public function gets() {
+        try {
+            
+            $items = GalleryService::getInstance()->gets($this->reqInfo->urlParam('event_id'), $this->getCtx());
+            return $items;
+            
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }
