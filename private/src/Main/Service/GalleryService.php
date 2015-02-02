@@ -42,13 +42,51 @@ class GalleryService extends BaseService {
         $upload = Image::upload($params['picture']);
             
         // Insert into MongoDB
-        $this->getCollection()->insert(['picture' => $upload->toArray(), 'user_id' => $params['user_id'], 'event_id' => $params['event_id']]);
+        $this->getCollection()->insert([
+            'picture' => $upload->toArray(), 
+            'user_id' => $params['user_id'], 
+            'event_id' => $params['event_id'],
+            'detail' => ''
+                ]);
         $picture = $upload->toArrayResponse();
         
         return $picture;
     }
     
     public function gets($event_id, Context $ctx) {
+        
+        $v = new Validator(['event_id' => $event_id]);
+        $v->rule('required', ['event_id']);
+
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $items = $this->getCollection()->find([
+            'event_id' => $event_id
+        ]);
+        
+        $item_lists = [];
+        foreach ($items as $item) {
+            $item['id'] = $item['_id']->{'$id'};
+            unset($item['_id']);
+            unset($item['user_id']);
+            unset($item['event_id']);
+            
+            $item['picture'] = Image::load($item['picture'])->toArrayResponse();
+            
+            $item_lists[] = $item;
+        }
+        
+        return $item_lists;
+    }
+    
+    /**
+     * @todo get single picture
+     * [] user detail
+     * [] single picture detail
+     */
+    public function get($picture_id, Context $ctx) {
         
     }
 }
