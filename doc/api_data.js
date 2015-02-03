@@ -537,8 +537,41 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/gallery/picture/:picture_id",
+    "title": "GET /gallery/picture/:picture_id",
+    "description": "<p>Get picture</p> ",
+    "name": "GetPicture",
+    "group": "Gallery",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "picture_id",
+            "description": "<p>Picture id</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"data\": {\n        \"picture\": {\n            \"id\": \"54cba97490cc1382588b4567png\",\n            \"width\": 25,\n            \"height\": 25,\n            \"url\": \"http://110.164.70.60/get/54cba97490cc1382588b4567png/\"\n        },\n        \"id\": \"54cb466810f0ed23048b4567\",\n        \"detail\": \"\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/GalleryCTL.php",
+    "groupTitle": "Gallery"
+  },
+  {
+    "type": "get",
     "url": "/gallery/:event_id",
-    "title": "GET /gallery/event_id",
+    "title": "GET /gallery/:event_id",
     "description": "<p>Get all picture from event_id</p> ",
     "name": "GetPictures",
     "group": "Gallery",

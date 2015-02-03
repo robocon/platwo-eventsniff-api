@@ -38,6 +38,10 @@ class GalleryService extends BaseService {
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
         
+        if (empty($params['detail'])) {
+            $params['detail'] = '';
+        }
+        
         // Upload to media server
         $upload = Image::upload($params['picture']);
             
@@ -46,7 +50,7 @@ class GalleryService extends BaseService {
             'picture' => $upload->toArray(), 
             'user_id' => $params['user_id'], 
             'event_id' => $params['event_id'],
-            'detail' => ''
+            'detail' => $params['detail']
                 ]);
         $picture = $upload->toArrayResponse();
         
@@ -88,5 +92,24 @@ class GalleryService extends BaseService {
      */
     public function get($picture_id, Context $ctx) {
         
+        $v = new Validator(['picture_id' => $picture_id]);
+        $v->rule('required', ['picture_id']);
+
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $item = $this->getCollection()->findOne([
+            '_id' => new \MongoId($picture_id)
+        ],['picture','detail']);
+        $item['id'] = $item['_id']->{'$id'};
+        unset($item['_id']);
+        unset($item['user_id']);
+        
+        $item['picture'] = Image::load($item['picture'])->toArrayResponse();
+        if (empty($item['detail'])) {
+            $item['detail'] = '';
+        }
+        return $item;
     }
 }

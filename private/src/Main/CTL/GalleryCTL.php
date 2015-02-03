@@ -41,7 +41,7 @@ class GalleryCTL extends BaseCTL {
     }
     
     /**
-     * @api {get} /gallery/:event_id GET /gallery/event_id
+     * @api {get} /gallery/:event_id GET /gallery/:event_id
      * @apiDescription Get all picture from event_id
      * @apiName GetPictures
      * @apiGroup Gallery
@@ -79,13 +79,32 @@ class GalleryCTL extends BaseCTL {
     }
     
     /**
+     * @api {get} /gallery/picture/:picture_id GET /gallery/picture/:picture_id
+     * @apiDescription Get picture
+     * @apiName GetPicture
+     * @apiGroup Gallery
+     * @apiParam {String} picture_id Picture id
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data": {
+        "picture": {
+            "id": "54cba97490cc1382588b4567png",
+            "width": 25,
+            "height": 25,
+            "url": "http://110.164.70.60/get/54cba97490cc1382588b4567png/"
+        },
+        "id": "54cb466810f0ed23048b4567",
+        "detail": ""
+    }
+}
+     * 
      * @GET
      * @uri /picture/[h:picture_id]
      */
     public function get() {
         try {
             
-            $item = GalleryService::getInstance()->get($this->reqInfo->urlParam('picture_id'), $this->getCtx());
+            $item['data'] = GalleryService::getInstance()->get($this->reqInfo->urlParam('picture_id'), $this->getCtx());
             return $item;
             
         } catch (ServiceException $e) {
