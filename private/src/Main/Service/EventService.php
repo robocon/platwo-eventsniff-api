@@ -84,8 +84,7 @@ class EventService extends BaseService {
         
         $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
         $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
-//        dump($start_time);
-//        dump($end_time);
+        
         $events = $this->getCollection()->find([
             'approve' => 1,
             'build' => 1,
@@ -643,6 +642,8 @@ class EventService extends BaseService {
             $sniffer = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
             $item['total_sniffer'] = $sniffer->count(true);
             
+            // For random an item
+            $item['rand'] = rand(100000, 199999);
             $res[] = $item;
         }
         return $res;

@@ -594,6 +594,11 @@ class EventCTL extends BaseCTL {
         try {
             $items = EventService::getInstance()->upcoming($this->reqInfo->params(), $this->getCtx());
             
+            // New sort with rand
+            usort($items, function($a, $b){
+                return $a['rand'] - $b['rand'];
+            });
+            
             return ['data' => $items, 'length' => count($items)];
         } catch (ServiceException $e) {
             return $e->getResponse();
