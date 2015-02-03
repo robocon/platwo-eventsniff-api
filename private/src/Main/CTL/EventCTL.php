@@ -26,7 +26,47 @@ use Main\Exception\Service\ServiceException,
  * @uri /event
  */
 class EventCTL extends BaseCTL {
-
+    
+    /**
+     * @api {get} /event/all GET /event/all
+     * @apiDescription Get all event for mobile
+     * @apiName GetAllEvent
+     * @apiGroup Event
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data": [
+        {
+            "date_end": "2015-02-04 10:57:27",
+            "date_start": "2015-01-28 10:57:27",
+            "name": "test add name 1422417447",
+            "id": "54c85e2610f0ed1e048b4568",
+            "group_date": "2015-01-28",
+            "thumb": {
+                "id": "54c8c13490cc13a8048b4619png",
+                "width": 25,
+                "height": 25,
+                "url": "http://110.164.70.60/get/54c8c13490cc13a8048b4619png/"
+            },
+            "total_sniffer": 0
+        },
+        {...},
+    ],
+    "length": 5
+}
+     * 
+     * @GET
+     * @uri /all
+     */
+    public function all() {
+        try {
+            $items['data'] = EventService::getInstance()->all($this->getCtx());
+            $items['length'] = count($items['data']);
+            return $items;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
+    
     /**
      * @api {get} /event GET /event
      * @apiDescription Get all event

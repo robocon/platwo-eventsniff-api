@@ -75,7 +75,59 @@ class EventService extends BaseService {
          $db = DB::getDB();
         return $db->event_tag;
     }
-
+    
+    public function all(Context $ctx) {
+        
+        $date = new \DateTime();
+        $current_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_day = new \MongoDate($current_time);
+        
+        $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
+        $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
+//        dump($start_time);
+//        dump($end_time);
+        $events = $this->getCollection()->find([
+            'approve' => 1,
+            'build' => 1,
+            '$or' => [
+                ['date_start' => ['$gte' => $current_day]],
+                [
+                    '$and' => [
+                        ['date_start' => ['$lte' => $current_day]],
+                        ['date_end' => ['$gte' => $current_day]]
+                    ]
+                ]
+            ]
+        ],['name', 'date_start', 'date_end'])->sort(['date_start' => 1]);
+        
+        $group_one = [];
+        $group_two =[];
+        
+        foreach ($events as $item) {
+            $item_start = $item['date_start']->{'sec'};
+            
+            $item['id'] = $item['_id']->{'$id'};
+            unset($item['_id']);
+            
+            $item['group_date'] = date('Y-m-d', $item['date_start']->{'sec'});
+            $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+            $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
+            
+            $picture = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
+            $item['thumb'] = Image::load($picture['picture'])->toArrayResponse();
+                
+            $item['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['id']])->count();
+            
+            if ($item_start > $start_time && $item_start < $end_time) {
+                $group_one[] = $item;
+            }else{
+                $group_two[] = $item;
+            }
+        }
+        
+        return array_merge($group_one, $group_two);
+    }
+    
     public function gets($options = [], Context $ctx) {
 
         $default = array(

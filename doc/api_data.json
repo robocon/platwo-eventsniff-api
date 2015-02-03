@@ -95,6 +95,26 @@
   },
   {
     "type": "get",
+    "url": "/event/all",
+    "title": "GET /event/all",
+    "description": "<p>Get all event for mobile</p> ",
+    "name": "GetAllEvent",
+    "group": "Event",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"data\": [\n        {\n            \"date_end\": \"2015-02-04 10:57:27\",\n            \"date_start\": \"2015-01-28 10:57:27\",\n            \"name\": \"test add name 1422417447\",\n            \"id\": \"54c85e2610f0ed1e048b4568\",\n            \"group_date\": \"2015-01-28\",\n            \"thumb\": {\n                \"id\": \"54c8c13490cc13a8048b4619png\",\n                \"width\": 25,\n                \"height\": 25,\n                \"url\": \"http://110.164.70.60/get/54c8c13490cc13a8048b4619png/\"\n            },\n            \"total_sniffer\": 0\n        },\n        {...},\n    ],\n    \"length\": 5\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/EventCTL.php",
+    "groupTitle": "Event"
+  },
+  {
+    "type": "get",
     "url": "/event/:event_id",
     "title": "GET /event/:event_id",
     "description": "<p>Get event from id [not complete yet]</p> ",
