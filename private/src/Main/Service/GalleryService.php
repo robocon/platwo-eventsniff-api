@@ -85,11 +85,6 @@ class GalleryService extends BaseService {
         return $item_lists;
     }
     
-    /**
-     * @todo get single picture
-     * [] user detail
-     * [] single picture detail
-     */
     public function get($picture_id, Context $ctx) {
         
         $v = new Validator(['picture_id' => $picture_id]);
@@ -111,5 +106,22 @@ class GalleryService extends BaseService {
             $item['detail'] = '';
         }
         return $item;
+    }
+    
+    public function delete($picture_id, Context $ctx) {
+        $v = new Validator(['picture_id' => $picture_id]);
+        $v->rule('required', ['picture_id']);
+
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        $rows = $this->getCollection()->find(['_id' => new \MongoId($picture_id)])->count();
+        
+        if ($rows > 0) {
+            $this->getCollection()->remove(['_id' => new \MongoId($picture_id)]);
+            return ['success' => true];
+        }else{
+            throw new ServiceException(ResponseHelper::error('Not found picture_id'));
+        }
     }
 }

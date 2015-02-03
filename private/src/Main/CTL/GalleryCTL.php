@@ -113,13 +113,24 @@ class GalleryCTL extends BaseCTL {
     }
     
     /**
-     * @todo Add delete picture
+     * @api {delete} /gallery/picture/:picture_id DELETE /gallery/picture/:picture_id
+     * @apiDescription Delete picture
+     * @apiName DeletePicture
+     * @apiGroup Gallery
+     * @apiParam {String} picture_id Picture id
+     * @apiSuccessExample {json} Success-Response:
+     * {"success":true}
      * @DELETE
      * @uri /picture/[h:picture_id]
      */
     public function delete() {
-        
-        
-        exit;
+        try {
+            
+            $item = GalleryService::getInstance()->delete($this->reqInfo->urlParam('picture_id'), $this->getCtx());
+            return $item;
+            
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
     }
 }

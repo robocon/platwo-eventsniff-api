@@ -536,6 +536,39 @@ define({ "api": [
     "groupTitle": "Event"
   },
   {
+    "type": "delete",
+    "url": "/gallery/picture/:picture_id",
+    "title": "DELETE /gallery/picture/:picture_id",
+    "description": "<p>Delete picture</p> ",
+    "name": "DeletePicture",
+    "group": "Gallery",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "picture_id",
+            "description": "<p>Picture id</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\"success\":true}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/GalleryCTL.php",
+    "groupTitle": "Gallery"
+  },
+  {
     "type": "get",
     "url": "/gallery/picture/:picture_id",
     "title": "GET /gallery/picture/:picture_id",
