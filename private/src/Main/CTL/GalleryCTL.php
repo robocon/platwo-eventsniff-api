@@ -21,19 +21,31 @@ use Main\Service\GalleryService;
 class GalleryCTL extends BaseCTL {
 
     /**
-     * @todo Same as /event/gallery
-     * 
-     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     * !!! PLEASE CHECK IT AGAIN !!!
-     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * @api {post} /gallery/:event_id POST /gallery/:event_id
+     * @apiDescription Please looking on /event/gallery/:event_id
+     * @apiName PostPicture
+     * @apiGroup Gallery
      * 
      * @POST
+     * @uri /[h:event_id]
      */
     public function add(){
         try{     
-
-            $items = GalleryService::getInstance()->add($this->reqInfo->params(), $this->getCtx());
-            return $items;
+            
+            $data = [
+                'picture' => $this->reqInfo->param('picture'),
+                'user_id' => $this->reqInfo->param('user_id'),
+                'event_id' => $this->reqInfo->urlParam('event_id'),
+                'detail' => $this->reqInfo->param('detail'),
+            ];
+            
+            $res = [];
+            $res['picture'] = GalleryService::getInstance()->add($data, $this->getCtx());
+            $res['user_id'] = $data['user_id'];
+            $res['event_id'] = $data['event_id'];
+            $res['id'] = $data['event_id'];
+            $res['status'] = 200;
+            return $res;
 
         } catch(ServiceException $e) {
             return $e->getResponse();

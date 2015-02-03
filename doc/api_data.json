@@ -635,6 +635,17 @@
     "groupTitle": "Gallery"
   },
   {
+    "type": "post",
+    "url": "/gallery/:event_id",
+    "title": "POST /gallery/:event_id",
+    "description": "<p>Please looking on /event/gallery/:event_id</p> ",
+    "name": "PostPicture",
+    "group": "Gallery",
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/GalleryCTL.php",
+    "groupTitle": "Gallery"
+  },
+  {
     "type": "get",
     "url": "/location/cities/:country_id",
     "title": "GET /location/cities/:country_id",

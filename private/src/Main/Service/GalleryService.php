@@ -45,13 +45,15 @@ class GalleryService extends BaseService {
         // Upload to media server
         $upload = Image::upload($params['picture']);
             
-        // Insert into MongoDB
-        $this->getCollection()->insert([
+        $insert_data = [
             'picture' => $upload->toArray(), 
             'user_id' => $params['user_id'], 
             'event_id' => $params['event_id'],
             'detail' => $params['detail']
-                ]);
+        ];
+        
+        // Insert into MongoDB
+        $this->getCollection()->insert($insert_data);
         $picture = $upload->toArrayResponse();
         
         return $picture;
