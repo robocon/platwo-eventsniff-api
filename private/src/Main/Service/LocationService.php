@@ -45,6 +45,9 @@ class LocationService extends BaseService {
         $name = empty($params['location_name']) ? '' : $params['location_name'] ;
         unset($params['location_name']);
         
+        $position = explode(',', $params['position']);
+        $params['location'] = array_map('trim',$position);
+        
         $insert = ['name' => $name, 'position' => $params['location'], 'event_id' => $event_id];
         $this->getCollection()->insert($insert);
         
@@ -66,6 +69,9 @@ class LocationService extends BaseService {
         if (empty($params['location_name'])) {
             $params['location_name'] = '';
         }
+        
+        $position = explode(',', $params['position']);
+        $params['location'] = array_map('trim',$position);
         
         $set = ['position' => $params['location'], 'location_name' => $params['location_name']];
         

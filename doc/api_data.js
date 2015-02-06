@@ -506,7 +506,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"name\": \"Example title\",\n    \"detail\": \"Example detail\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"id\": \"54ba1bc910f0edb8048b456c\",\n    \"tags\": [\n        {\n            \"tag_id\": \"6f2da37e72bf9e100b40567c\",\n            \"name\": \"Promotion\"\n        },\n        {...},\n    ],\n    \"location\": {\n        \"name\": \"CNX\",\n        \"position\": \"19.906496, 99.834254\",\n    },\n    \"status\": 200\n}",
+          "content": "{\n    \"name\": \"Example title\",\n    \"detail\": \"Example detail\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"id\": \"54ba1bc910f0edb8048b456c\",\n    \"tags\": [\n        {\n            \"tag_id\": \"6f2da37e72bf9e100b40567c\",\n            \"name\": \"Promotion\"\n        },\n        {...},\n    ],\n    \"location\": {\n        \"name\": \"CNX\",\n        \"position\": [\n            \"19.906496\",\n            \"99.834254\"\n        ],\n    },\n    \"status\": 200\n}",
           "type": "json"
         }
       ]

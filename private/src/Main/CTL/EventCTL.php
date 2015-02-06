@@ -365,7 +365,10 @@ class EventCTL extends BaseCTL {
     ],
     "location": {
         "name": "CNX",
-        "position": "19.906496, 99.834254",
+        "position": [
+            "19.906496",
+            "99.834254"
+        ],
     },
     "status": 200
 }
