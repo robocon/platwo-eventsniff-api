@@ -753,6 +753,60 @@
     "groupTitle": "OAuth"
   },
   {
+    "type": "post",
+    "url": "/report",
+    "title": "POST /report",
+    "description": "<p>Send a report to admin</p> ",
+    "name": "PostReport",
+    "group": "Report",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "detail",
+            "description": "<p>Message detail</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "type",
+            "description": "<p>Something like event, picture</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "reference_id",
+            "description": "<p>Id from event or picture</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"detail\":\"Testing message detail 1423194517\",\n    \"type\":\"event\",\n    \"user_id\":\"54ba29c210f0edb8048b457a\",\n    \"reference_id\":\"54cb466710f0ed24048b4567\",\n    \"id\":\"54d4399610f0eda9048b4568\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/ReportCTL.php",
+    "groupTitle": "Report"
+  },
+  {
     "type": "get",
     "url": "/sniff/follower/:event_id",
     "title": "GET /sniff/follower/:event_id",
