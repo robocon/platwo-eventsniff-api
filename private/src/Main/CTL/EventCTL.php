@@ -136,6 +136,14 @@ class EventCTL extends BaseCTL {
         "time_stamp": "1970-01-01 07:00:00",
         "user_id": "1",
         "id": "54ba191510f0edb7048b456a",
+        "location": {
+            "name": "",
+            "position": [
+                "19.906496",
+                "99.834254"
+            ],
+            "id": "54ba194110f0edb7048b456f"
+        },
         "pictures": [
             {
                 "id": "54ba7c3590cc13ab048b4628png",

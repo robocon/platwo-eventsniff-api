@@ -76,6 +76,14 @@ class EventService extends BaseService {
         return $db->event_tag;
     }
     
+    /**
+     * Collection location
+     */
+    public function getLocationCollection(){
+         $db = DB::getDB();
+        return $db->location;
+    }
+    
     public function all(Context $ctx) {
         
         $date = new \DateTime();
@@ -206,6 +214,19 @@ class EventService extends BaseService {
         $item['time_edit'] = MongoHelper::dateToYmd($item['time_edit']);
         $item['time_stamp'] = MongoHelper::dateToYmd($item['time_stamp']);
 
+        // Get location
+        $location = $this->getLocationCollection()->findOne([
+            'event_id' => $item['id']
+        ],['name','position']);
+        $location['id'] = $location['_id']->{'$id'};
+        unset($location['_id']);
+        
+        if (!is_array($location['position'])) {
+            $position = explode(',', $location['position']);
+            $location['position'] = array_map('trim',$position);
+        }
+        $item['location'] = $location;
+        
         // Get latest 5 pictures
         $gallery = $this->getGalleryCollection()
             ->find(['event_id' => $item['id']])
