@@ -52,9 +52,9 @@ class OAuthService extends BaseService {
             
             // Search facebook_id from database
             $item = $this->getUsersCollection()->findOne(['fb_id'=> $fbId], ['access_token', 'type']);
-
+            
             if(is_null($item)){
-                $now = new \MongoTimestamp();
+                $now = new \MongoDate();
                 $birth_date = $me->getBirthday();
                 if($birth_date instanceof \DateTime){
                     $birth_date = $birth_date->getTimestamp();
@@ -62,7 +62,11 @@ class OAuthService extends BaseService {
                 else {
                     $birth_date = 0;
                 }
-                $birth_date = new \MongoTimestamp($birth_date);
+                
+                $params['country'] = isset($params['country']) ? $params['country'] : '54b8dfa810f0edcf048b4567' ;
+                $params['city'] = isset($params['city']) ? $params['city'] : '54b8e0e010f0edcf048b4569' ;
+                
+                $birth_date = new \MongoDate($birth_date);
                 $item = [
                     '_id'=> new \MongoId(),
                     'fb_id'=> $fbId,
@@ -80,9 +84,12 @@ class OAuthService extends BaseService {
                     'setting'=> UserHelper::defaultSetting(),
                     'display_notification_number' => 0,
                     'detail' => '',
+                    'default_location' => [
+                        $params['country'], $params['city']
+                    ],
 
                     // set default last login
-                    'last_login' => new \MongoTimestamp()
+                    'last_login' => $now
                 ];
                 
                 $item['access_token'] = $this->generateToken(MongoHelper::standardId($item['_id']));
