@@ -19,6 +19,31 @@ use Main\Service\UserService;
  */
 class UserCTL extends BaseCTL {
     /**
+     * @api {get} /user/:user_id GET /user/:user_id
+     * @apiDescription Get user detail in profile tab
+     * @apiName GetUserDetail
+     * @apiGroup User
+     * @apiParam {String} user_id User Id
+     * @apiSuccessExample {json} Success-Response:
+{
+    "birth_date": "1985-08-30 00:00:00",
+    "display_name": "Kritsanasak Kuntaros",
+    "email": "roboconk@gmail.com",
+    "fb_name": "Kritsanasak Kuntaros",
+    "gender": "male",
+    "mobile": "",
+    "picture": {
+        "id": "54ba8cd690cc1350158b4619jpg",
+        "width": 180,
+        "height": 180,
+        "url": "http://110.164.70.60/get/54ba8cd690cc1350158b4619jpg/"
+    },
+    "type": "normal",
+    "username": "1012270568789233",
+    "website": "",
+    "id": "54ba29c210f0edb8048b457a",
+    "detail": ""
+}
      * @GET
      * @uri /[h:id]
      */
@@ -26,15 +51,12 @@ class UserCTL extends BaseCTL {
         try{
             $item = UserService::getInstance()->get($this->reqInfo->urlParam('id'), $this->getCtx());
             MongoHelper::standardId($item);
-            if(isset($item['birth_date'])){
-                $item['birth_date'] = MongoHelper::timeToInt($item['birth_date']);
-            }
-            if(isset($item['setting'])){
-                unset($item['setting']);
-            }
+            
+            // Make sure not send password back to user
             if(isset($item['password'])){
                 unset($item['password']);
             }
+            
             return $item;
         }
         catch(ServiceException $ex){
@@ -206,4 +228,46 @@ class UserCTL extends BaseCTL {
             return $ex->getResponse();
         }
     }
+    
+    /**
+     * @api {get} /user/event/:user_id GET /user/event/:user_id
+     * @apiDescription Get event that user was sniff
+     * @apiName GetUserSnifferEvent
+     * @apiGroup User
+     * @apiParam {String} user_id User Id
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data": [
+        {
+            "alarm": 0,
+            "date_end": "2015-02-11 17:13:01",
+            "date_start": "2015-02-04 17:13:01",
+            "name": "test add name 1422439981",
+            "id": "54c8b62d10f0ed1e048b4584",
+            "picture": {
+                "id": "54c9193a90cc13ac048b4638png",
+                "width": 25,
+                "height": 25,
+                "url": "http://110.164.70.60/get/54c9193a90cc13ac048b4638png/"
+            },
+            "total_sniffer": 1
+        },
+        {...}
+    ],
+    "length": 4
+}
+     * @GET
+     * @uri /event/[h:user_id]
+     */
+    public function event() {
+        try {
+            $items['data'] = UserService::getInstance()->event($this->reqInfo->urlParam('user_id'), $this->getCtx());
+            $items['length'] = count($items['data']);
+            
+            return $items;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
+    
 }

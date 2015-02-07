@@ -27,6 +27,21 @@ class UserService extends BaseService {
         $db = DB::getDB();
         return $db->users;
     }
+    
+    public function getEventCollection(){
+        $db = DB::getDB();
+        return $db->event;
+    }
+    
+    public function getSnifferCollection(){
+        $db = DB::getDB();
+        return $db->sniffer;
+    }
+    
+    public function getGalleryCollection(){
+        $db = DB::getDB();
+        return $db->gallery;
+    }
 
     public function add($params, Context $ctx){
         $allow = ["username", "email", "password", "gender", "country", "city", "birth_date"];
@@ -208,7 +223,6 @@ class UserService extends BaseService {
         }
 
         MongoHelper::standardIdEntity($entity);
-//        $entity['birth_date'] = date('Y-m-d H:i:s', MongoHelper::timeToInt($entity['birth_date']));
 
         if(isset($entity['picture'])){
             $entity['picture'] = Image::load($entity['picture'])->toArrayResponse();
@@ -222,6 +236,12 @@ class UserService extends BaseService {
                 'height'=> 200
             ])->toArrayResponse();
         }
+        
+        $entity['birth_date'] = MongoHelper::dateToYmd($entity['birth_date']);
+        if (empty($entity['detail'])) {
+            $entity['detail'] = '';
+        }
+        unset($entity['fb_id']);
         return $entity;
     }
 
@@ -425,5 +445,52 @@ HTML;
         $this->getCollection()->remove(array("_id"=> $id));
 
         return array("success"=> true);
+    }
+    
+    public function event($user_id, Context $ctx) {
+        
+        $date = new \DateTime();
+        $current_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_day = new \MongoDate($current_time);
+        
+        $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
+        $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
+        
+        $items = $this->getSnifferCollection()->find([
+            'user_id' => $user_id,
+        ],['event_id']);
+        
+        $item_lists = [];
+        foreach ($items as $item) {
+            
+            $event = $this->getEventCollection()->findOne([
+                '_id' => new \MongoId($item['event_id']),
+                '$or' => [
+                    ['date_start' => ['$gte' => $current_day]],
+                    [
+                        '$and' => [
+                            ['date_start' => ['$lte' => $current_day]],
+                            ['date_end' => ['$gte' => $current_day]]
+                        ]
+                    ]
+                ]
+            ],['name','date_start','date_end','alarm']);
+            
+            if ($event !== null) {
+                $event['id'] = $event['_id']->{'$id'};
+                unset($event['_id']);
+
+                $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+                $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
+                
+                $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
+                $event['picture'] = Image::load($picture['picture'])->toArrayResponse();
+
+                $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $event['id']])->count();
+            
+                $item_lists[] = $event;
+            }
+        }
+        return $item_lists;
     }
 }

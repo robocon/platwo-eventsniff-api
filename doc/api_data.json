@@ -1022,6 +1022,72 @@
     "groupTitle": "Sniff"
   },
   {
+    "type": "get",
+    "url": "/user/:user_id",
+    "title": "GET /user/:user_id",
+    "description": "<p>Get user detail in profile tab</p> ",
+    "name": "GetUserDetail",
+    "group": "User",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User Id</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"birth_date\": \"1985-08-30 00:00:00\",\n    \"display_name\": \"Kritsanasak Kuntaros\",\n    \"email\": \"roboconk@gmail.com\",\n    \"fb_name\": \"Kritsanasak Kuntaros\",\n    \"gender\": \"male\",\n    \"mobile\": \"\",\n    \"picture\": {\n        \"id\": \"54ba8cd690cc1350158b4619jpg\",\n        \"width\": 180,\n        \"height\": 180,\n        \"url\": \"http://110.164.70.60/get/54ba8cd690cc1350158b4619jpg/\"\n    },\n    \"type\": \"normal\",\n    \"username\": \"1012270568789233\",\n    \"website\": \"\",\n    \"id\": \"54ba29c210f0edb8048b457a\",\n    \"detail\": \"\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/UserCTL.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "get",
+    "url": "/user/event/:user_id",
+    "title": "GET /user/event/:user_id",
+    "description": "<p>Get event that user was sniff</p> ",
+    "name": "GetUserSnifferEvent",
+    "group": "User",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User Id</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"data\": [\n        {\n            \"alarm\": 0,\n            \"date_end\": \"2015-02-11 17:13:01\",\n            \"date_start\": \"2015-02-04 17:13:01\",\n            \"name\": \"test add name 1422439981\",\n            \"id\": \"54c8b62d10f0ed1e048b4584\",\n            \"picture\": {\n                \"id\": \"54c9193a90cc13ac048b4638png\",\n                \"width\": 25,\n                \"height\": 25,\n                \"url\": \"http://110.164.70.60/get/54c9193a90cc13ac048b4638png/\"\n            },\n            \"total_sniffer\": 1\n        },\n        {...}\n    ],\n    \"length\": 4\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/UserCTL.php",
+    "groupTitle": "User"
+  },
+  {
     "success": {
       "fields": {
         "Success 200": [
