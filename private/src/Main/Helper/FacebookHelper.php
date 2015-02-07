@@ -15,6 +15,6 @@ namespace Main\Helper;
  */
 class FacebookHelper {
     
-    public static $app_id = 'your_app_id';
-    public static $app_secret = 'your_app_secret';
+    public static $app_id = FB_APP_ID;
+    public static $app_secret = FB_APP_SECRET;
 }

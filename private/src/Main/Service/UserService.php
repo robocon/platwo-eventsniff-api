@@ -29,34 +29,34 @@ class UserService extends BaseService {
     }
 
     public function add($params, Context $ctx){
-        $allow = ["username", "email", "password", "gender", "birth_date"];
+        $allow = ["username", "email", "password", "gender", "country", "city", "birth_date"];
         $entity = ArrayHelper::filterKey($allow, $params);
-
-//        Add rule
-//        Validator::addRule('ruleName', function($field, $value, $params = []){
-//            if(true)
-//                return true;
-//            return false;
-//        });
-
+        
         $v = new Validator($entity);
-        $v->rule('required', ["username", "email", "password", "gender", "birth_date"]);
+        $v->rule('required', ["username", "email", "password", "gender", "country", "city", "birth_date"]);
         $v->rule('email', ["email"]);
         $v->rule('lengthBetween', 'username', 4, 32);
         $v->rule('lengthBetween', 'password', 4, 32);
-        $v->rule('in', 'gender', ['male', 'female']);
+        $v->rule('in', 'gender', ['male', 'female', 'unspecify']);
 
         if(!$v->validate()) {
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
-
-        if($this->getCollection()->count(['username'=> $entity['username']]) != 0){
-            throw new ServiceException(ResponseHelper::validateError(['username'=> ['Duplicate username']]));
+        
+        $user_count = $this->getCollection()->find([
+            '$or'=> [
+                ['username' => $params['username']],
+                ['email' => $params['email']]
+            ]
+        ])->count();
+        
+        if($user_count > 0){
+            throw new ServiceException(ResponseHelper::validateError(['username'=> ['Duplicate username'], 'email'=> ['Duplicate email']]));
         }
-
-        $entity['password'] = md5($entity['password']);
+        
+        $entity['password'] = hash('sha256', $entity['password'].SITE_BLOWFISH);
         $entity['display_name'] = $entity['username'];
-        $entity['birth_date'] = new \MongoTimestamp(strtotime($entity['birth_date']));
+        $entity['birth_date'] = new \MongoDate(strtotime($entity['birth_date']));
 
         // set website,mobile to ''
         $entity['website'] = '';
@@ -71,19 +71,21 @@ class UserService extends BaseService {
         $entity['setting'] = UserHelper::defaultSetting();
 
         // register time
-        $entity['created_at'] = new \MongoTimestamp();
+        $entity['created_at'] = new \MongoDate();
 
         // set default last login
-        $entity['last_login'] = new \MongoTimestamp(0);
+        $entity['last_login'] = new \MongoDate();
+        
+        $entity['access_token'] = hash('sha256', SITE_BLOWFISH.uniqid());
 
         $this->getCollection()->insert($entity);
-
-        //add stat helper
-//        StatHelper::add('register', time(), 1);
-
-//        MongoHelper::standardIdEntity($entity);
         unset($entity['password']);
-
+        
+        $entity['birth_date'] = MongoHelper::dateToYmd($entity['birth_date']);
+        $entity['created_at'] = MongoHelper::dateToYmd($entity['created_at']);
+        $entity['last_login'] = MongoHelper::dateToYmd($entity['last_login']);
+        $entity['id'] = $entity['_id']->{'$id'};
+        unset($entity['_id']);
         return $entity;
     }
 
@@ -212,6 +214,8 @@ class UserService extends BaseService {
             $entity['picture'] = Image::load($entity['picture'])->toArrayResponse();
         }
         else {
+            
+            // Load Default picture
             $entity['picture'] = Image::load([
                 'id'=> '54297c9390cc13a5048b4567png',
                 'width'=> 200,

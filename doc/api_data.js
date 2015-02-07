@@ -707,53 +707,6 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/oauth/facebook",
-    "title": "POST /oauth/facebook",
-    "description": "<p>Register with facebook</p> ",
-    "name": "OauthFacebook",
-    "group": "OAuth",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "facebook_token",
-            "description": ""
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "ios_device_token",
-            "description": "<p>Token from your mobile</p> "
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "android_token",
-            "description": "<p>Token from your mobile</p> "
-          }
-        ]
-      }
-    },
-    "success": {
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "{\n \"user_id\": \"54506d34da354df2078b4569\",\n \"access_token\": \"9f0f853517eaaed3c0b74838e6e95693\",\n \"type\": \"normal\",\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "version": "0.0.0",
-    "filename": "./private/src/Main/CTL/OAuthCTL.php",
-    "groupTitle": "OAuth"
-  },
-  {
-    "type": "post",
     "url": "/report",
     "title": "POST /report",
     "description": "<p>Send a report to admin</p> ",
@@ -805,6 +758,142 @@ define({ "api": [
     "version": "0.0.0",
     "filename": "./private/src/Main/CTL/ReportCTL.php",
     "groupTitle": "Report"
+  },
+  {
+    "type": "post",
+    "url": "/oauth/facebook",
+    "title": "POST /oauth/facebook",
+    "description": "<p>Register with facebook</p> ",
+    "name": "PostOauthFacebook",
+    "group": "Resister",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "facebook_token",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "ios_device_token",
+            "description": "<p>Token from your mobile</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "android_token",
+            "description": "<p>Token from your mobile</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "country",
+            "description": "<p>Country id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "city",
+            "description": "<p>City id</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n \"user_id\": \"54506d34da354df2078b4569\",\n \"access_token\": \"9f0f853517eaaed3c0b74838e6e95693\",\n \"type\": \"normal\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/OAuthCTL.php",
+    "groupTitle": "Resister"
+  },
+  {
+    "type": "post",
+    "url": "/register",
+    "title": "POST /register",
+    "description": "<p>Register with email</p> ",
+    "name": "PostRegister",
+    "group": "Resister",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "username",
+            "description": "<p>Your username using for login to system</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "email",
+            "description": "<p>Email address</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "password",
+            "description": "<p>Your password</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "gender",
+            "description": "<p>male or female</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "birth_date",
+            "description": "<p>Your birth date</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "country",
+            "description": "<p>Country id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "city",
+            "description": "<p>City id</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"email\":\"demouser1423299557@hotmail.com\",\n    \"username\":\"demo1423299557\",\n    \"gender\":\"male\",\n    \"birth_date\":\"2528-08-30 00:00:00\",\n    \"country\":\"54b8dfa810f0edcf048b4567\",\n    \"city\":\"54b8e0e010f0edcf048b4569\",\n    \"display_name\":\"demo1423299557\",\n    \"website\":\"\",\n    \"mobile\":\"\",\n    \"fb_id\":\"\",\n    \"fb_name\":\"\",\n    \"display_notification_number\":0,\n    \"type\":\"normal\",\n    \"setting\":{\n        \"show_facebook\":true,\n        \"show_website\":true,\n        \"show_mobile\":true,\n        \"show_gender\":true,\n        \"show_birth_date\":true,\n        \"show_email\":true,\n        \"notify_update\":true,\n        \"notify_message\":true\n    },\n    \"created_at\":\"2015-02-07 15:59:17\",\n    \"last_login\":\"2015-02-07 15:59:17\",\n    \"access_token\":\"b45bee792597912c5ba903443cac4cd8ff91616929297d70b0936f55d71cf8f5\",\n    \"id\":\"54d5d3e510f0ed1f048b456a\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/RegisterCTL.php",
+    "groupTitle": "Resister"
   },
   {
     "type": "get",
@@ -931,58 +1020,6 @@ define({ "api": [
     "version": "0.0.0",
     "filename": "./private/src/Main/CTL/SniffCTL.php",
     "groupTitle": "Sniff"
-  },
-  {
-    "type": "post",
-    "url": "/register",
-    "title": "POST /register",
-    "description": "<p>Register with email</p> ",
-    "name": "Register",
-    "group": "User",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "username",
-            "description": "<p>Your username using for login to system</p> "
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "email",
-            "description": "<p>Email address</p> "
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "password",
-            "description": "<p>Your password</p> "
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "gender",
-            "description": "<p>male or female</p> "
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "birth_date",
-            "description": "<p>Your birth date</p> "
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "./private/src/Main/CTL/RegisterCTL.php",
-    "groupTitle": "User"
   },
   {
     "success": {

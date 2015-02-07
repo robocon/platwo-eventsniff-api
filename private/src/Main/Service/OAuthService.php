@@ -73,7 +73,7 @@ class OAuthService extends BaseService {
                     'fb_name'=> $me->getName(),
                     'display_name'=> $me->getName(),
                     'email'=> $me->getProperty('email'),
-                    'username'=> $me->getId(),
+//                    'username'=> $me->getId(),
                     'gender'=> $me->getProperty('gender'),
                     'birth_date'=> $birth_date,
                     'website'=> '',

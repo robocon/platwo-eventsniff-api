@@ -13,7 +13,7 @@ use Main\DB;
 use Main\Helper\URL;
 
 class Image {
-    const BASE_URL = "http://127.0.0.1";
+    const BASE_URL = "http://".MEDIA_HOST;
     protected $id, $width, $height;
     protected function __construct($id, $width, $height){
         $this->id = $id;

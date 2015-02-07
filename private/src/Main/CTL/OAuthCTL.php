@@ -19,8 +19,8 @@ class OAuthCTL extends BaseCTL {
      * 
      * @api {post} /oauth/facebook POST /oauth/facebook
      * @apiDescription Register with facebook
-     * @apiName OauthFacebook
-     * @apiGroup OAuth
+     * @apiName PostOauthFacebook
+     * @apiGroup Resister
      * @apiParam {String} facebook_token
      * @apiParam {String} ios_device_token Token from your mobile
      * @apiParam {String} android_token Token from your mobile

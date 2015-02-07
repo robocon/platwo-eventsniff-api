@@ -13,11 +13,11 @@ class UserHelper {
     public static function defaultSetting(){
         return [
             'show_facebook'=> true,
-            'show_email'=> true,
-            'show_birth_date'=> true,
-            'show_gender'=> true,
             'show_website'=> true,
             'show_mobile'=> true,
+            'show_gender'=> true,
+            'show_birth_date'=> true,
+            'show_email'=> true, // Fix for show only
 
             'notify_update'=> true,
             'notify_message'=> true
