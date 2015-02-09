@@ -22,7 +22,7 @@ class Image {
     }
 
     public static function absoluteUrl($url){
-        return self::BASE_URL.'/'.$url;
+        return 'http://'.MEDIA_HOST.'/'.$url;
     }
 
     public function toArray(){
