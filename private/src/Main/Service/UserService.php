@@ -536,4 +536,60 @@ HTML;
         
         return $item_lists;
     }
+    
+//    public $prev = null;
+    public function pictures($user_id, Context $ctx) {
+        
+        $date = new \DateTime();
+        $current_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_day = new \MongoDate($current_time);
+        
+        $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
+        $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
+                
+//        $ops = [
+//            ['$match' => [
+//                'user_id' => '54ba29c210f0edb8048b457a'
+//            ]],
+//            ['$group' => [
+//                '_id' => ['id' => '$event_id']
+//            ]]
+//        ];
+//        $g = $this->getGalleryCollection()->aggregate($ops);
+//        dump($g['result']);
+        
+        $items = $this->getGalleryCollection()->find([
+            'user_id' => $user_id
+        ])->sort(['event_id' => -1]);
+        
+        $item_lists = [];
+        foreach($items as $item){
+            $item['picture'] = Image::load($item['picture'])->toArrayResponse();
+            $item_lists[$item['event_id']][] = $item['picture'];
+        }
+        
+        $item_pictures = [];
+        foreach ($item_lists as $item => $value) {
+            
+            $event = $this->getEventCollection()->findOne([
+                'approve' => 1,
+                'build' => 1,
+                '_id' => new \MongoId($item)
+                ],['name','date_start','date_end']);
+            
+            if($event !== null){
+                $event['id'] = $event['_id']->{'$id'};
+                unset($event['_id']);
+                
+                $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+                $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
+                $event['picture_count'] = count($value);
+                $event['pictures'] = $value;
+                
+                $item_pictures[] = $event;
+            }
+        }
+        
+        return $item_pictures;
+    }
 }

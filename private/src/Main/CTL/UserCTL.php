@@ -309,4 +309,46 @@ class UserCTL extends BaseCTL {
         }
     }
     
+    /**
+     * @api {get} /user/event/pictures/:user_id GET /user/event/pictures/:user_id
+     * @apiDescription Get pictures in each event from user
+     * @apiName GetUserEventPicture
+     * @apiGroup User
+     * @apiParam {String} user_id User Id
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data": [
+        {
+            "date_end": "2015-02-13 15:52:56",
+            "date_start": "2015-01-30 15:52:56",
+            "name": "test add name 1422607976",
+            "id": "54cb466710f0ed24048b4567",
+            "picture_count": 4,
+            "pictures": [
+                {
+                "id": "54cba97490cc1381588b4567png",
+                "width": 25,
+                "height": 25,
+                "url": "http://110.164.70.60/get/54cba97490cc1381588b4567png/"
+                },
+                {... },
+            ]
+        },
+        {...}
+    ],
+    "length": 2
+}
+     * @GET
+     * @uri /event/pictures/[h:user_id]
+     */
+    public function pictures() {
+        try {
+            $items['data'] = UserService::getInstance()->pictures($this->reqInfo->urlParam('user_id'), $this->getCtx());
+            $items['length'] = count($items['data']);
+            return $items;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
+    
 }

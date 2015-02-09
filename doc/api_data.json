@@ -1089,6 +1089,39 @@
   },
   {
     "type": "get",
+    "url": "/user/event/pictures/:user_id",
+    "title": "GET /user/event/pictures/:user_id",
+    "description": "<p>Get pictures in each event from user</p> ",
+    "name": "GetUserEventPicture",
+    "group": "User",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User Id</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"data\": [\n        {\n            \"date_end\": \"2015-02-13 15:52:56\",\n            \"date_start\": \"2015-01-30 15:52:56\",\n            \"name\": \"test add name 1422607976\",\n            \"id\": \"54cb466710f0ed24048b4567\",\n            \"picture_count\": 4,\n            \"pictures\": [\n                {\n                \"id\": \"54cba97490cc1381588b4567png\",\n                \"width\": 25,\n                \"height\": 25,\n                \"url\": \"http://110.164.70.60/get/54cba97490cc1381588b4567png/\"\n                },\n                {... },\n            ]\n        },\n        {...}\n    ],\n    \"length\": 2\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/UserCTL.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "get",
     "url": "/user/event/past/:user_id",
     "title": "GET /user/event/past/:user_id",
     "description": "<p>Get event that user was sniff in the past</p> ",
