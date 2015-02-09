@@ -698,4 +698,34 @@ class EventCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
+    
+    /**
+     * @api {post} /event/search POST /event/search
+     * @apiDescription Search an event
+     * @apiName PostEventSearch
+     * @apiGroup Event
+     * @apiParam {String} word Any word that you want to search
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data": [
+    {
+        "name": "test add name 1422439981",
+        "id": "54c8b62d10f0ed1e048b4584"
+    },
+    {...}
+    ],
+    "length": 2
+}
+     * @POST
+     * @uri /search
+     */
+    public function search() {
+        try {
+            $res['data'] = EventService::getInstance()->search($this->reqInfo->input('word'), $this->getCtx());
+            $res['length'] = count($res['data']);
+            return $res;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }

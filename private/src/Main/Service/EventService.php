@@ -784,4 +784,43 @@ class EventService extends BaseService {
         
         return $new_lists;
     }
+    
+    public function search($word, Context $ctx) {
+        
+        if (empty($word)) {
+            throw new ServiceException(ResponseHelper::notFound());
+        }
+        
+        $date = new \DateTime();
+        $set_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_time = new \MongoDate($set_time);
+        
+        $search = new \MongoRegex("/".str_replace(['"', "'", "\x22", "\x27"], '', $word)."/i");
+        $items = $this->getCollection()->find([
+            'approve' => 1,
+            'build' => 1,
+            'name' => $search,
+            '$or' => [
+                ['date_start' => ['$gte' => $current_time]],
+                [
+                    '$and' => [
+                        ['date_start' => ['$lte' => $current_time]],
+                        ['date_end' => ['$gte' => $current_time]]
+                    ]
+                ]
+            ]
+        ],['name'])->sort(['date_start' => -1]);
+        
+        $item_lists = [];
+        if ($items->count() > 0) {
+            foreach($items as $item){
+                $item['id'] = $item['_id']->{'$id'};
+                unset($item['_id']);
+                
+                $item_lists[] = $item;
+            }
+        }
+        
+        return $item_lists;
+    }
 }

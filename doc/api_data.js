@@ -413,6 +413,39 @@ define({ "api": [
     "groupTitle": "Event"
   },
   {
+    "type": "post",
+    "url": "/event/search",
+    "title": "POST /event/search",
+    "description": "<p>Search an event</p> ",
+    "name": "PostEventSearch",
+    "group": "Event",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "word",
+            "description": "<p>Any word that you want to search</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"data\": [\n    {\n        \"name\": \"test add name 1422439981\",\n        \"id\": \"54c8b62d10f0ed1e048b4584\"\n    },\n    {...}\n    ],\n    \"length\": 2\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/EventCTL.php",
+    "groupTitle": "Event"
+  },
+  {
     "type": "put",
     "url": "/event/:event_id",
     "title": "PUT /event/:event_id",
