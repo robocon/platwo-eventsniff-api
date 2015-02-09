@@ -270,4 +270,43 @@ class UserCTL extends BaseCTL {
         }
     }
     
+    /**
+     * @api {get} /user/event/past/:user_id GET /user/event/past/:user_id
+     * @apiDescription Get event that user was sniff in the past
+     * @apiName GetUserPastEvent
+     * @apiGroup User
+     * @apiParam {String} user_id User Id
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data": [
+        {
+            "date_end": "2015-02-04 10:57:27",
+            "date_start": "2015-01-28 10:57:27",
+            "name": "test add name 1422417447",
+            "id": "54c85e2610f0ed1e048b4568",
+            "picture": {
+                "id": "54c8c13490cc13a8048b4619png",
+                "width": 25,
+                "height": 25,
+                "url": "http://110.164.70.60/get/54c8c13490cc13a8048b4619png/"
+            },
+            "total_sniffer": 0
+        },
+        {...}
+    ],
+    "length": 4
+}
+     * @GET
+     * @uri /event/past/[h:user_id]
+     */
+    public function past(){
+        try {
+            $items['data'] = UserService::getInstance()->past($this->reqInfo->urlParam('user_id'), $this->getCtx());
+            $items['length'] = count($items['data']);
+            return $items;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
+    
 }

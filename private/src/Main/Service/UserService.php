@@ -493,4 +493,47 @@ HTML;
         }
         return $item_lists;
     }
+    
+    public function past($user_id, Context $ctx) {
+        
+        $date = new \DateTime();
+        $current_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_day = new \MongoDate($current_time);
+        
+        $items = $this->getSnifferCollection()->find([
+            'user_id' => $user_id,
+        ],['event_id']);
+        
+        $item_lists = [];
+        if ($items->count() > 0) {
+            foreach($items as $item){
+                
+                $event = $this->getEventCollection()->findOne([
+                    'approve' => 1,
+                    'build' => 1,
+                    '_id' => new \MongoId($item['event_id']),
+                    'date_end' => ['$lt' => $current_day]
+                ],['name','date_start','date_end']);
+                
+                if ($event !== null) {
+                    $event['id'] = $event['_id']->{'$id'};
+                    unset($event['_id']);
+
+                    $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+                    $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
+
+                    $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
+                    $event['picture'] = Image::load($picture['picture'])->toArrayResponse();
+
+                    $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $event['id']])->count();
+
+                    $item_lists[] = $event;
+                }
+            }
+            
+            $item_lists = array_reverse($item_lists);
+        }
+        
+        return $item_lists;
+    }
 }

@@ -1056,6 +1056,39 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/user/event/past/:user_id",
+    "title": "GET /user/event/past/:user_id",
+    "description": "<p>Get event that user was sniff in the past</p> ",
+    "name": "GetUserPastEvent",
+    "group": "User",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User Id</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"data\": [\n        {\n            \"date_end\": \"2015-02-04 10:57:27\",\n            \"date_start\": \"2015-01-28 10:57:27\",\n            \"name\": \"test add name 1422417447\",\n            \"id\": \"54c85e2610f0ed1e048b4568\",\n            \"picture\": {\n                \"id\": \"54c8c13490cc13a8048b4619png\",\n                \"width\": 25,\n                \"height\": 25,\n                \"url\": \"http://110.164.70.60/get/54c8c13490cc13a8048b4619png/\"\n            },\n            \"total_sniffer\": 0\n        },\n        {...}\n    ],\n    \"length\": 4\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/UserCTL.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "get",
     "url": "/user/event/:user_id",
     "title": "GET /user/event/:user_id",
     "description": "<p>Get event that user was sniff</p> ",

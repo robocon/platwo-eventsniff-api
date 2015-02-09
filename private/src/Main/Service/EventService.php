@@ -533,12 +533,7 @@ class EventService extends BaseService {
                         $set_key = (string)strtotime($event['date_start']);
                         
                         $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
-//                        $event['thumb'] = Image::load($picture['picture'])->toArrayResponse();
-                        $make_url = function($item){
-                            $item['url'] = 'http://'.MEDIA_HOST.'/get/'.$item['id'].'/';
-                            return $item;
-                        };
-                        $event['thumb'] = $make_url($picture['picture']);
+                        $event['thumb'] = Image::load($picture['picture'])->toArrayResponse();
                         
                         $sniffer = $this->getSnifferCollection()->find(['event_id' => $event['id']]);
                         $event['total_sniffer'] = $sniffer->count(true);
