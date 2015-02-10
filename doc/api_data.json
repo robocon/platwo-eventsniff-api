@@ -1078,7 +1078,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"birth_date\": \"1985-08-30 00:00:00\",\n    \"display_name\": \"Kritsanasak Kuntaros\",\n    \"email\": \"roboconk@gmail.com\",\n    \"fb_name\": \"Kritsanasak Kuntaros\",\n    \"gender\": \"male\",\n    \"mobile\": \"\",\n    \"picture\": {\n        \"id\": \"54ba8cd690cc1350158b4619jpg\",\n        \"width\": 180,\n        \"height\": 180,\n        \"url\": \"http://110.164.70.60/get/54ba8cd690cc1350158b4619jpg/\"\n    },\n    \"type\": \"normal\",\n    \"username\": \"1012270568789233\",\n    \"website\": \"\",\n    \"id\": \"54ba29c210f0edb8048b457a\",\n    \"detail\": \"\"\n}",
+          "content": "{\n    \"birth_date\": \"1987-05-12 00:00:00\",\n    \"display_name\": \"DemoDemo\",\n    \"email\": \"justademo@gmail.com\",\n    \"fb_id\": \"101265715789233\",\n    \"fb_name\": \"Demo user\",\n    \"gender\": \"male\",\n    \"mobile\": \"\",\n    \"picture\": {\n        \"id\": \"54ba8cd690cc1350158b4619jpg\",\n        \"width\": 180,\n        \"height\": 180,\n        \"url\": \"http://110.164.70.60/get/54ba8cd690aa1350158b4619jpg/\"\n    },\n    \"type\": \"normal\",\n    \"username\": \"101265715789233\",\n    \"website\": \"\",\n    \"id\": \"54ba29c210f0edb8048b457a\",\n    \"detail\": \"\"\n}",
           "type": "json"
         }
       ]
@@ -1178,6 +1178,79 @@
         {
           "title": "Success-Response:",
           "content": "{\n    \"data\": [\n        {\n            \"alarm\": 0,\n            \"date_end\": \"2015-02-11 17:13:01\",\n            \"date_start\": \"2015-02-04 17:13:01\",\n            \"name\": \"test add name 1422439981\",\n            \"id\": \"54c8b62d10f0ed1e048b4584\",\n            \"picture\": {\n                \"id\": \"54c9193a90cc13ac048b4638png\",\n                \"width\": 25,\n                \"height\": 25,\n                \"url\": \"http://110.164.70.60/get/54c9193a90cc13ac048b4638png/\"\n            },\n            \"total_sniffer\": 1\n        },\n        {...}\n    ],\n    \"length\": 4\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/UserCTL.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "put",
+    "url": "/user/profile/:user_id/:action",
+    "title": "PUT /user/profile/:user_id/:action",
+    "description": "<p>Update picture, display name and detail</p> ",
+    "name": "PostUserUpdatePorfile",
+    "group": "User",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User Id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "action",
+            "description": "<p>Tell method which part do you want to update (picture, display_name, detail)</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "picture",
+            "description": "<p>Base 64 encode image file</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "display_name",
+            "description": "<p>Your display name</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "detail",
+            "description": "<p>Anything you want to add  (maximum at 150 character)</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Request-Example:",
+          "content": "picture=base64_encode\ndisplay_name=Test Name\ndetail=Test to update detail",
+          "type": "String"
+        }
+      ]
+    },
+    "sampleRequest": [
+      {
+        "url": "/user/profile/:user_id/:action"
+      }
+    ],
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\"success\":true}",
           "type": "json"
         }
       ]

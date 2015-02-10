@@ -592,4 +592,67 @@ HTML;
         
         return $item_pictures;
     }
+    
+    public function update_profile_picture($user_id, $picture, Context $ctx) {
+        $params = [
+            'user_id' => $user_id,
+            'picture' => $picture
+        ];
+        $v = new Validator($params);
+        $v->rule('required', ["user_id", "picture"]);
+
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $img = Image::upload($params['picture']);
+        $set['picture'] = $img->toArray();
+            
+        $set = ArrayHelper::ArrayGetPath($set);
+        $res = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> $set]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
+    
+    public function update_display_name($user_id, $display_name, Context $ctx) {
+        $params = [
+            'user_id' => $user_id,
+            'display_name' => $display_name
+        ];
+        
+        $v = new Validator($params);
+        $v->rule('required', ["user_id", "display_name"]);
+
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+
+        $res = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> ['display_name' => $params['display_name']]]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
+    
+    public function update_detail($user_id, $detail, Context $ctx) {
+        $params = [
+            'user_id' => $user_id,
+            'detail' => $detail
+        ];
+        
+        $v = new Validator($params);
+        $v->rule('required', ["user_id", "detail"]);
+
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+
+        $res = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> ['detail' => $params['detail']]]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
 }

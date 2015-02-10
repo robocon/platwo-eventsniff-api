@@ -352,4 +352,50 @@ class UserCTL extends BaseCTL {
         }
     }
     
+    /**
+     * @api {put} /user/profile/:user_id/:action PUT /user/profile/:user_id/:action
+     * @apiDescription Update picture, display name and detail
+     * @apiName PostUserUpdatePorfile
+     * @apiGroup User
+     * @apiParam {String} user_id User Id
+     * @apiParam {String} action Tell method which part do you want to update (picture, display_name, detail)
+     * @apiParam {String} picture Base 64 encode image file
+     * @apiParam {String} display_name Your display name
+     * @apiParam {String} detail Anything you want to add  (maximum at 150 character)
+     * @apiParamExample {String} Request-Example:
+     * picture=base64_encode
+     * display_name=Test Name
+     * detail=Test to update detail
+     * @apiSampleRequest /user/profile/:user_id/:action
+     * @apiSuccessExample {json} Success-Response:
+     * {"success":true}
+     * 
+     * @PUT
+     * @uri /profile/[h:user_id]/[*:action]
+     */
+    public function update_profile() {
+        try {
+            $action = $this->reqInfo->urlParam('action');
+            $user_id = $this->reqInfo->urlParam('user_id');
+            $res = false;
+            if ($action === 'picture') {
+                $res = UserService::getInstance()->update_profile_picture($user_id, $this->reqInfo->param('picture'), $this->getCtx());
+            
+            } elseif ($action === 'display_name') {
+                $res = UserService::getInstance()->update_display_name($user_id, $this->reqInfo->param('display_name'), $this->getCtx());
+            
+            } elseif ($action === 'detail') {
+                $res = UserService::getInstance()->update_detail($user_id, $this->reqInfo->param('detail'), $this->getCtx());
+            
+            }
+            
+            return ['success' => $res];
+            
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
+    
+    
+    
 }

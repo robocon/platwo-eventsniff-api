@@ -16,7 +16,7 @@ class Image {
 //    const BASE_URL = "http://".MEDIA_HOST;
     protected $id, $width, $height, $url;
 //    private $picture = [];
-    protected function __construct($id, $width, $height, $url){
+    protected function __construct($id, $width, $height, $url = null){
         $this->id = $id;
         $this->width = $width;
         $this->height = $height;
