@@ -26,20 +26,21 @@ class UserCTL extends BaseCTL {
      * @apiParam {String} user_id User Id
      * @apiSuccessExample {json} Success-Response:
 {
-    "birth_date": "1985-08-30 00:00:00",
-    "display_name": "Kritsanasak Kuntaros",
-    "email": "roboconk@gmail.com",
-    "fb_name": "Kritsanasak Kuntaros",
+    "birth_date": "1987-05-12 00:00:00",
+    "display_name": "DemoDemo",
+    "email": "justademo@gmail.com",
+    "fb_id": "101265715789233",
+    "fb_name": "Demo user",
     "gender": "male",
     "mobile": "",
     "picture": {
         "id": "54ba8cd690cc1350158b4619jpg",
         "width": 180,
         "height": 180,
-        "url": "http://110.164.70.60/get/54ba8cd690cc1350158b4619jpg/"
+        "url": "http://110.164.70.60/get/54ba8cd690aa1350158b4619jpg/"
     },
     "type": "normal",
-    "username": "1012270568789233",
+    "username": "101265715789233",
     "website": "",
     "id": "54ba29c210f0edb8048b457a",
     "detail": ""

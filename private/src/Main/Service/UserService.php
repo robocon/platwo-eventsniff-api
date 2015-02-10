@@ -241,7 +241,7 @@ class UserService extends BaseService {
         if (empty($entity['detail'])) {
             $entity['detail'] = '';
         }
-        unset($entity['fb_id']);
+        
         return $entity;
     }
 
