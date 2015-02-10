@@ -13,12 +13,14 @@ use Main\DB;
 use Main\Helper\URL;
 
 class Image {
-    const BASE_URL = "http://".MEDIA_HOST;
-    protected $id, $width, $height;
-    protected function __construct($id, $width, $height){
+//    const BASE_URL = "http://".MEDIA_HOST;
+    protected $id, $width, $height, $url;
+//    private $picture = [];
+    protected function __construct($id, $width, $height, $url){
         $this->id = $id;
         $this->width = $width;
         $this->height = $height;
+        $this->url = $url;
     }
 
     public static function absoluteUrl($url){
@@ -38,7 +40,7 @@ class Image {
             'id'=> $this->id,
             'width'=> $this->width,
             'height'=> $this->height,
-            'url'=> $this->absoluteUrl('get/'.$this->id.'/')
+            'url'=> $this->url
         ];
     }
 
@@ -54,7 +56,12 @@ class Image {
     }
 
     public static function load($params){
-        return new self($params['id'], $params['width'], $params['height']);
+        
+        if (empty($params['url'])) {
+            $params['url'] = 'http://'.MEDIA_HOST.'/get/'.$params['id'].'/';
+        }
+        
+        return new self($params['id'], $params['width'], $params['height'], $params['url']);
     }
 
     public static function loads($loads){
