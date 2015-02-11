@@ -71,7 +71,7 @@ class UserService extends BaseService {
         
         $entity['password'] = hash('sha256', $entity['password'].SITE_BLOWFISH);
         $entity['display_name'] = $entity['username'];
-        $entity['birth_date'] = new \MongoDate(strtotime($entity['birth_date']));
+        $entity['birth_date'] = new \MongoDate(strtotime($entity['birth_date'].' 00:00:00'));
 
         // set website,mobile to ''
         $entity['website'] = '';
@@ -611,9 +611,11 @@ HTML;
         $set = ArrayHelper::ArrayGetPath($set);
         $res = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> $set]);
         if ($res['n'] == 0) {
-            return false;
+            return ['success' => false];
         }
-        return true;
+        $img_res['picture'] = Image::load($set['picture']);
+        $img_res['success'] = true;
+        return $img_res;
     }
     
     public function update_display_name($user_id, $display_name, Context $ctx) {
@@ -650,6 +652,81 @@ HTML;
         }
 
         $res = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> ['detail' => $params['detail']]]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
+    
+    public function update_gender($user_id, $gender, Context $ctx){
+        $params = [
+            'user_id' => $user_id,
+            'gender' => $gender
+        ];
+        
+        $v = new Validator($params);
+        $v->rule('required', ["user_id", "gender"]);
+
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $res = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> ['gender' => $params['gender']]]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
+    
+    public function update_birth_date($user_id, $birth_date, Context $ctx){
+        
+        $birth_date = new \MongoDate(strtotime($birth_date." 00:00:00"));
+        $params = [
+            'user_id' => $user_id,
+            'birth_date' =>  $birth_date
+        ];
+        
+        $v = new Validator($params);
+        $v->rule('required', ["user_id", "birth_date"]);
+
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $res = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> ['birth_date' => $params['birth_date']]]);
+        
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
+    
+    public function update_username($user_id, $username, Context $ctx) {
+
+        $params = [
+            'user_id' => $user_id,
+            'username' =>  $username
+        ];
+        
+        $v = new Validator($params);
+        $v->rule('required', ["user_id", "username"]);
+        $v->rule('alphaNum', ["username"]);
+
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $check_username = $this->getCollection()->findOne([
+            'username' => $username,
+            '_id' => [ '$ne' => new \MongoId($user_id) ]
+        ],['_id']);
+        
+        if ($check_username !== null) {
+            throw new ServiceException(ResponseHelper::error('Username already exist'));
+        }
+        
+        $res = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> ['username' => $params['username']]]);
+        
         if ($res['n'] == 0) {
             return false;
         }

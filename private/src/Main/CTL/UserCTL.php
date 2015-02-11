@@ -362,10 +362,15 @@ class UserCTL extends BaseCTL {
      * @apiParam {String} picture Base 64 encode image file
      * @apiParam {String} display_name Your display name
      * @apiParam {String} detail Anything you want to add  (maximum at 150 character)
+     * @apiParam {String} gender Your gender
+     * @apiParam {String} birth_date Your birth date format YYYY-mm-dd
      * @apiParamExample {String} Request-Example:
      * picture=base64_encode
      * display_name=Test Name
      * detail=Test to update detail
+     * gender=male
+     * birth_date=2012-01-26
+     * username=p2user
      * @apiSampleRequest /user/profile/:user_id/:action
      * @apiSuccessExample {json} Success-Response:
      * {"success":true}
@@ -379,17 +384,29 @@ class UserCTL extends BaseCTL {
             $user_id = $this->reqInfo->urlParam('user_id');
             $res = false;
             if ($action === 'picture') {
-                $res = UserService::getInstance()->update_profile_picture($user_id, $this->reqInfo->param('picture'), $this->getCtx());
-            
+                $img_res = UserService::getInstance()->update_profile_picture($user_id, $this->reqInfo->param('picture'), $this->getCtx());
+                $res = ['success' => $img_res['success'], 'picture' => $img_res['picture']];
+                
             } elseif ($action === 'display_name') {
-                $res = UserService::getInstance()->update_display_name($user_id, $this->reqInfo->param('display_name'), $this->getCtx());
-            
+                $response = UserService::getInstance()->update_display_name($user_id, $this->reqInfo->param('display_name'), $this->getCtx());
+                $res = ['success' => $response];
             } elseif ($action === 'detail') {
-                $res = UserService::getInstance()->update_detail($user_id, $this->reqInfo->param('detail'), $this->getCtx());
-            
+                $response = UserService::getInstance()->update_detail($user_id, $this->reqInfo->param('detail'), $this->getCtx());
+                $res = ['success' => $response];
+            } elseif ($action === 'gender') {
+                $response = UserService::getInstance()->update_gender($user_id, $this->reqInfo->param('gender'), $this->getCtx());
+                $res = ['success' => $response];
+            } elseif ($action === 'birth_date') {
+                $response = UserService::getInstance()->update_birth_date($user_id, $this->reqInfo->param('birth_date'), $this->getCtx());
+                $res = ['success' => $response];
+            } elseif ($action === 'username') {
+                $response = UserService::getInstance()->update_username($user_id, $this->reqInfo->param('username'), $this->getCtx());
+                $res = ['success' => $response];
+            } elseif ($action === 'email') {
+                
             }
             
-            return ['success' => $res];
+            return $res;
             
         } catch (ServiceException $e) {
             return $e->getResponse();

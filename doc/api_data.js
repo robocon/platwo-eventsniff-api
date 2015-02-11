@@ -1230,13 +1230,27 @@ define({ "api": [
             "optional": false,
             "field": "detail",
             "description": "<p>Anything you want to add  (maximum at 150 character)</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "gender",
+            "description": "<p>Your gender</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "birth_date",
+            "description": "<p>Your birth date format YYYY-mm-dd</p> "
           }
         ]
       },
       "examples": [
         {
           "title": "Request-Example:",
-          "content": "picture=base64_encode\ndisplay_name=Test Name\ndetail=Test to update detail",
+          "content": "picture=base64_encode\ndisplay_name=Test Name\ndetail=Test to update detail\ngender=male\nbirth_date=2012-01-26\nusername=p2user",
           "type": "String"
         }
       ]
