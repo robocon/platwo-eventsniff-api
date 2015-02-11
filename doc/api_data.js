@@ -1155,6 +1155,39 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/user/setting/:user_id",
+    "title": "GET /user/setting/:user_id",
+    "description": "<p>Get user setting in profile tab</p> ",
+    "name": "GetUserSettingProfile",
+    "group": "User",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User Id</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"show_facebook\": false,\n    \"show_email\": true,\n    \"show_birth_date\": true,\n    \"show_gender\": true,\n    \"show_website\": true,\n    \"show_mobile\": false,\n    \"notify_update\": true,\n    \"notify_message\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/UserSettingCTL.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "get",
     "url": "/user/event/:user_id",
     "title": "GET /user/event/:user_id",
     "description": "<p>Get event that user was sniff</p> ",
@@ -1277,7 +1310,7 @@ define({ "api": [
     "type": "put",
     "url": "/user/setting/:user_id/:field",
     "title": "PUT /user/setting/:user_id/:field",
-    "description": "<p>Get user detail in profile tab</p> ",
+    "description": "<p>Enable/Disable user setting</p> ",
     "name": "PutUserSetting",
     "group": "User",
     "parameter": {

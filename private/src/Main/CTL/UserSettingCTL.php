@@ -18,6 +18,22 @@ use Main\Service\UserSettingService;
  */
 class UserSettingCTL extends BaseCTL {
     /**
+     * @api {get} /user/setting/:user_id GET /user/setting/:user_id
+     * @apiDescription Get user setting in profile tab
+     * @apiName GetUserSettingProfile
+     * @apiGroup User
+     * @apiParam {String} user_id User Id
+     * @apiSuccessExample {json} Success-Response:
+{
+    "show_facebook": false,
+    "show_email": true,
+    "show_birth_date": true,
+    "show_gender": true,
+    "show_website": true,
+    "show_mobile": false,
+    "notify_update": true,
+    "notify_message": true
+}
      * @GET
      * @uri /[h:id]
      */
@@ -47,7 +63,7 @@ class UserSettingCTL extends BaseCTL {
     
     /**
      * @api {put} /user/setting/:user_id/:field PUT /user/setting/:user_id/:field
-     * @apiDescription Get user detail in profile tab
+     * @apiDescription Enable/Disable user setting
      * @apiName PutUserSetting
      * @apiGroup User
      * @apiParam {String} user_id User Id
