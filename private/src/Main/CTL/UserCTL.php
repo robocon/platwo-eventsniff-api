@@ -404,6 +404,8 @@ class UserCTL extends BaseCTL {
                 $res = ['success' => $response];
             } elseif ($action === 'email') {
                 
+            } else {
+                
             }
             
             return $res;

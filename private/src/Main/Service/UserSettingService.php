@@ -15,6 +15,7 @@ use Main\Exception\Service\ServiceException;
 use Main\Helper\ArrayHelper;
 use Main\Helper\MongoHelper;
 use Main\Helper\ResponseHelper;
+use Valitron\Validator;
 
 class UserSettingService extends BaseService {
     protected $fields = [
@@ -88,5 +89,45 @@ class UserSettingService extends BaseService {
         $this->getCollection()->update(['_id'=> $entity['_id']], ['$set'=> $set]);
 
         return $setting;
+    }
+    
+    public function user_setting($params, Context $ctx) {
+        
+        $v = new Validator($params);
+        $v->rule('required', ["user_id", "enable"]);
+        $v->rule('integer', ["enable"]);
+
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $enable_status = $params['enable'] > 0 ? true : false ;
+        if ($params['field']=='facebook') {
+            $key = 'setting.show_facebook';
+            
+        }  elseif ($params['field']=='website') {
+            $key = 'setting.show_website';
+            
+        }  elseif ($params['field']=='phone') {
+            $key = 'setting.show_mobile';
+            
+        }  elseif ($params['field']=='gender') {
+            $key = 'setting.show_gender';
+            
+        }  elseif ($params['field']=='birth') {
+            $key = 'setting.show_birth_date';
+            
+        } else{
+            throw new ServiceException(ResponseHelper::error('Invalid field'));
+        }
+        
+        $set = [
+            $key => $enable_status
+        ];
+        $update = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> $set]);
+        if ($update['n'] > 0) {
+            return true;
+        }
+        return false;
     }
 }

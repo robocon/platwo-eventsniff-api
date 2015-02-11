@@ -1274,6 +1274,46 @@
     "groupTitle": "User"
   },
   {
+    "type": "put",
+    "url": "/user/setting/:user_id/:field",
+    "title": "PUT /user/setting/:user_id/:field",
+    "description": "<p>Get user detail in profile tab</p> ",
+    "name": "PutUserSetting",
+    "group": "User",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User Id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "field",
+            "description": "<p>Allow for facebook, website, phone, gender, birth</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\"success\":true}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/UserSettingCTL.php",
+    "groupTitle": "User"
+  },
+  {
     "success": {
       "fields": {
         "Success 200": [
