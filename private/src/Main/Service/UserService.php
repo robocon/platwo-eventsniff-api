@@ -738,4 +738,83 @@ HTML;
         }
         return true;
     }
+    
+    public function update_email($user_id, $email, Context $ctx) {
+        
+        $params = [
+            'user_id' => $user_id,
+            'email' =>  $email
+        ];
+        
+        $v = new Validator($params);
+        $v->rule('required', ["user_id", "email"]);
+        $v->rule('email', ["email"]);
+
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $check_email = $this->getCollection()->findOne([
+            'email' => $email,
+            '_id' => [ '$ne' => new \MongoId($user_id) ]
+        ],['_id']);
+        
+        if ($check_email !== null) {
+            throw new ServiceException(ResponseHelper::error('Email already exist'));
+        }
+        
+        $res = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> ['email' => $params['email']]]);
+        
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
+    
+    public function update_password($user_id, $params, Context $ctx) {
+        
+        $data = [
+            'user_id' => $user_id,
+            'password' =>  $params['password'],
+            'new_password' =>  $params['new_password'],
+            'confirm_password' =>  $params['confirm_password'],
+        ];
+        
+        $v = new Validator($data);
+        $rules = [
+            'lengthMin' => [
+                ['password', 6],
+                ['new_password', 6],
+                ['confirm_password', 6]
+            ]
+        ];
+        $v->rules($rules);
+        $v->rule('equals', 'new_password', 'confirm_password');
+
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $user = $this->getCollection()->findOne([
+            '_id' => new \MongoId($user_id)
+        ],['private_key', 'password']);
+        if ($user === null) {
+            throw new ServiceException(ResponseHelper::error('Invalid user'));
+        }
+        
+        // Check old password was match from database?
+        if(isset($user['password'])){
+            $old_password = UserHelper::generate_password($data['password'], $user['private_key']);
+            if($old_password !== $user['new_password']){
+                throw new ServiceException(ResponseHelper::error('Invalid password'));
+            }
+        }
+        
+        $password = UserHelper::generate_password($data['password'], $user['private_key']);
+        $res = $this->getCollection()->update(['_id'=> new \MongoId($user_id)], ['$set'=> ['password' => $password]]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
 }

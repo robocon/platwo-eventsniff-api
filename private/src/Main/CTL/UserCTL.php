@@ -364,13 +364,23 @@ class UserCTL extends BaseCTL {
      * @apiParam {String} detail Anything you want to add  (maximum at 150 character)
      * @apiParam {String} gender Your gender
      * @apiParam {String} birth_date Your birth date format YYYY-mm-dd
+     * @apiParam {String} email Your email
+     * @apiParam {String} password Your current password
+     * @apiParam {String} new_password Your current password
+     * @apiParam {String} confirm_password Your current password
      * @apiParamExample {String} Request-Example:
+     * 
      * picture=base64_encode
      * display_name=Test Name
      * detail=Test to update detail
      * gender=male
      * birth_date=2012-01-26
      * username=p2user
+     * email=p2mail@gmail.com
+     * 
+     * password=YOUR_PASSWORD
+     * new_password=YOUR_NEW_PASSWORD
+     * confirm_password=CONFIRM_YOUR_NEW_PASSWORD
      * @apiSampleRequest /user/profile/:user_id/:action
      * @apiSuccessExample {json} Success-Response:
      * {"success":true}
@@ -403,9 +413,13 @@ class UserCTL extends BaseCTL {
                 $response = UserService::getInstance()->update_username($user_id, $this->reqInfo->param('username'), $this->getCtx());
                 $res = ['success' => $response];
             } elseif ($action === 'email') {
-                
+                $response = UserService::getInstance()->update_email($user_id, $this->reqInfo->param('email'), $this->getCtx());
+                $res = ['success' => $response];
+            } elseif ($action === 'password') {
+                $response = UserService::getInstance()->update_password($user_id, $this->reqInfo->params(), $this->getCtx());
+                $res = ['success' => $response];
             } else {
-                
+                throw new ServiceException(ResponseHelper::error('Invalid field'));
             }
             
             return $res;

@@ -1317,13 +1317,41 @@ define({ "api": [
             "optional": false,
             "field": "birth_date",
             "description": "<p>Your birth date format YYYY-mm-dd</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "email",
+            "description": "<p>Your email</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "password",
+            "description": "<p>Your current password</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "new_password",
+            "description": "<p>Your current password</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "confirm_password",
+            "description": "<p>Your current password</p> "
           }
         ]
       },
       "examples": [
         {
           "title": "Request-Example:",
-          "content": "picture=base64_encode\ndisplay_name=Test Name\ndetail=Test to update detail\ngender=male\nbirth_date=2012-01-26\nusername=p2user",
+          "content": "\npicture=base64_encode\ndisplay_name=Test Name\ndetail=Test to update detail\ngender=male\nbirth_date=2012-01-26\nusername=p2user\nemail=p2mail@gmail.com\n\npassword=YOUR_PASSWORD\nnew_password=YOUR_NEW_PASSWORD\nconfirm_password=CONFIRM_YOUR_NEW_PASSWORD",
           "type": "String"
         }
       ]
