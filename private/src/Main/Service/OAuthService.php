@@ -67,6 +67,7 @@ class OAuthService extends BaseService {
                 $params['city'] = isset($params['city']) ? $params['city'] : '54b8e0e010f0edcf048b4569' ;
                 
                 $birth_date = new \MongoDate($birth_date);
+                $user_private_key = UserHelper::generate_key();
                 $item = [
                     '_id'=> new \MongoId(),
                     'fb_id'=> $fbId,
@@ -89,11 +90,11 @@ class OAuthService extends BaseService {
                     ],
 
                     // set default last login
-                    'last_login' => $now
+                    'last_login' => $now,
+                    'private_key' => $user_private_key
                 ];
                 
-                $item['access_token'] = $this->generateToken(MongoHelper::standardId($item['_id']));
-//                $item['app_id'] = $ctx->getAppId();
+                $item['access_token'] = UserHelper::generate_token(MongoHelper::standardId($item['_id']), $user_private_key);
 
                 // get picture from facebook
                 $pictureSource = file_get_contents('http://graph.facebook.com/'.$fbId.'/picture?type=large');
@@ -109,7 +110,8 @@ class OAuthService extends BaseService {
                 $this->getUsersCollection()->ensureIndex(['access_token'=> 1, 'app_id'=> 1]);
             }
             else if(!isset($item['access_token'])){
-                $item['access_token'] = $this->generateToken(MongoHelper::standardId($item['_id']));
+                
+                $item['access_token'] = UserHelper::generate_token(MongoHelper::standardId($item['_id']), $item['private_key']);
                 $this->getUsersCollection()->update(['_id'=> $item['_id']], ['$set'=> ['access_token'=> $item['access_token']]]);
                 $this->getUsersCollection()->ensureIndex(['access_token'=> 1, 'app_id'=> 1]);
             }
@@ -151,16 +153,25 @@ class OAuthService extends BaseService {
         if(!$v->validate()){
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
-
-        $item = $this->getUsersCollection()->findOne(['username'=> $params['username']]);
+        
+        // Login with username or password
+        $item = $this->getUsersCollection()->findOne([
+            '$or' => [
+                ['username'=> $params['username']],
+                ['email'=> $params['username']]
+            ]
+        ]);
         if(is_null($item)){
             throw new ServiceException(ResponseHelper::notFound('Not found user'));
         }
-        if(!isset($item['password']) || $item['password']!=md5($params['password'])){
+        
+        $check_user_password = UserHelper::generate_password($params['password'], $item['private_key']);
+        
+        if(!isset($item['password']) || $item['password'] != $check_user_password){
             throw new ServiceException(ResponseHelper::error('Wrong password'));
         }
         if(!isset($item['access_token'])){
-            $item['access_token'] = $this->generateToken(MongoHelper::standardId($item['_id']));
+            $item['access_token'] = UserHelper::generate_token(MongoHelper::standardId($item['_id']), $item['private_key']);
             $this->getUsersCollection()->update(['_id'=> $item['_id']], ['$set'=> ['access_token'=> $item['access_token']]]);
             $this->getUsersCollection()->ensureIndex(['access_token'=> 1, 'app_id'=> 1]);
         }

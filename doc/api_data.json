@@ -929,6 +929,46 @@
     "groupTitle": "Resister"
   },
   {
+    "type": "post",
+    "url": "/oauth/password",
+    "title": "POST /oauth/password",
+    "description": "<p>Register with username or email</p> ",
+    "name": "PostUserLogin",
+    "group": "Resister",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "username",
+            "description": "<p>Your username or your email</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "password",
+            "description": "<p>Your password</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n \"user_id\": \"34ada06eaf0e266a230911d3b15bab3f2645f7f7783f8bcc4b05f522209772bd\",\n \"access_token\": \"df63b220f30f28bf15fb4e911a0540bed06a6dff89148e5a257c1a24ed56f767\",\n \"type\": \"normal\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/OAuthCTL.php",
+    "groupTitle": "Resister"
+  },
+  {
     "type": "get",
     "url": "/sniff/follower/:event_id",
     "title": "GET /sniff/follower/:event_id",

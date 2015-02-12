@@ -23,4 +23,16 @@ class UserHelper {
             'notify_message'=> true
         ];
     }
+    
+    public static function generate_key() {
+        return hash('sha256', time().uniqid().SITE_BLOWFISH);
+    }
+    
+    public static function generate_token($user_id, $user_private_key){
+        return hash('sha256', $user_id.uniqid().$user_private_key.uniqid());
+    }
+    
+    public static function generate_password($password, $user_private_key){
+        return hash('sha256', $password.SITE_BLOWFISH.$user_private_key);
+    }
 }

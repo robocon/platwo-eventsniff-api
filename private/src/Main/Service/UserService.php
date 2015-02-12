@@ -9,16 +9,16 @@
 namespace Main\Service;
 
 
-use Main\Context\Context;
-use Main\DataModel\Image;
-use Main\DB;
-use Main\Exception\Service\ServiceException;
-use Main\Helper\ArrayHelper;
-use Main\Helper\MongoHelper;
-use Main\Helper\ResponseHelper;
-use Main\Helper\URL;
-use Main\Helper\UserHelper;
-use Valitron\Validator;
+use Main\Context\Context,
+    Main\DataModel\Image,
+    Main\DB,
+    Main\Exception\Service\ServiceException,
+    Main\Helper\ArrayHelper,
+    Main\Helper\MongoHelper,
+    Main\Helper\ResponseHelper,
+    Main\Helper\URL,
+    Main\Helper\UserHelper,
+    Valitron\Validator;
 
 class UserService extends BaseService {
     protected $fields = ["type", "display_name", "username", "email", "password", "gender", "birth_date", "picture", "mobile", "website", "fb_id", "fb_name", "type"];
@@ -69,7 +69,11 @@ class UserService extends BaseService {
             throw new ServiceException(ResponseHelper::validateError(['username'=> ['Duplicate username'], 'email'=> ['Duplicate email']]));
         }
         
-        $entity['password'] = hash('sha256', $entity['password'].SITE_BLOWFISH);
+        $user_private_key = UserHelper::generate_key();
+        
+        $entity['_id'] = new \MongoId();
+        
+        $entity['password'] = UserHelper::generate_password($entity['password'], $user_private_key);
         $entity['display_name'] = $entity['username'];
         $entity['birth_date'] = new \MongoDate(strtotime($entity['birth_date'].' 00:00:00'));
 
@@ -91,10 +95,12 @@ class UserService extends BaseService {
         // set default last login
         $entity['last_login'] = new \MongoDate();
         
-        $entity['access_token'] = hash('sha256', SITE_BLOWFISH.uniqid());
-
+        $entity['access_token'] = UserHelper::generate_token(MongoHelper::standardId($entity['_id']), $user_private_key);
+        $entity['private_key'] = $user_private_key;
+        
         $this->getCollection()->insert($entity);
         unset($entity['password']);
+        unset($entity['private_key']);
         
         $entity['birth_date'] = MongoHelper::dateToYmd($entity['birth_date']);
         $entity['created_at'] = MongoHelper::dateToYmd($entity['created_at']);
