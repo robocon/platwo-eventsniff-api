@@ -40,18 +40,27 @@ class OAuthService extends BaseService {
         }
 
         $session = new FacebookSession($params['facebook_token']);
+        
         try {
-            /**
-             * @var GraphUser $me;
-             */
             $me = (new FacebookRequest(
                 $session, 'GET', '/me'
             ))->execute()->getGraphObject(GraphUser::className());
             $me->getName();
             $fbId = $me->getId();
+
+        } catch(FacebookRequestException $e) {
+            throw new ServiceException(ResponseHelper::error($e->getMessage()));
+        }
+        
+        // Check facebook id again
+        if($fbId === null){
+            throw new ServiceException(ResponseHelper::error('Invalid facebook token'));
+        }
+        
+        try {
             
             // Search facebook_id from database
-            $item = $this->getUsersCollection()->findOne(['fb_id'=> $fbId], ['access_token', 'type']);
+            $item = $this->getUsersCollection()->findOne(['fb_id'=> $fbId], ['access_token', 'type', 'private_key']);
             
             if(is_null($item)){
                 $now = new \MongoDate();
@@ -60,7 +69,7 @@ class OAuthService extends BaseService {
                     $birth_date = $birth_date->getTimestamp();
                 }
                 else {
-                    $birth_date = 0;
+                    $birth_date = time();
                 }
                 
                 $params['country'] = isset($params['country']) ? $params['country'] : '54b8dfa810f0edcf048b4567' ;
@@ -85,9 +94,6 @@ class OAuthService extends BaseService {
                     'setting'=> UserHelper::defaultSetting(),
                     'display_notification_number' => 0,
                     'detail' => '',
-                    'default_location' => [
-                        $params['country'], $params['city']
-                    ],
 
                     // set default last login
                     'last_login' => $now,
@@ -109,13 +115,16 @@ class OAuthService extends BaseService {
                 $this->getUsersCollection()->insert($item);
                 $this->getUsersCollection()->ensureIndex(['access_token'=> 1, 'app_id'=> 1]);
             }
-            else if(!isset($item['access_token'])){
-                
-                $item['access_token'] = UserHelper::generate_token(MongoHelper::standardId($item['_id']), $item['private_key']);
-                $this->getUsersCollection()->update(['_id'=> $item['_id']], ['$set'=> ['access_token'=> $item['access_token']]]);
+            // If login with facebook again it will generate new access_token
+            else{
+                $update = [];
+                $update['last_login'] = new \MongoDate();
+                $update['updated_at'] = new \MongoDate();
+                $update['access_token'] = UserHelper::generate_token(MongoHelper::standardId($item['_id']), $item['private_key']);
+                $this->getUsersCollection()->update(['_id'=> $item['_id']], ['$set'=> $update]);
                 $this->getUsersCollection()->ensureIndex(['access_token'=> 1, 'app_id'=> 1]);
             }
-
+            
             // remember device token
             if(isset($params['ios_device_token'])){
                 // 
@@ -123,7 +132,7 @@ class OAuthService extends BaseService {
 
                 $hasToken = false;
                 if(isset($item['ios_device_token']) && is_array($item['ios_device_token'])){
-                    foreach($item['ios_device_token'] as $key=> $value){
+                    foreach($item['ios_device_token'] as $key => $value){
                         if($value['type'] == $params['ios_device_token']['type']
                             && $value['key'] == $params['ios_device_token']['key']){
                             $hasToken = true;
@@ -140,8 +149,6 @@ class OAuthService extends BaseService {
 
             return ['user_id'=> MongoHelper::standardId($item['_id']), 'access_token'=> $item['access_token'], 'type'=> $item['type']];
 
-        } catch (FacebookRequestException $e) {
-            throw new ServiceException(ResponseHelper::error($e->getMessage()));
         } catch (\Exception $e) {
             throw new ServiceException(ResponseHelper::error($e->getMessage()));
         }

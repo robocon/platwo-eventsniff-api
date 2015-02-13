@@ -44,14 +44,14 @@ class UserService extends BaseService {
     }
 
     public function add($params, Context $ctx){
-        $allow = ["username", "email", "password", "gender", "country", "city", "birth_date"];
+        $allow = ["username", "email", "password", "gender", "birth_date"];
         $entity = ArrayHelper::filterKey($allow, $params);
         
         $v = new Validator($entity);
-        $v->rule('required', ["username", "email", "password", "gender", "country", "city", "birth_date"]);
+        $v->rule('required', ["username", "email", "password", "gender", "birth_date"]);
         $v->rule('email', ["email"]);
         $v->rule('lengthBetween', 'username', 4, 32);
-        $v->rule('lengthBetween', 'password', 4, 32);
+        $v->rule('lengthBetween', 'password', 6, 32);
         $v->rule('in', 'gender', ['male', 'female', 'unspecify']);
 
         if(!$v->validate()) {
@@ -70,12 +70,14 @@ class UserService extends BaseService {
         }
         
         $user_private_key = UserHelper::generate_key();
+        $birth_date = new \MongoDate(strtotime($entity['birth_date'].' 00:00:00'));
+        $now = new \MongoDate();
         
         $entity['_id'] = new \MongoId();
         
         $entity['password'] = UserHelper::generate_password($entity['password'], $user_private_key);
         $entity['display_name'] = $entity['username'];
-        $entity['birth_date'] = new \MongoDate(strtotime($entity['birth_date'].' 00:00:00'));
+        $entity['birth_date'] = $birth_date;
 
         // set website,mobile to ''
         $entity['website'] = '';
@@ -90,10 +92,10 @@ class UserService extends BaseService {
         $entity['setting'] = UserHelper::defaultSetting();
 
         // register time
-        $entity['created_at'] = new \MongoDate();
+        $entity['created_at'] = $now;
 
         // set default last login
-        $entity['last_login'] = new \MongoDate();
+        $entity['last_login'] = $now;
         
         $entity['access_token'] = UserHelper::generate_token(MongoHelper::standardId($entity['_id']), $user_private_key);
         $entity['private_key'] = $user_private_key;
