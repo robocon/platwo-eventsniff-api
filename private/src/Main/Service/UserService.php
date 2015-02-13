@@ -99,10 +99,12 @@ class UserService extends BaseService {
         
         $entity['access_token'] = UserHelper::generate_token(MongoHelper::standardId($entity['_id']), $user_private_key);
         $entity['private_key'] = $user_private_key;
+        $entity['level'] = 1;
         
         $this->getCollection()->insert($entity);
         unset($entity['password']);
         unset($entity['private_key']);
+        unset($entity['level']);
         
         $entity['birth_date'] = MongoHelper::dateToYmd($entity['birth_date']);
         $entity['created_at'] = MongoHelper::dateToYmd($entity['created_at']);
@@ -814,6 +816,36 @@ HTML;
         
         $password = UserHelper::generate_password($data['password'], $user['private_key']);
         $res = $this->getCollection()->update(['_id'=> new \MongoId($user_id)], ['$set'=> ['password' => $password]]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
+    
+    public function update_location($user_id, $params, Context $ctx) {
+        
+        $data = [
+            'user_id' => $user_id,
+            'country' =>  $params['country'],
+            'city' =>  $params['city'],
+        ];
+        
+        $v = new Validator($data);
+        $v->rule('required', ["user_id", "country", "city"]);
+
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $check_user = $this->getCollection()->findOne([
+            '_id' => new \MongoId($data['user_id'])
+        ],['_id']);
+
+        if ($check_user === null) {
+            throw new ServiceException(ResponseHelper::error('Invalid user'));
+        }
+        
+        $res = $this->getCollection()->update(['_id' => new \MongoId($data['user_id'])], ['$set'=> ['default_location' => [$data['country'], $data['city']]]]);
         if ($res['n'] == 0) {
             return false;
         }

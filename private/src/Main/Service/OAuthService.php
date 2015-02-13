@@ -83,7 +83,6 @@ class OAuthService extends BaseService {
                     'fb_name'=> $me->getName(),
                     'display_name'=> $me->getName(),
                     'email'=> $me->getProperty('email'),
-//                    'username'=> $me->getId(),
                     'gender'=> $me->getProperty('gender'),
                     'birth_date'=> $birth_date,
                     'website'=> '',
@@ -97,7 +96,8 @@ class OAuthService extends BaseService {
 
                     // set default last login
                     'last_login' => $now,
-                    'private_key' => $user_private_key
+                    'private_key' => $user_private_key,
+                    'level' => 1
                 ];
                 
                 $item['access_token'] = UserHelper::generate_token(MongoHelper::standardId($item['_id']), $user_private_key);

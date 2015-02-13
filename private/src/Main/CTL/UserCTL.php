@@ -429,6 +429,27 @@ class UserCTL extends BaseCTL {
         }
     }
     
-    
+    /**
+     * @api {put} /user/location/:user_id PUT /user/location/:user_id
+     * @apiDescription Update user default location
+     * @apiName PutUserProfileDefaultLocation
+     * @apiGroup User
+     * @apiParam {String} user_id User Id
+     * @apiParam {String} country Country Id
+     * @apiParam {String} city City Id
+     * @apiSuccessExample {json} Success-Response:
+     * {"success":true}
+     * @PUT
+     * @uri /location/[h:user_id]
+     */
+    public function location() {
+        try {
+            $response = UserService::getInstance()->update_location($this->reqInfo->urlParam('user_id'), $this->reqInfo->params(), $this->getCtx());
+            return ['success' => $response];
+
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
     
 }

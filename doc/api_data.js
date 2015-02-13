@@ -1376,6 +1376,53 @@ define({ "api": [
   },
   {
     "type": "put",
+    "url": "/user/location/:user_id",
+    "title": "PUT /user/location/:user_id",
+    "description": "<p>Update user default location</p> ",
+    "name": "PutUserProfileDefaultLocation",
+    "group": "User",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User Id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "country",
+            "description": "<p>Country Id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "city",
+            "description": "<p>City Id</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\"success\":true}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/UserCTL.php",
+    "groupTitle": "User"
+  },
+  {
+    "type": "put",
     "url": "/user/setting/:user_id/:field",
     "title": "PUT /user/setting/:user_id/:field",
     "description": "<p>Enable/Disable user setting</p> ",
