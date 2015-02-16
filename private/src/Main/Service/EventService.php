@@ -291,6 +291,8 @@ class EventService extends BaseService {
             }
             $item['comments'] = $comments;
         }
+        
+        
 
         return $item;
     }

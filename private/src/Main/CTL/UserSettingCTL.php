@@ -68,6 +68,7 @@ class UserSettingCTL extends BaseCTL {
      * @apiGroup User
      * @apiParam {String} user_id User Id
      * @apiParam {String} field Allow for facebook, website, phone, gender, birth
+     * @apiParam {String} enable 0: disable, 1: enable
      * @apiSuccessExample {json} Success-Response:
      * {"success":true}
      * @PUT

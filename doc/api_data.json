@@ -1521,6 +1521,13 @@
             "optional": false,
             "field": "field",
             "description": "<p>Allow for facebook, website, phone, gender, birth</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "enable",
+            "description": "<p>0: disable, 1: enable</p> "
           }
         ]
       }

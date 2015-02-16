@@ -398,15 +398,17 @@ class EventCTL extends BaseCTL {
             }else{
 
                 // Add tags
-                $res['tags'] = TagService::getInstance()->add($this->reqInfo->urlParam('id'), $this->reqInfo->params(), $this->getCtx());
+                $res['tags'] = TagService::getInstance()->add($res['id'], $this->reqInfo->params(), $this->getCtx());
             }
 
             // Check a location already tag or not
             $check_location = LocationService::getInstance()->check($res['id'], $this->getCtx());
             if ($check_location > 0) {
+                
                 $res['location'] = LocationService::getInstance()->edit($res['id'], $this->reqInfo->params(), $this->getCtx());
             }else{
-                $location = LocationService::getInstance()->add($this->reqInfo->urlParam('id'), $this->reqInfo->params(), $this->getCtx());
+                
+                $location = LocationService::getInstance()->add($res['id'], $this->reqInfo->params(), $this->getCtx());
                 MongoHelper::standardIdEntity($location);
                 $res['location'] = $location;
             }

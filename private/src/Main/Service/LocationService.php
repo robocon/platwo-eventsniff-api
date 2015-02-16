@@ -45,14 +45,26 @@ class LocationService extends BaseService {
         $name = empty($params['location_name']) ? '' : $params['location_name'] ;
         unset($params['location_name']);
         
-        $position = explode(',', $params['position']);
-        $params['location'] = array_map('trim',$position);
+        $position = explode(',', $params['location']);
+        $lat = (float)$position['0'];
+        $lng = (float)$position['1'];
+        $location = [$lat, $lng];
         
-        $insert = ['name' => $name, 'position' => $params['location'], 'event_id' => $event_id];
-        $this->getCollection()->insert($insert);
+        $insert = [
+            'name' => $name,
+            'position' => $location,
+            'event_id' => $event_id
+        ];
         
-        $res = ['name' => $params['location_name'], 'position' => $params['location']];
-        return $res;
+        try {
+            $this->getCollection()->insert($insert);
+        } catch(\MongoCursorException $e) {
+            echo "Can't save the same person twice!\n";
+            echo $e->getMessage();
+            echo $e->getCode();
+        }
+        unset($insert['event_id']);
+        return $insert;
     }
     
     public function edit($event_id, $params, Context $ctx) {

@@ -46,10 +46,10 @@ $I->seeResponseContainsJson([
  * Update event data
  */
 $test_time = time();
-$test_date_start = date('Y-m-d H:i:s');
-$test_date_end = date('Y-m-d H:i:s', strtotime('+2 week'));
-//$test_date_start = date('Y-m-d H:i:s', strtotime('+1 week'));
+//$test_date_start = date('Y-m-d H:i:s');
 //$test_date_end = date('Y-m-d H:i:s', strtotime('+2 week'));
+$test_date_start = date('Y-m-d H:i:s', strtotime('+1 week'));
+$test_date_end = date('Y-m-d H:i:s', strtotime('+2 week'));
 
 $I->wantTo('Update an event data');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -63,8 +63,8 @@ $put = [
     'location' => '18.826562,98.892365',
     'location_name' => 'test location '.$test_time,
     'tags' => [
-//        '54c0ad7410f0ed5e048b4572', '54c0ad7410f0ed5e048b4573', '54c0ad7410f0ed5e048b4574'
-        '54c0ad7410f0ed5e048b456a'
+        '54c0ad7410f0ed5e048b4572', '54c0ad7410f0ed5e048b4573', '54c0ad7410f0ed5e048b4574'
+//        '54c0ad7410f0ed5e048b456a'
     ],
     'lang' => 'en'
 ];
@@ -85,7 +85,7 @@ $I->seeResponseContainsJson([
     'tags' => $tags,
     'location' => [
         'name' => $put['location_name'],
-        'position' => '18.826562,98.892365'
+//        'position' => ['18.826562', '98.892365']
         ],
     'status' => 200
 ]);
