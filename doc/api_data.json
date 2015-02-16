@@ -740,6 +740,83 @@
   },
   {
     "type": "post",
+    "url": "/log",
+    "title": "POST /log",
+    "description": "<p>Save log</p> ",
+    "name": "PostLog",
+    "group": "Logs",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "type",
+            "description": "<p>Type of log e.g. event, comment, picture</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Log state e.g. add, view, edit, share</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "reference_id",
+            "description": "<p>Id of an event, comment or picture</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>(Optional) Message when share an event to facebook</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "Access-Token",
+            "description": "<p>User Access Token</p> "
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Request-Example:",
+          "content": "type=event&status=share&message=share+to+facebook&reference_id=54cb466710f0ed24048b4567",
+          "type": "string"
+        }
+      ]
+    },
+    "header": {
+      "examples": [
+        {
+          "title": "Header-Example:",
+          "content": "Access-Token: 4309946fd4133f4bfc7f79d5881890400f4d59997b0d8b26886641394814cbd2",
+          "type": "string"
+        }
+      ]
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\"success\":true}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/Log.php",
+    "groupTitle": "Logs"
+  },
+  {
+    "type": "post",
     "url": "/report",
     "title": "POST /report",
     "description": "<p>Send a report to admin</p> ",

@@ -103,4 +103,16 @@ class RequestInfo {
     {
         return $this->url_params[$name];
     }
+    
+    /**
+     * Get header name
+     * 
+     * @param string $name Header name
+     * @return string
+     */
+    public static function getHeader($name){
+        $header = apache_request_headers();
+        $res = isset($header[$name]) ? $header[$name] : false ;
+        return $res;
+    }
 }
