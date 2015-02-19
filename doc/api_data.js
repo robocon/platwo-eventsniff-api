@@ -120,11 +120,37 @@ define({ "api": [
     "description": "<p>Get event from id [not complete yet]</p> ",
     "name": "GetEvent",
     "group": "Event",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "event_id",
+            "description": "<p>Event id</p> "
+          }
+        ]
+      }
+    },
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Access-Token",
+            "description": "<p>(Optional) User Access Token</p> "
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"alarm\": 0,\n    \"approve\": 1,\n    \"build\": 1,\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"detail\": \"Example detail\",\n    \"name\": \"Example title\",\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"time_stamp\": \"1970-01-01 07:00:00\",\n    \"user_id\": \"1\",\n    \"id\": \"54ba191510f0edb7048b456a\",\n    \"location\": {\n        \"name\": \"\",\n        \"position\": [\n            \"19.906496\",\n            \"99.834254\"\n        ],\n        \"id\": \"54ba194110f0edb7048b456f\"\n    },\n    \"pictures\": [\n        {\n            \"id\": \"54ba7c3590cc13ab048b4628png\",\n            \"width\": 100,\n            \"height\": 100,\n            \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7c3590cc13ab048b4628png\\/\"\n        },\n        {...}\n    ],\n    \"total_sniffer\": 2,\n    \"sniffer\": [\n    {\n        \"id\": \"54ba29c210f0edb8048b457a\",\n        \"picture\": {\n            \"id\": \"54ba8cd690cc1350158b4619jpg\",\n            \"width\": 180,\n            \"height\": 180,\n            \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba8cd690cc1350158b4619jpg\\/\"\n        }\n    }\n    ],\n    \"total_comment\": 2,\n    \"comments\": [\n        {\n            \"detail\": \"hello world\",\n            \"user_id\": \"54ba29c210f0edb8048b457a\",\n            \"event_id\": \"54ba191510f0edb7048b456a\",\n            \"time_stamp\": \"2015-01-21 11:09:11\",\n            \"id\": \"54bf266710f0ed12048b456a\",\n            \"user\": {\n                \"display_name\": \"Kritsanasak Kuntaros\",\n                \"picture\": {\n                    \"id\": \"54ba8cd690cc1350158b4619jpg\",\n                    \"width\": 180,\n                    \"height\": 180,\n                    \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba8cd690cc1350158b4619jpg\\/\"\n                }\n            }\n        },\n        {...}\n    ]\n}",
+          "content": "{\n    \"alarm\": 0,\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"detail\": \"Example detail\",\n    \"name\": \"Example title\",\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"time_stamp\": \"1970-01-01 07:00:00\",\n    \"user_id\": \"1\",\n    \"id\": \"54ba191510f0edb7048b456a\",\n    \"location\": {\n        \"name\": \"\",\n        \"position\": [\n            \"19.906496\",\n            \"99.834254\"\n        ],\n        \"id\": \"54ba194110f0edb7048b456f\"\n    },\n    \"pictures\": [\n        {\n            \"id\": \"54ba7c3590cc13ab048b4628png\",\n            \"width\": 100,\n            \"height\": 100,\n            \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba7c3590cc13ab048b4628png\\/\"\n        },\n        {...}\n    ],\n    \"total_sniffer\": 2,\n    \"sniffer\": [\n    {\n        \"id\": \"54ba29c210f0edb8048b457a\",\n        \"picture\": {\n            \"id\": \"54ba8cd690cc1350158b4619jpg\",\n            \"width\": 180,\n            \"height\": 180,\n            \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba8cd690cc1350158b4619jpg\\/\"\n        }\n    }\n    ],\n    \"total_comment\": 2,\n    \"comments\": [\n        {\n            \"detail\": \"hello world\",\n            \"user_id\": \"54ba29c210f0edb8048b457a\",\n            \"event_id\": \"54ba191510f0edb7048b456a\",\n            \"time_stamp\": \"2015-01-21 11:09:11\",\n            \"id\": \"54bf266710f0ed12048b456a\",\n            \"user\": {\n                \"display_name\": \"Kritsanasak Kuntaros\",\n                \"picture\": {\n                    \"id\": \"54ba8cd690cc1350158b4619jpg\",\n                    \"width\": 180,\n                    \"height\": 180,\n                    \"url\": \"http:\\/\\/110.164.70.60\\/get\\/54ba8cd690cc1350158b4619jpg\\/\"\n                }\n            }\n        },\n        {...}\n    ]\n}",
           "type": "json"
         }
       ]
@@ -471,7 +497,7 @@ define({ "api": [
           },
           {
             "group": "Parameter",
-            "type": "Text",
+            "type": "String",
             "optional": false,
             "field": "detail",
             "description": "<p>Event description</p> "
@@ -531,6 +557,20 @@ define({ "api": [
             "optional": false,
             "field": "lang",
             "description": "<p>Language like en, th. Default is en</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "country",
+            "description": "<p>Country id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "city",
+            "description": "<p>City id</p> "
           }
         ]
       }
@@ -539,7 +579,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"name\": \"Example title\",\n    \"detail\": \"Example detail\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"id\": \"54ba1bc910f0edb8048b456c\",\n    \"tags\": [\n        {\n            \"tag_id\": \"6f2da37e72bf9e100b40567c\",\n            \"name\": \"Promotion\"\n        },\n        {...},\n    ],\n    \"location\": {\n        \"name\": \"CNX\",\n        \"position\": [\n            \"19.906496\",\n            \"99.834254\"\n        ],\n    },\n    \"status\": 200\n}",
+          "content": "{\n    \"name\": \"Example title\",\n    \"detail\": \"Example detail\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"local\":[\"54b8dfa810f0edcf048b4567\",\"54b8e0e010f0edcf048b4575\"],\n    \"id\": \"54ba1bc910f0edb8048b456c\",\n    \"tags\": [\n        {\n            \"tag_id\": \"6f2da37e72bf9e100b40567c\",\n            \"name\": \"Promotion\"\n        },\n        {...},\n    ],\n    \"location\": {\n        \"name\": \"CNX\",\n        \"position\": [\n            \"19.906496\",\n            \"99.834254\"\n        ],\n    },\n    \"status\": 200\n}",
           "type": "json"
         }
       ]
@@ -637,6 +677,19 @@ define({ "api": [
             "optional": false,
             "field": "picture_id",
             "description": "<p>Picture id</p> "
+          }
+        ]
+      }
+    },
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Access-Token",
+            "description": "<p>(Optional) User Access Token</p> "
           }
         ]
       }
@@ -775,13 +828,6 @@ define({ "api": [
             "optional": false,
             "field": "message",
             "description": "<p>(Optional) Message when share an event to facebook</p> "
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "Access-Token",
-            "description": "<p>User Access Token</p> "
           }
         ]
       },
@@ -794,6 +840,17 @@ define({ "api": [
       ]
     },
     "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Access-Token",
+            "description": "<p>User Access Token</p> "
+          }
+        ]
+      },
       "examples": [
         {
           "title": "Header-Example:",
@@ -899,20 +956,6 @@ define({ "api": [
             "optional": false,
             "field": "android_token",
             "description": "<p>Token from your mobile</p> "
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "country",
-            "description": "<p>Country id</p> "
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "city",
-            "description": "<p>City id</p> "
           }
         ]
       }
@@ -979,15 +1022,15 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "country",
-            "description": "<p>Country id</p> "
+            "field": "ios_device_token",
+            "description": "<p>(Optional) Token from your mobile</p> "
           },
           {
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "city",
-            "description": "<p>City id</p> "
+            "field": "android_token",
+            "description": "<p>(Optional) Token from your mobile</p> "
           }
         ]
       }
@@ -996,7 +1039,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"email\":\"demouser1423299557@hotmail.com\",\n    \"username\":\"demo1423299557\",\n    \"gender\":\"male\",\n    \"birth_date\":\"2528-08-30 00:00:00\",\n    \"country\":\"54b8dfa810f0edcf048b4567\",\n    \"city\":\"54b8e0e010f0edcf048b4569\",\n    \"display_name\":\"demo1423299557\",\n    \"website\":\"\",\n    \"mobile\":\"\",\n    \"fb_id\":\"\",\n    \"fb_name\":\"\",\n    \"display_notification_number\":0,\n    \"type\":\"normal\",\n    \"setting\":{\n        \"show_facebook\":true,\n        \"show_website\":true,\n        \"show_mobile\":true,\n        \"show_gender\":true,\n        \"show_birth_date\":true,\n        \"show_email\":true,\n        \"notify_update\":true,\n        \"notify_message\":true\n    },\n    \"created_at\":\"2015-02-07 15:59:17\",\n    \"last_login\":\"2015-02-07 15:59:17\",\n    \"access_token\":\"b45bee792597912c5ba903443cac4cd8ff91616929297d70b0936f55d71cf8f5\",\n    \"id\":\"54d5d3e510f0ed1f048b456a\"\n}",
+          "content": "{\n \"user_id\": \"54506d34da354df2078b4569\",\n \"access_token\": \"9f0f853517eaaed3c0b74838e6e95693\",\n \"type\": \"normal\",\n}",
           "type": "json"
         }
       ]

@@ -4,7 +4,8 @@ namespace Main\CTL;
 use Main\Service\LogService,
     Main\Http\RequestInfo,
     Main\Exception\Service\ServiceException,
-    Main\Helper\ResponseHelper;
+    Main\Helper\ResponseHelper,
+    Main\Helper\UserHelper;
 
 /**
  * @Restful
@@ -22,7 +23,7 @@ class Log extends BaseCTL {
      * @apiParam {String} status Log state e.g. add, view, edit, share
      * @apiParam {String} reference_id Id of an event, comment or picture
      * @apiParam {String} message (Optional) Message when share an event to facebook
-     * @apiParam {String} Access-Token User Access Token
+     * @apiHeader {String} Access-Token User Access Token
      * 
      * @apiHeaderExample {string} Header-Example:
      * Access-Token: 4309946fd4133f4bfc7f79d5881890400f4d59997b0d8b26886641394814cbd2
@@ -44,7 +45,11 @@ class Log extends BaseCTL {
                 throw new ServiceException(ResponseHelper::error('Invalid token'));
             }
             
-            $item = LogService::getInstance()->save($token, $this->reqInfo->params(), $this->getCtx());
+            if(UserHelper::check_token($token) === false){
+                throw new ServiceException(ResponseHelper::error('Invalid user'));
+            }
+            
+            $item = LogService::getInstance()->save($this->reqInfo->params(), $this->getCtx());
             return ['success' => $item];
             
         } catch (ServiceException $e) {

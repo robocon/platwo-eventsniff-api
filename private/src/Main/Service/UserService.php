@@ -100,18 +100,94 @@ class UserService extends BaseService {
         $entity['access_token'] = UserHelper::generate_token(MongoHelper::standardId($entity['_id']), $user_private_key);
         $entity['private_key'] = $user_private_key;
         $entity['level'] = 1;
+        $entity['advertiser'] = 0;
         
         $this->getCollection()->insert($entity);
-        unset($entity['password']);
-        unset($entity['private_key']);
-        unset($entity['level']);
         
-        $entity['birth_date'] = MongoHelper::dateToYmd($entity['birth_date']);
-        $entity['created_at'] = MongoHelper::dateToYmd($entity['created_at']);
-        $entity['last_login'] = MongoHelper::dateToYmd($entity['last_login']);
+        // remember device token
+        if(isset($params['ios_device_token'])){
+            // 
+//            file_put_contents('test.txt', $params['ios_device_token']);
+
+            $hasToken = false;
+            if(isset($entity['ios_device_token']) && is_array($entity['ios_device_token'])){
+                foreach($entity['ios_device_token'] as $key => $value){
+                    if($value['type'] == $params['ios_device_token']['type']
+                        && $value['key'] == $params['ios_device_token']['key']){
+                        $hasToken = true;
+                    }
+                }
+            }
+            if(!$hasToken){
+                $this->getUsersCollection()->update(['_id'=> $entity['_id']], ['$addToSet'=> ['ios_device_token'=> $params['ios_device_token'] ]]);
+            }
+        }
+        if(isset($params['android_token'])){
+            $this->getUsersCollection()->update(['_id'=> $entity['_id']], ['$addToSet'=> ['android_token'=> $params['android_token'] ]]);
+        }
+        
         $entity['id'] = $entity['_id']->{'$id'};
         unset($entity['_id']);
-        return $entity;
+        
+        $res = [
+            'user_id' => $entity['id'],
+            'access_token' => $entity['access_token'],
+            'type' => $entity['type'],
+        ];
+        
+        return $res;
+    }
+    
+    public function noneuser($params, Context $ctx) {
+        
+        $user_private_key = UserHelper::generate_key();
+        $now = new \MongoDate();
+        $_id = new \MongoId();
+        $data = [
+            'display_name' => 'user '.uniqid(),
+            'created_at' => $now,
+            'last_login' => $now,
+            'access_token' => UserHelper::generate_token(MongoHelper::standardId($_id), $user_private_key),
+            'private_key' => $user_private_key,
+            'type' => 'none',
+            'level' => 0
+        ];
+        
+        $this->getCollection()->insert($data);
+        
+        // remember device token
+        if(isset($params['ios_device_token'])){
+            // 
+//            file_put_contents('test.txt', $params['ios_device_token']);
+
+            $hasToken = false;
+            if(isset($data['ios_device_token']) && is_array($data['ios_device_token'])){
+                foreach($data['ios_device_token'] as $key => $value){
+                    if($value['type'] == $params['ios_device_token']['type']
+                        && $value['key'] == $params['ios_device_token']['key']){
+                        $hasToken = true;
+                    }
+                }
+            }
+            if(!$hasToken){
+                $this->getCollection()->update(['_id'=> $data['_id']], ['$addToSet'=> ['ios_device_token'=> $params['ios_device_token'] ]]);
+            }
+        }
+        if(isset($params['android_token'])){
+            $this->getCollection()->update(['_id'=> $data['_id']], ['$addToSet'=> ['android_token'=> $params['android_token'] ]]);
+        }
+        
+        $data['id'] = $data['_id']->{'$id'};
+        unset($data['_id']);
+        
+        $res = [
+            'user_id' => $data['id'],
+            'access_token' => $data['access_token'],
+            'type' => $data['type'],
+        ];
+        
+        return $res;
+        
     }
 
     public function gets($options, Context $ctx){

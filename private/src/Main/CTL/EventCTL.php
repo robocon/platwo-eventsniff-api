@@ -16,7 +16,9 @@ use Main\Exception\Service\ServiceException,
     Main\Service\GalleryService,
     Main\Service\TagService,
     Main\Service\LocationService,
-    Main\Service\SniffService;
+    Main\Service\SniffService,
+    Main\Service\LogService,
+    Main\Helper\UserHelper;
 
 /**
  * Class EventCTL
@@ -122,11 +124,11 @@ class EventCTL extends BaseCTL {
      * @apiDescription Get event from id [not complete yet]
      * @apiName GetEvent
      * @apiGroup Event
+     * @apiParam {String} event_id Event id
+     * @apiHeader {String} Access-Token (Optional) User Access Token
      * @apiSuccessExample {json} Success-Response:
     {
         "alarm": 0,
-        "approve": 1,
-        "build": 1,
         "credit": "https:\/\/www.google.com",
         "date_end": "1970-01-01 07:00:00",
         "date_start": "1970-01-01 07:00:00",
@@ -193,6 +195,26 @@ class EventCTL extends BaseCTL {
     public function get() {
         try {
             $item = EventService::getInstance()->get($this->reqInfo->urlParam('event_id'), $this->getCtx());
+            unset($item['approve']);
+            unset($item['build']);
+            
+            // For none register user
+            UserHelper::$user_id = 0;
+                    
+            $token = $this->reqInfo->param('token');
+            if($token !== null){
+                if(UserHelper::check_token($token) === false){
+                    throw new ServiceException(ResponseHelper::error('Invalid user'));
+                }
+            }
+            
+            $data_log = [
+                'reference_id' => $item['id'],
+                'type' => 'event',
+                'status' => 'view',
+            ];
+            LogService::getInstance()->save($data_log, $this->getCtx());
+            
             return $item;
         } catch (ServiceException $e) {
             return $e->getResponse();
@@ -338,7 +360,7 @@ class EventCTL extends BaseCTL {
      * @apiGroup Event
      * @apiParam {String} event_id Event id
      * @apiParam {String} name Event name
-     * @apiParam {Text} detail Event description
+     * @apiParam {String} detail Event description
      * @apiParam {String} date_start Event datetime E.g. 2014-01-15 11:00:00
      * @apiParam {String} date_end Event datetime
      * @apiParam {String} credit Something where are you get this event from
@@ -347,6 +369,8 @@ class EventCTL extends BaseCTL {
      * @apiParam {String} location_name Location name
      * @apiParam {Array} tags Category id E.g. ['uj65tg', 'o8akuj', 'we8qw5']
      * @apiParam {String} lang Language like en, th. Default is en
+     * @apiParam {String} country Country id
+     * @apiParam {String} city City id
      * @apiSuccessExample {json} Success-Response:
 {
     "name": "Example title",
@@ -355,6 +379,7 @@ class EventCTL extends BaseCTL {
     "date_end": "1970-01-01 07:00:00",
     "credit": "https:\/\/www.google.com",
     "time_edit": "1970-01-01 07:00:00",
+    "local":["54b8dfa810f0edcf048b4567","54b8e0e010f0edcf048b4575"],
     "id": "54ba1bc910f0edb8048b456c",
     "tags": [
         {

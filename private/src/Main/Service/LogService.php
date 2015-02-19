@@ -20,11 +20,7 @@ class LogService extends BaseService {
         return $db->logs;
     }
     
-    public function save($token, $params, Context $ctx) {
-        
-        if(UserHelper::check_token($token) === false){
-            throw new ServiceException(ResponseHelper::error('Invalid user'));
-        }
+    public function save($params, Context $ctx) {
         
         // Get user id from token
         $user_id = UserHelper::$user_id;

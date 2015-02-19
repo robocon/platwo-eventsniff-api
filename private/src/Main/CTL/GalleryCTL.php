@@ -8,9 +8,10 @@
 
 namespace Main\CTL;
 
-use Main\Exception\Service\ServiceException;
-use Main\Service\EventService;
-use Main\Service\GalleryService;
+use Main\Exception\Service\ServiceException,
+    Main\Helper\UserHelper,
+    Main\Service\GalleryService,
+    Main\Service\LogService;
 
 /**
  * Class EventCTL
@@ -96,6 +97,7 @@ class GalleryCTL extends BaseCTL {
      * @apiName GetPicture
      * @apiGroup Gallery
      * @apiParam {String} picture_id Picture id
+     * @apiHeader {String} Access-Token (Optional) User Access Token
      * @apiSuccessExample {json} Success-Response:
 {
     "data": {
@@ -117,6 +119,24 @@ class GalleryCTL extends BaseCTL {
         try {
             
             $item['data'] = GalleryService::getInstance()->get($this->reqInfo->urlParam('picture_id'), $this->getCtx());
+            
+            // For none register user
+            UserHelper::$user_id = 0;
+                    
+            $token = $this->reqInfo->param('token');
+            if($token !== null){
+                if(UserHelper::check_token($token) === false){
+                    throw new ServiceException(ResponseHelper::error('Invalid user'));
+                }
+            }
+            
+            $data_log = [
+                'reference_id' => $item['data']['id'],
+                'type' => 'picture',
+                'status' => 'view',
+            ];
+            LogService::getInstance()->save($data_log, $this->getCtx());
+            
             return $item;
             
         } catch (ServiceException $e) {

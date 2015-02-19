@@ -97,7 +97,8 @@ class OAuthService extends BaseService {
                     // set default last login
                     'last_login' => $now,
                     'private_key' => $user_private_key,
-                    'level' => 1
+                    'level' => 1,
+                    'advertiser' => 0
                 ];
                 
                 $item['access_token'] = UserHelper::generate_token(MongoHelper::standardId($item['_id']), $user_private_key);

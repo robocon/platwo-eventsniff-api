@@ -363,9 +363,13 @@ class EventService extends BaseService {
         // Set build and approve to 0 if send from mobile
         $params['build'] = 0;
         $params['approve'] = 0;
-        $params['time_stamp'] = new \MongoTimestamp();
+        $params['time_stamp'] = new \MongoDate();
         $params['alarm'] = 0;
-        $insert = ArrayHelper::filterKey(['user_id', 'build', 'approve', 'time_stamp', 'alarm'], $params);
+        $params['advertise'] = [
+            'status' => 0
+        ];
+        
+        $insert = ArrayHelper::filterKey(['user_id', 'build', 'approve', 'time_stamp', 'alarm', 'advertise'], $params);
 
         $this->getCollection()->insert($insert);
         return $insert;
@@ -377,7 +381,7 @@ class EventService extends BaseService {
         $id = MongoHelper::mongoId($id);
 
         $v = new Validator($params);
-        $v->rule('required', ['name', 'detail', 'date_start', 'date_end', 'credit']);
+        $v->rule('required', ['name', 'detail', 'date_start', 'date_end', 'credit', 'country', 'city']);
 
         if(!$v->validate()){
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
@@ -390,9 +394,12 @@ class EventService extends BaseService {
         $set['credit'] = $params['credit'];
         $set['time_edit'] = new \MongoDate(time());
         $set['build'] = 1;
+        $set['location'] = [$params['country'], $params['city']];
 
         $this->getCollection()->update(['_id'=> $id], ['$set'=> $set]);
         unset($set['build']);
+        $set['local'] = $set['location'];
+        unset($set['location']);
         return $set;
     }
 

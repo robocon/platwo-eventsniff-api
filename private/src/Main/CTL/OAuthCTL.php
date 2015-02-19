@@ -23,8 +23,6 @@ class OAuthCTL extends BaseCTL {
      * @apiParam {String} facebook_token
      * @apiParam {String} ios_device_token Token from your mobile
      * @apiParam {String} android_token Token from your mobile
-     * @apiParam {String} country Country id
-     * @apiParam {String} city City id
      * @apiSuccessExample {json} Success-Response:
      * {
      *  "user_id": "54506d34da354df2078b4569",

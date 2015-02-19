@@ -45,7 +45,11 @@ class LocationService extends BaseService {
         $name = empty($params['location_name']) ? '' : $params['location_name'] ;
         unset($params['location_name']);
         
-        $position = explode(',', $params['location']);
+        $position = $params['location'];
+        if(!is_array($params['location'])){
+            $position = explode(',', $params['location']);
+        }
+            
         $lat = (float)$position['0'];
         $lng = (float)$position['1'];
         $location = [$lat, $lng];
