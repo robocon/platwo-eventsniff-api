@@ -7,13 +7,18 @@
  */
 
 namespace Main\Helper;
-use Main\DB;
+
+use Main\Exception\Service\ServiceException,
+    Main\Helper\ResponseHelper,
+    Main\DB,
+    Main\Http\RequestInfo;
 
 class UserHelper {
     
     public static $user_id = null;
-    public function __construct($user_id) {
-        self::$user_id;
+    private $data = null;
+    public function __construct($data_user = null) {
+        $this->data = $data_user;
     }
     
     public static function defaultSetting(){
@@ -45,17 +50,37 @@ class UserHelper {
     /**
      * Check user token from db
      * 
-     * @param string $token Token name
      * @return boolean
      */
-    public static function check_token($token){
+    public static function check_token(){
+        
+        $token = RequestInfo::getToken();
+        if($token === false){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        
+        /**
+         * @todo After Set group_roles add into fineOne
+         */
         $db = DB::getDB()->users;
         $user = $db->findOne([
             'access_token' => $token
-        ],['_id']);
+        ],['_id','access_token','email','username']);
         
         if ($user !== null) {
-            self::$user_id = $user['_id']->{'$id'};
+            $user['id'] = $user['_id']->{'$id'};
+            unset($user['_id']);
+            
+            /**
+             * @todo Get and generate roles
+             */
+            
+//            $this->data = $user;
+            
+//            new UserHelper($user);
+//            dump($this_user);
+//            exit;
+            self::$user_id = $user['id'];
             return true;
         }
         

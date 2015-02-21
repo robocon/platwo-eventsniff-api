@@ -9,7 +9,9 @@
 namespace Main\CTL;
 
 use Main\Exception\Service\ServiceException,
+    Main\Helper\ResponseHelper,
     Main\Helper\MongoHelper,
+    Main\Helper\UserHelper,
     Main\Service\SniffService;
 
 /**
@@ -156,5 +158,52 @@ class SniffCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
-
+    
+    /**
+     * @api {post} /sniff/location POST /sniff/location
+     * @apiDescription Get an event from lat,lng and filter with category
+     * @apiName PostSniffLocation
+     * @apiGroup Sniff
+     * @apiParam {Array} category Category in an array to filter but if you want to show all categroy send it to String with 'all'
+     * @apiParam {Array} location Lat,Lng from map with South-West and North-East
+     * @apiHeader {String} Access-Token User Access Token
+     * 
+     * @apiHeaderExample {string} Header-Example:
+     * Access-Token: 4309946fd4133f4bfc7f79d5881890400f4d59997b0d8b26886641394814cbd2
+     * 
+     * @apiParamExample {string} Request-Example:
+     * category[]=54c0ad7410f0ed5e048b4575&category[]=54c0ad7410f0ed5e048b4579&location[0][]=18.776836&location[0][]=98.969479&location[1][]=18.800888&location[1][]=98.999863
+     * 
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data":[
+        {
+            "name":"test add name 1424340350",
+            "date_start":"2015-02-26 17:05:50",
+            "id":"54e5b57c10f0edf6058b4595",
+            "total_sniffer":0,
+            "view":4
+        },
+        {...}
+    ],
+    "length":2
+}
+     * @POST
+     * @uri /location
+     */
+    public function location() {
+        try {
+            
+            $token = UserHelper::check_token();
+            if($token === false){
+                throw new ServiceException(ResponseHelper::error('Invalid user token'));
+            }
+            
+            $items['data'] = SniffService::getInstance()->location($this->reqInfo->params(), $this->getCtx());
+            $items['length'] = count($items['data']);
+            return $items;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }

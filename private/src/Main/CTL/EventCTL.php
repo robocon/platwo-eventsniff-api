@@ -201,9 +201,9 @@ class EventCTL extends BaseCTL {
             // For none register user
             UserHelper::$user_id = 0;
                     
-            $token = $this->reqInfo->param('token');
-            if($token !== null){
-                if(UserHelper::check_token($token) === false){
+            $token = \Main\Http\RequestInfo::getToken();
+            if($token !== false){
+                if(UserHelper::check_token() === false){
                     throw new ServiceException(ResponseHelper::error('Invalid user'));
                 }
             }

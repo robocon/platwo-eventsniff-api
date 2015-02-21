@@ -115,4 +115,13 @@ class RequestInfo {
         $res = isset($header[$name]) ? $header[$name] : false ;
         return $res;
     }
+    
+    /**
+     * Get token from header name 'Access-Token'
+     * 
+     * @return bool
+     */
+    public static function getToken() {
+        return self::getHeader('Access-Token');
+    }
 }

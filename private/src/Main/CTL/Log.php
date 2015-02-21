@@ -40,12 +40,7 @@ class Log extends BaseCTL {
     public function save() {
         try {
             
-            $token = RequestInfo::getHeader('Access-Token');
-            if($token === false){
-                throw new ServiceException(ResponseHelper::error('Invalid token'));
-            }
-            
-            if(UserHelper::check_token($token) === false){
+            if(UserHelper::check_token() === false){
                 throw new ServiceException(ResponseHelper::error('Invalid user'));
             }
             

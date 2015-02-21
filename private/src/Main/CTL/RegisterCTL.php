@@ -50,6 +50,18 @@ class RegisterCTL extends BaseCTL {
     }
     
     /**
+     * @api {post} /register/noneuser POST /register/noneuser
+     * @apiDescription Booking user with device token
+     * @apiName PostRegisterNoneuser
+     * @apiGroup Resister
+     * @apiParam {String} ios_device_token (Optional) Token from your mobile
+     * @apiParam {String} android_token (Optional) Token from your mobile
+     * @apiSuccessExample {json} Success-Response:
+     * {
+     *  "user_id": "54506d34da354df2078b4569",
+     *  "access_token": "dbc0296946cc0591bb0520eb59e633a21be8c0f8aa746be4e2edeac300fad566",
+     *  "type": "none",
+     * }
      * @POST
      * @uri /noneuser
      */

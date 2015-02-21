@@ -40,6 +40,26 @@ class SniffService extends BaseService {
         return $db->users;
     }
     
+    public function getEventCollection(){
+         $db = DB::getDB();
+        return $db->event;
+    }
+    
+    public function getLocationCollection(){
+         $db = DB::getDB();
+        return $db->location;
+    }
+    
+    public function getLogCollection(){
+         $db = DB::getDB();
+        return $db->logs;
+    }
+    
+    public function getEventTagCollection(){
+         $db = DB::getDB();
+        return $db->event_tag;
+    }
+    
     public function gets($lang, $options = array(), Context $ctx) {
         
         // default lang is en
@@ -143,5 +163,124 @@ class SniffService extends BaseService {
         $res['data'] = $item_lists;
         $res['length'] = count($item_lists);
         return $res;
+    }
+    
+    public function location($params, Context $ctx) {
+        
+        $v = new Validator($params);
+        $v->rule('required', ['category', 'location']);
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $date = new \DateTime();
+        $set_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_time = new \MongoDate($set_time);
+        
+        $category = null;
+        if (is_array($params['category'])) {
+            $category = $params['category'];
+        }
+        
+//        $lat = (float)$params['location']['0'];
+//        $lng = (float)$params['location']['1'];
+//        $radius = (int)$params['radius'];
+//        $search = [
+//            'position' => [
+//                '$geoWithin' => [
+//                    '$center' => [
+//                        [$lat,$lng],
+//                        $radius
+//                    ]
+//                ]
+//            ],
+//        ];
+        
+//        $search = [
+//            'position' => [
+//                '$near' => [$lat,$lng]
+//            ]
+//        ];
+        
+        
+        // Box 
+        $bottom_left = $params['location']['0'];
+        $top_right = $params['location']['1'];
+        $search = [
+            'position' => [
+                '$geoWithin' => [
+                    '$box' => [
+                        [(float)$bottom_left['0'],(float)$bottom_left['1']],
+                        [(float)$top_right['0'],(float)$top_right['1']]
+                    ]
+                ]
+            ],
+        ];
+        
+        $locations = $this->getLocationCollection()->find($search,['event_id']);
+        $event_lists = [];
+        foreach($locations as $item){
+            
+            $item['id'] = $item['_id']->{'$id'};
+            unset($item['_id']);
+            
+            $event = $this->getEventCollection()->findOne([
+                '_id' => new \MongoId($item['event_id']),
+                'approve' => 1,
+                'build' => 1,
+                '$or' => [
+                    ['date_start' => ['$gte' => $current_time]],
+                    [
+                        '$and' => [
+                            ['date_start' => ['$lte' => $current_time]],
+                            ['date_end' => ['$gte' => $current_time]]
+                        ]
+                    ]
+                ]
+            ],['name','date_start']);
+            
+            if($event !== null){
+                
+                $event['id'] = $event['_id']->{'$id'};
+                unset($event['_id']);
+                
+                if ($category !== null) {
+                    $tags = $this->getEventTagCollection()->find(['event_id' => $event['id']]);
+                    
+                    $search_tag = false;
+                    foreach($tags as $tag){
+                        $search_tag = in_array($tag['tag_id'], $category);
+                    }
+                    
+                    // If not match any category continue to next event
+                    if($search_tag === false){
+                        continue;
+                    }
+                }
+                
+                $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+
+                $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['event_id']])->count();
+                $event['view'] = $this->getLogCollection()->find([
+                    'type' => 'event',
+                    'status' => 'view',
+                    'reference_id' => $event['id'],
+                ])->count();
+                
+                $event_lists[] = $event;
+                
+            }
+            
+        }
+        
+        // Sort by view count
+        usort($event_lists, function($a, $b){
+            return $a['view'] - $b['view'];
+        });
+        
+        // Reverse them and limit top 10
+        $final_lists = array_slice(array_reverse($event_lists), 0, 10);
+        
+        return $final_lists;
     }
 }
