@@ -5,7 +5,7 @@ $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 $I->sendPOST('register/noneuser', [
     'ios_device_token' => [
         'type' => 'product',
-        'key' => '56b3cf33d566d42e22457698f3d935ddbdd3fc26bc50330e7813f7d935795c4e'
+        'key' => '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'
     ]
 ]);
 $I->seeResponseCodeIs(200);
