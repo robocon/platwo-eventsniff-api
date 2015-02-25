@@ -20,6 +20,7 @@ use Facebook\FacebookRequest,
     Main\Helper\ResponseHelper,
     Main\Helper\UserHelper,
     Main\Helper\FacebookHelper,
+    Main\Http\RequestInfo,
     Valitron\Validator;
 
 class OAuthService extends BaseService {
@@ -29,23 +30,19 @@ class OAuthService extends BaseService {
     }
 
     public function facebook($params, Context $ctx){
-        file_put_contents('test.txt', print_r($params, true));
-
-        FacebookSession::setDefaultApplication(FacebookHelper::$app_id, FacebookHelper::$app_secret);
-
+        
         $v = new Validator($params);
         $v->rule('required', ['facebook_token']);
         if(!$v->validate()){
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
-
-        $session = new FacebookSession($params['facebook_token']);
         
+        FacebookSession::setDefaultApplication(FacebookHelper::$app_id, FacebookHelper::$app_secret);
+        $session = new FacebookSession($params['facebook_token']);
         try {
             $me = (new FacebookRequest(
                 $session, 'GET', '/me'
             ))->execute()->getGraphObject(GraphUser::className());
-            $me->getName();
             $fbId = $me->getId();
 
         } catch(FacebookRequestException $e) {
@@ -61,21 +58,19 @@ class OAuthService extends BaseService {
             
             // Search facebook_id from database
             $item = $this->getUsersCollection()->findOne(['fb_id'=> $fbId], ['access_token', 'type', 'private_key']);
+            $now = new \MongoDate();
             
             if(is_null($item)){
-                $now = new \MongoDate();
-                $birth_date = $me->getBirthday();
-                if($birth_date instanceof \DateTime){
-                    $birth_date = $birth_date->getTimestamp();
+                
+                $fb_birth_date = $me->getBirthday();
+                if(!is_null($fb_birth_date)){
+                    $birth_date_timestamp = $fb_birth_date->getTimestamp();
                 }
                 else {
-                    $birth_date = time();
+                    $birth_date_timestamp = time();
                 }
                 
-                $params['country'] = isset($params['country']) ? $params['country'] : '54b8dfa810f0edcf048b4567' ;
-                $params['city'] = isset($params['city']) ? $params['city'] : '54b8e0e010f0edcf048b4569' ;
-                
-                $birth_date = new \MongoDate($birth_date);
+                $birth_date = new \MongoDate($birth_date_timestamp);
                 $user_private_key = UserHelper::generate_key();
                 $item = [
                     '_id'=> new \MongoId(),
@@ -98,7 +93,8 @@ class OAuthService extends BaseService {
                     'last_login' => $now,
                     'private_key' => $user_private_key,
                     'level' => 1,
-                    'advertiser' => 0
+                    'advertiser' => 0,
+                    'group_role' => ['group_id' => '54e855072667467f7709320e', 'role_perm_id' => '54eaf79810f0ed0d0a8b4568']
                 ];
                 
                 $item['access_token'] = UserHelper::generate_token(MongoHelper::standardId($item['_id']), $user_private_key);
@@ -113,23 +109,41 @@ class OAuthService extends BaseService {
                 $pic = Image::upload(base64_encode($pictureSource));
                 $item['picture'] = $pic->toArray();
                 
-                $this->getUsersCollection()->insert($item);
-                $this->getUsersCollection()->ensureIndex(['access_token'=> 1, 'app_id'=> 1]);
+                // Check mobile device token
+                $device_token = isset($params['ios_device_token']) ? $params['ios_device_token']['key'] : $params['android_token'] ; 
+                $user = $this->getUsersCollection()->findOne([
+                    '$or' => [
+                        ['ios_device_token.key' => $device_token],
+                        ['android_token' => $device_token]
+                    ]
+                ]);
+                
+                if($user === null){
+                    $this->getUsersCollection()->insert($item);
+                }  else {
+                    unset($item['_id']);
+                    $this->getUsersCollection()->update(['_id' => new \MongoId($user['_id']->{'$id'})], ['$set' => $item]);
+                    $item['_id'] = $user['_id'];
+                }
+                
             }
             // If login with facebook again it will generate new access_token
             else{
-                $update = [];
-                $update['last_login'] = new \MongoDate();
-                $update['updated_at'] = new \MongoDate();
-                $update['access_token'] = UserHelper::generate_token(MongoHelper::standardId($item['_id']), $item['private_key']);
+                $update = [
+                    'last_login' => $now,
+                    'last_login' => $now,
+                    'access_token' => UserHelper::generate_token(MongoHelper::standardId($item['_id']), $item['private_key'])
+                ];
                 $this->getUsersCollection()->update(['_id'=> $item['_id']], ['$set'=> $update]);
-                $this->getUsersCollection()->ensureIndex(['access_token'=> 1, 'app_id'=> 1]);
+                $item['access_token'] = $update['access_token'];
             }
+            
+            $this->getUsersCollection()->ensureIndex(['access_token'=> 1, 'app_id'=> 1]);
             
             // remember device token
             if(isset($params['ios_device_token'])){
                 // 
-                file_put_contents('test.txt', $params['ios_device_token']);
+//                file_put_contents('test.txt', $params['ios_device_token']);
 
                 $hasToken = false;
                 if(isset($item['ios_device_token']) && is_array($item['ios_device_token'])){

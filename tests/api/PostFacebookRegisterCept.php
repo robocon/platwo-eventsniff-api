@@ -2,12 +2,16 @@
 $I = new ApiTester($scenario);
 $I->wantTo('Facebook login');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+//$I->setHeader('access-token', '15f0890c37b57bc837c31fbcadde3150f192509fe199c3012b78c94113706492');
+
 $I->sendPOST('oauth/facebook', [
-    'facebook_token' => 'CAAM1TzhIHDwBAGYzm1h4TKZBKqsYcZAVzdWlkJZB8aBrYjpnArgYGltWmBCme5a5aRnKb3qNdQU8QKyCvlij1VQsZCrZBcmfvzyTkHDk1QnMn1VS00TzVI3EBldZBcMEcnqdITYVPTLPcKybejsRBsqUM0M5JsV5ZC2qGW8cAZBLZCII95SmqZAVzTY4LAzmgtxT7vIRy0wOFA6XKT43YdRTYDy6HRbRzT70sZD',
-    // Example ios
+    'facebook_token' => 'CAAM1TzhIHDwBALsyB6BYElmesii2xwzGd1L3VAzmmjak20giFvaMGN9ul9AY9Xgr9IpHFmzOFoGPZCdf5CZBZAIdEmUROsIGEZAq1ZCkM2wgzYNwRZAuBIxONX66Bky7s2dK4SG833Kf4OtIiZBFQHTFwOx8ZA2EIjqY6ZA4fYp2g9vmL7SWSJ2F5O9Y9wO53SyVZAUZBcqyU0QnGl4AW6cRZCeHBuFUbcf9gdAZD',
+    
+// Example ios
     'ios_device_token' => [
-        'type' => 'dev',
-        'key' => 'FE66489F304DC75B8D6E8200DFF8A456E8DAEACEC428B427E9518741C92C6660'
+        'type' => 'product',
+        'key' => '56b3cf33d566d42e22457698f3d935ddbdd3fc26bc50330e7813f7d935795c4e'
     ]
     // Example Android token
     // "APA91bHh0sDFO9wDD--My4WFltYdx4murTcdwhFaZS928ZIY6x8WXDuO2cVmY5pjaockSYUekpdL8tZxUD-KUGI6QzRXLrS7Jyf7Irknh6ooUgemJ-WdTzmtXu9hG3zl4OSJwM003DRspRrSoY5Fcq8e51b2sheSAUDvNGAvWF8iYtl6ns9Ze9Q", 

@@ -194,9 +194,13 @@ class SniffCTL extends BaseCTL {
     public function location() {
         try {
             
-            $token = UserHelper::check_token();
-            if($token === false){
-                throw new ServiceException(ResponseHelper::error('Invalid user token'));
+//            $token = UserHelper::check_token();
+//            if($token === false){
+//                throw new ServiceException(ResponseHelper::error('Invalid user token'));
+//            }
+            
+            if(UserHelper::hasPermission('sniff', 'read') === false){
+                throw new ServiceException(ResponseHelper::notAuthorize('Access deny'));
             }
             
             $items['data'] = SniffService::getInstance()->location($this->reqInfo->params(), $this->getCtx());

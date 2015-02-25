@@ -16,7 +16,9 @@ use Main\Exception\Service\ServiceException,
 class UserHelper {
     
     public static $user_id = null;
+    private static $group_role = null;
     private $data = null;
+    
     public function __construct($data_user = null) {
         $this->data = $data_user;
     }
@@ -59,31 +61,47 @@ class UserHelper {
             throw new ServiceException(ResponseHelper::error('Invalid token'));
         }
         
-        /**
-         * @todo After Set group_roles add into fineOne
-         */
-        $db = DB::getDB()->users;
-        $user = $db->findOne([
+        $db = DB::getDB();
+        $user = $db->users->findOne([
             'access_token' => $token
-        ],['_id','access_token','email','username']);
+        ],['_id','access_token','email','username','group_role']);
         
         if ($user !== null) {
             $user['id'] = $user['_id']->{'$id'};
             unset($user['_id']);
             
-            /**
-             * @todo Get and generate roles
-             */
-            
-//            $this->data = $user;
-            
-//            new UserHelper($user);
-//            dump($this_user);
-//            exit;
             self::$user_id = $user['id'];
+            
+            if (self::$group_role == null) {
+                $role_perm = $db->role_perm->findOne([
+                    '_id' => new \MongoId($user['group_role']['role_perm_id'])
+                ]);
+
+                self::$group_role = $role_perm['perms'];
+            }
+            
             return true;
         }
         
         return false;
+    }
+    
+    public static function hasPermission($name, $action) {
+        
+        $token = UserHelper::check_token();
+        if($token === false){
+            throw new ServiceException(ResponseHelper::error('Invalid user token'));
+        }
+        
+        $db = DB::getDB();
+        $perm = $db->permission->findOne([
+            'name' => $name,
+            'action' => $action
+        ]);
+        if($perm === null){
+            throw new ServiceException(ResponseHelper::error('Invalid permission'));
+        }
+        $perm_access = in_array($perm['_id']->{'$id'}, UserHelper::$group_role);
+        return $perm_access;
     }
 }
