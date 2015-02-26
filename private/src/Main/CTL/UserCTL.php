@@ -421,11 +421,15 @@ class UserCTL extends BaseCTL {
                 $response = UserService::getInstance()->update_password($user_id, $this->reqInfo->params(), $this->getCtx());
                 $res = ['success' => $response];
             } elseif ($action === 'website') {
-                $response = UserService::getInstance()->update_password($user_id, $this->reqInfo->params(), $this->getCtx());
-                $res = ['success' => $response];
+//                $response = UserService::getInstance()->update_password($user_id, $this->reqInfo->params(), $this->getCtx());
+//                $res = ['success' => $response];
+                throw new ServiceException(ResponseHelper::error('Not complete yet please wait for a minute :)'));
+                
             } elseif ($action === 'phone') {
-                $response = UserService::getInstance()->update_password($user_id, $this->reqInfo->params(), $this->getCtx());
-                $res = ['success' => $response];
+//                $response = UserService::getInstance()->update_password($user_id, $this->reqInfo->params(), $this->getCtx());
+//                $res = ['success' => $response];
+                
+                throw new ServiceException(ResponseHelper::error('Not complete yet please wait for a minute :)'));
             } else {
                 throw new ServiceException(ResponseHelper::error('Invalid field'));
             }
