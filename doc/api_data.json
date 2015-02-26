@@ -1586,13 +1586,20 @@
             "optional": false,
             "field": "phone",
             "description": "<p>Your phone number</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "fb_name",
+            "description": "<p>Your text</p> "
           }
         ]
       },
       "examples": [
         {
           "title": "Request-Example:",
-          "content": "picture=base64_encode\ndisplay_name=Test Name\ndetail=Test to update detail\ngender=male\nbirth_date=2012-01-26\nusername=p2user\nemail=p2mail@gmail.com\npassword=1234\nnew_password=111111\nconfirm_password=111111\nwebsite=http://google.com\nphone=0888475124",
+          "content": "picture=base64_encode\ndisplay_name=Test Name\ndetail=Test to update detail\ngender=male\nbirth_date=2012-01-26\nusername=p2user\nemail=p2mail@gmail.com\npassword=1234\nnew_password=111111\nconfirm_password=111111\nwebsite=http://google.com\nphone=0888475124\nfb_name=Cartman",
           "type": "String"
         }
       ]

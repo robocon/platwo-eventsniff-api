@@ -370,6 +370,7 @@ class UserCTL extends BaseCTL {
      * @apiParam {String} confirm_password Confirm your new password
      * @apiParam {String} website Your website format http://www.google.com
      * @apiParam {String} phone Your phone number
+     * @apiParam {String} fb_name Your text
      * @apiParamExample {String} Request-Example:
      * picture=base64_encode
      * display_name=Test Name
@@ -383,6 +384,7 @@ class UserCTL extends BaseCTL {
      * confirm_password=111111
      * website=http://google.com
      * phone=0888475124
+     * fb_name=Cartman
      * @apiSampleRequest /user/profile/:user_id/:action
      * @apiSuccessExample {json} Success-Response:
      * {"success":true}
@@ -425,6 +427,9 @@ class UserCTL extends BaseCTL {
                 $res = ['success' => $response];
             } elseif ($action === 'phone') {
                 $response = UserService::getInstance()->update_phone($user_id, $this->reqInfo->param('phone'), $this->getCtx());
+                $res = ['success' => $response];
+            } elseif ($action === 'fb_name') {
+                $response = UserService::getInstance()->update_facebook_name($user_id, $this->reqInfo->param('fb_name'), $this->getCtx());
                 $res = ['success' => $response];
             } else {
                 throw new ServiceException(ResponseHelper::error('Invalid field'));

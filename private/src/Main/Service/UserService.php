@@ -1007,4 +1007,32 @@ HTML;
         return true;
     }
     
+    public function update_facebook_name($user_id, $fb_name, Context $ctx) {
+        
+        $params = [
+            'user_id' => $user_id,
+            'fb_name' => $fb_name,
+        ];
+        
+        $v = new Validator($params);
+        $v->rule('required', ["user_id", "fb_name"]);
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $check_user = $this->getCollection()->findOne([
+            '_id' => new \MongoId($params['user_id'])
+        ],['_id']);
+
+        if ($check_user === null) {
+            throw new ServiceException(ResponseHelper::error('Invalid user'));
+        }
+        
+        $res = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> ['fb_name' => $params['fb_name']]]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
+    
 }

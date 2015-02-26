@@ -88,6 +88,8 @@ class OAuthService extends BaseService {
                     'setting'=> UserHelper::defaultSetting(),
                     'display_notification_number' => 0,
                     'detail' => '',
+                    'username' => '',
+                    'password' => '',
 
                     // set default last login
                     'last_login' => $now,
