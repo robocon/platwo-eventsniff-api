@@ -21,7 +21,7 @@ use Main\Context\Context,
     Valitron\Validator;
 
 class UserService extends BaseService {
-    protected $fields = ["type", "display_name", "username", "email", "password", "gender", "birth_date", "picture", "mobile", "website", "fb_id", "fb_name", "type"];
+    protected $fields = ["type", "display_name", "username", "email", "password", "gender", "birth_date", "picture", "mobile", "website", "fb_id", "fb_name", "type", "detail"];
 
     public function getCollection(){
         $db = DB::getDB();
