@@ -366,10 +366,11 @@ class UserCTL extends BaseCTL {
      * @apiParam {String} birth_date Your birth date format YYYY-mm-dd
      * @apiParam {String} email Your email
      * @apiParam {String} password Your current password
-     * @apiParam {String} new_password Your current password
-     * @apiParam {String} confirm_password Your current password
+     * @apiParam {String} new_password Your new password
+     * @apiParam {String} confirm_password Confirm your new password
+     * @apiParam {String} website Your website format http://www.google.com
+     * @apiParam {String} phone Your phone number
      * @apiParamExample {String} Request-Example:
-     * 
      * picture=base64_encode
      * display_name=Test Name
      * detail=Test to update detail
@@ -377,10 +378,11 @@ class UserCTL extends BaseCTL {
      * birth_date=2012-01-26
      * username=p2user
      * email=p2mail@gmail.com
-     * 
-     * password=YOUR_PASSWORD
-     * new_password=YOUR_NEW_PASSWORD
-     * confirm_password=CONFIRM_YOUR_NEW_PASSWORD
+     * password=1234
+     * new_password=111111
+     * confirm_password=111111
+     * website=http://google.com
+     * phone=0888475124
      * @apiSampleRequest /user/profile/:user_id/:action
      * @apiSuccessExample {json} Success-Response:
      * {"success":true}
@@ -416,6 +418,12 @@ class UserCTL extends BaseCTL {
                 $response = UserService::getInstance()->update_email($user_id, $this->reqInfo->param('email'), $this->getCtx());
                 $res = ['success' => $response];
             } elseif ($action === 'password') {
+                $response = UserService::getInstance()->update_password($user_id, $this->reqInfo->params(), $this->getCtx());
+                $res = ['success' => $response];
+            } elseif ($action === 'website') {
+                $response = UserService::getInstance()->update_password($user_id, $this->reqInfo->params(), $this->getCtx());
+                $res = ['success' => $response];
+            } elseif ($action === 'phone') {
                 $response = UserService::getInstance()->update_password($user_id, $this->reqInfo->params(), $this->getCtx());
                 $res = ['success' => $response];
             } else {

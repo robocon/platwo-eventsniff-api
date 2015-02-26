@@ -1564,21 +1564,35 @@
             "type": "String",
             "optional": false,
             "field": "new_password",
-            "description": "<p>Your current password</p> "
+            "description": "<p>Your new password</p> "
           },
           {
             "group": "Parameter",
             "type": "String",
             "optional": false,
             "field": "confirm_password",
-            "description": "<p>Your current password</p> "
+            "description": "<p>Confirm your new password</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "website",
+            "description": "<p>Your website format <a href=\"http://www.google.com\">http://www.google.com</a></p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "phone",
+            "description": "<p>Your phone number</p> "
           }
         ]
       },
       "examples": [
         {
           "title": "Request-Example:",
-          "content": "\npicture=base64_encode\ndisplay_name=Test Name\ndetail=Test to update detail\ngender=male\nbirth_date=2012-01-26\nusername=p2user\nemail=p2mail@gmail.com\n\npassword=YOUR_PASSWORD\nnew_password=YOUR_NEW_PASSWORD\nconfirm_password=CONFIRM_YOUR_NEW_PASSWORD",
+          "content": "picture=base64_encode\ndisplay_name=Test Name\ndetail=Test to update detail\ngender=male\nbirth_date=2012-01-26\nusername=p2user\nemail=p2mail@gmail.com\npassword=1234\nnew_password=111111\nconfirm_password=111111\nwebsite=http://google.com\nphone=0888475124",
           "type": "String"
         }
       ]
