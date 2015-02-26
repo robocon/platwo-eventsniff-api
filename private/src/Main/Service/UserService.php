@@ -949,4 +949,62 @@ HTML;
         }
         return true;
     }
+    
+    public function update_website($user_id, $website, Context $ctx) {
+        
+        $params = [
+            'user_id' => $user_id,
+            'website' => $website,
+        ];
+        
+        $v = new Validator($params);
+        $v->rule('required', ["user_id", "website"]);
+        $v->rule('url', 'website');
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $check_user = $this->getCollection()->findOne([
+            '_id' => new \MongoId($params['user_id'])
+        ],['_id']);
+
+        if ($check_user === null) {
+            throw new ServiceException(ResponseHelper::error('Invalid user'));
+        }
+        
+        $res = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> ['website' => $params['website']]]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
+    
+    public function update_phone($user_id, $phone, Context $ctx) {
+        
+        $params = [
+            'user_id' => $user_id,
+            'phone' => $phone,
+        ];
+        
+        $v = new Validator($params);
+        $v->rule('required', ["user_id", "phone"]);
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $check_user = $this->getCollection()->findOne([
+            '_id' => new \MongoId($params['user_id'])
+        ],['_id']);
+
+        if ($check_user === null) {
+            throw new ServiceException(ResponseHelper::error('Invalid user'));
+        }
+        
+        $res = $this->getCollection()->update(['_id'=> new \MongoId($params['user_id'])], ['$set'=> ['mobile' => $params['phone']]]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
+    
 }
