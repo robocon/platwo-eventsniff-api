@@ -49,7 +49,8 @@ class GalleryService extends BaseService {
             'picture' => $upload->toArray(), 
             'user_id' => $params['user_id'], 
             'event_id' => $params['event_id'],
-            'detail' => $params['detail']
+            'detail' => $params['detail'],
+            'advertise' => 1
         ];
         
         // Insert into MongoDB

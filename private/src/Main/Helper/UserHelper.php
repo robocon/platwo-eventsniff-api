@@ -16,6 +16,7 @@ use Main\Exception\Service\ServiceException,
 class UserHelper {
     
     public static $user_id = null;
+    public static $default_location = null;
     private static $group_role = null;
     private $data = null;
     
@@ -64,7 +65,7 @@ class UserHelper {
         $db = DB::getDB();
         $user = $db->users->findOne([
             'access_token' => $token
-        ],['_id','access_token','email','username','group_role']);
+        ],['_id','access_token','email','username','group_role','default_location']);
         
         if ($user !== null) {
             $user['id'] = $user['_id']->{'$id'};
@@ -79,6 +80,8 @@ class UserHelper {
 
                 self::$group_role = $role_perm['perms'];
             }
+            
+            self::$default_location = $user['default_location'];
             
             return true;
         }

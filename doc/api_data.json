@@ -161,6 +161,39 @@
   },
   {
     "type": "get",
+    "url": "/event/advertise",
+    "title": "GET /event/advertise",
+    "description": "<p>Get an event that is advertise</p> ",
+    "name": "GetEventAdvertise",
+    "group": "Event",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Access-Token",
+            "description": "<p>User Access Token</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"data\": [\n        {\n            \"name\": \"Test an event\",\n            \"date_start\": \"2015-02-14 00:00:00\",\n            \"date_end\": \"2015-02-17 23:30:00\",\n            \"advertise\": {\n                \"enable\": 1,\n                \"cities\": [\n                    \"54b8e0e010f0edcf048b4569\",\n                    \"54b8e0e010f0edcf048b4575\",\n                    \"54b8e0e010f0edcf048b459e\"\n                ],\n                \"time_start\": \"2015-02-26 15:20:29\"\n            },\n            \"id\": \"54ee0b7efc5067a3208b4567\",\n            \"thumb\": {\n                \"id\": \"54ee6e8590cc13ab778b4593jpg\",\n                \"width\": 595,\n                \"height\": 397,\n                \"url\": \"http://110.164.70.60/get/54ee6e8590cc13ab778b4593jpg/\"\n            },\n            \"total_sniffer\": 0\n        },\n        {...}\n    ],\n    \"length\": 2\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/EventCTL.php",
+    "groupTitle": "Event"
+  },
+  {
+    "type": "get",
     "url": "/event/category_lists/:lang",
     "title": "GET /event/category_lists/:lang",
     "description": "<p>List an event that is not empty</p> ",
@@ -580,6 +613,59 @@
         {
           "title": "Success-Response:",
           "content": "{\n    \"name\": \"Example title\",\n    \"detail\": \"Example detail\",\n    \"date_start\": \"1970-01-01 07:00:00\",\n    \"date_end\": \"1970-01-01 07:00:00\",\n    \"credit\": \"https:\\/\\/www.google.com\",\n    \"time_edit\": \"1970-01-01 07:00:00\",\n    \"local\":[\"54b8dfa810f0edcf048b4567\",\"54b8e0e010f0edcf048b4575\"],\n    \"id\": \"54ba1bc910f0edb8048b456c\",\n    \"tags\": [\n        {\n            \"tag_id\": \"6f2da37e72bf9e100b40567c\",\n            \"name\": \"Promotion\"\n        },\n        {...},\n    ],\n    \"location\": {\n        \"name\": \"CNX\",\n        \"position\": [\n            \"19.906496\",\n            \"99.834254\"\n        ],\n    },\n    \"status\": 200\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "./private/src/Main/CTL/EventCTL.php",
+    "groupTitle": "Event"
+  },
+  {
+    "type": "put",
+    "url": "/event/advertise/:event_id",
+    "title": "PUT /event/advertise/:event_id",
+    "description": "<p>Edit an event by add advertise</p> ",
+    "name": "PutEventAdvertise",
+    "group": "Event",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "event_id",
+            "description": "<p>Event id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "enable",
+            "description": "<p>Set to 0 for disable, set to 1 to enable</p> "
+          }
+        ]
+      }
+    },
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Access-Token",
+            "description": "<p>User Access Token</p> "
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"enable\":1,\n    \"cities\":[\n        \"54b8e0e010f0edcf048b4569\",\n        \"54b8e0e010f0edcf048b4575\",\n        \"54b8e0e010f0edcf048b459e\"\n    ],\n    \"id\":\"54ee0b7efc5067a3208b4567\"\n}",
           "type": "json"
         }
       ]

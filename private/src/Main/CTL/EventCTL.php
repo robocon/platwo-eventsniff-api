@@ -275,7 +275,7 @@ class EventCTL extends BaseCTL {
      * @POST
      * @uri /gallery
      */
-    public function event_gallery(){
+    public function booking_gallery(){
 
         try {
 
@@ -751,6 +751,93 @@ class EventCTL extends BaseCTL {
             $res['data'] = EventService::getInstance()->search($this->reqInfo->input('word'), $this->getCtx());
             $res['length'] = count($res['data']);
             return $res;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
+    
+    /**
+     * @api {get} /event/advertise GET /event/advertise
+     * @apiDescription Get an event that is advertise
+     * @apiName GetEventAdvertise
+     * @apiGroup Event
+     * @apiHeader {String} Access-Token User Access Token
+     * @apiSuccessExample {json} Success-Response:
+{
+    "data": [
+        {
+            "name": "Test an event",
+            "date_start": "2015-02-14 00:00:00",
+            "date_end": "2015-02-17 23:30:00",
+            "advertise": {
+                "enable": 1,
+                "cities": [
+                    "54b8e0e010f0edcf048b4569",
+                    "54b8e0e010f0edcf048b4575",
+                    "54b8e0e010f0edcf048b459e"
+                ],
+                "time_start": "2015-02-26 15:20:29"
+            },
+            "id": "54ee0b7efc5067a3208b4567",
+            "thumb": {
+                "id": "54ee6e8590cc13ab778b4593jpg",
+                "width": 595,
+                "height": 397,
+                "url": "http://110.164.70.60/get/54ee6e8590cc13ab778b4593jpg/"
+            },
+            "total_sniffer": 0
+        },
+        {...}
+    ],
+    "length": 2
+}
+     * @GET
+     * @uri /advertise
+     */
+    public function get_advertise() {
+        try {
+            if(UserHelper::hasPermission('event', 'read') === false){
+                throw new ServiceException(ResponseHelper::notAuthorize('Access Deny'));
+            }
+            
+            $items['data'] = EventService::getInstance()->get_advertise($this->getCtx());
+            $items['length'] = count($items['data']);
+            return $items;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
+    
+    /**
+     * @api {put} /event/advertise/:event_id PUT /event/advertise/:event_id
+     * @apiDescription Edit an event by add advertise
+     * @apiName PutEventAdvertise
+     * @apiGroup Event
+     * @apiParam {String} event_id Event id
+     * @apiParam {String} enable Set to 0 for disable, set to 1 to enable
+     * @apiHeader {String} Access-Token User Access Token
+     * @apiSuccessExample {json} Success-Response:
+{
+    "enable":1,
+    "cities":[
+        "54b8e0e010f0edcf048b4569",
+        "54b8e0e010f0edcf048b4575",
+        "54b8e0e010f0edcf048b459e"
+    ],
+    "id":"54ee0b7efc5067a3208b4567"
+}
+     * @PUT
+     * @uri /advertise/[h:event_id]
+     */
+    public function edit_advertise() {
+        try {
+            
+            if(UserHelper::hasPermission('event', 'edit') === false){
+                throw new ServiceException(ResponseHelper::notAuthorize('Access Deny'));
+            }
+            
+            $items = EventService::getInstance()->edit_adverties($this->reqInfo->urlParam('event_id'), $this->reqInfo->params(), $this->getCtx());
+            return $items;
         } catch (ServiceException $e) {
             return $e->getResponse();
         }

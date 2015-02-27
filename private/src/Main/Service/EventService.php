@@ -15,6 +15,7 @@ use Main\Context\Context,
     Main\Helper\ArrayHelper,
     Main\Helper\MongoHelper,
     Main\Helper\ResponseHelper,
+    Main\Helper\UserHelper,
     Main\Helper\URL,
     Valitron\Validator;
 
@@ -831,5 +832,71 @@ class EventService extends BaseService {
         }
         
         return $item_lists;
+    }
+    
+    public function get_advertise(Context $ctx) {
+        try {
+            
+            $location = UserHelper::$default_location;
+            $items = $this->getCollection()->find([
+                'advertise.enable' => 1,
+                'advertise.cities' => $location['1']
+                ],['name','date_start','date_end','advertise']);
+            $item_lists = [];
+            foreach($items as $item){
+                $item['id'] = $item['_id']->{'$id'};
+                unset($item['_id']);
+                
+                // Get last Picture
+                $picture = $this->getGalleryCollection()
+                        ->find(['event_id' => $item['id']])
+                        ->sort(['_id' => -1]) // Look like DESC in MySQL
+                        ->limit(1);
+
+                if ($picture->count(true)) {
+                    foreach($picture as $pic){
+                        $item['thumb'] = Image::load($pic['picture'])->toArrayResponse();
+                    }
+                }
+                
+                $sniffer = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
+                $item['total_sniffer'] = $sniffer->count(true);
+            
+                $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
+                $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+                $item['advertise']['time_start'] = MongoHelper::dateToYmd($item['advertise']['time_start']);
+                
+                $item_lists[] = $item;
+                
+            }
+            
+            return $item_lists;
+            
+        } catch (\MongoException $e) {
+            throw new ServiceException(ResponseHelper::error($e->getMessage(), $e->getCode()));
+        }
+    }
+    
+    public function edit_adverties($event_id, $params, Context $ctx) {
+        
+        $v = new Validator($params);
+        $v->rule('required', ['enable', 'cities']);
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $params['time_start'] = new \MongoDate();
+        $params['enable'] = intval($params['enable']);
+        $set = [
+            'advertise' => $params
+        ];
+        try {
+            $this->getCollection()->update(['_id' => new \MongoId($event_id)],['$set' => $set]);
+            $params['id'] = $event_id;
+            unset($params['time_start']);
+            return $params;
+        } catch (\MongoException $e) {
+            throw new ServiceException(ResponseHelper::error($e->getMessage(), $e->getCode()));
+        }
     }
 }
