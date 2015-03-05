@@ -27,10 +27,10 @@ class RegisterCTL extends BaseCTL {
      * @apiParam {String} username Your username using for login to system
      * @apiParam {String} email Email address
      * @apiParam {String} password Your password
-     * @apiParam {String} gender male or female
-     * @apiParam {String} birth_date Your birth date
-     * @apiParam {String} ios_device_token (Optional) Token from your mobile
-     * @apiParam {String} android_token (Optional) Token from your mobile
+     * @apiParam {String} gender (Optional) male or female
+     * @apiParam {String} birth_date (Optional) Your birth date
+     * @apiParam {String} ios_device_token Token from your mobile
+     * @apiParam {String} android_token Token from your mobile
      * @apiSuccessExample {json} Success-Response:
      * {
      *  "user_id": "54506d34da354df2078b4569",

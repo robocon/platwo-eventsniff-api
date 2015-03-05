@@ -364,6 +364,7 @@ class UserCTL extends BaseCTL {
      * @apiParam {String} detail Anything you want to add  (maximum at 150 character)
      * @apiParam {String} gender Your gender
      * @apiParam {String} birth_date Your birth date format YYYY-mm-dd
+     * @apiParam {String} username Your new username
      * @apiParam {String} email Your email
      * @apiParam {String} password Your current password
      * @apiParam {String} new_password Your new password

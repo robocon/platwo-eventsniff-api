@@ -48,11 +48,11 @@ class UserService extends BaseService {
         $data = ArrayHelper::filterKey($allow, $params);
         
         $v = new Validator($data);
-        $v->rule('required', ["username", "email", "password", "gender", "birth_date"]);
+        $v->rule('required', ["username", "email", "password"]);
         $v->rule('email', ["email"]);
         $v->rule('lengthBetween', 'username', 4, 32);
         $v->rule('lengthBetween', 'password', 6, 32);
-        $v->rule('in', 'gender', ['male', 'female', 'unspecify']);
+//        $v->rule('in', 'gender', ['male', 'female', 'unspecify']);
 
         if(!$v->validate()) {
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
@@ -91,6 +91,7 @@ class UserService extends BaseService {
             'password' => UserHelper::generate_password($data['password'], $user_private_key),
             'display_name' => $data['username'],
             'birth_date' => $birth_date,
+            'email' => $data['email'],
 
             'display_notification_number' => 0,
             'type' => 'normal',

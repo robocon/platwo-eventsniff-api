@@ -1095,28 +1095,28 @@
             "type": "String",
             "optional": false,
             "field": "gender",
-            "description": "<p>male or female</p> "
+            "description": "<p>(Optional) male or female</p> "
           },
           {
             "group": "Parameter",
             "type": "String",
             "optional": false,
             "field": "birth_date",
-            "description": "<p>Your birth date</p> "
+            "description": "<p>(Optional) Your birth date</p> "
           },
           {
             "group": "Parameter",
             "type": "String",
             "optional": false,
             "field": "ios_device_token",
-            "description": "<p>(Optional) Token from your mobile</p> "
+            "description": "<p>Token from your mobile</p> "
           },
           {
             "group": "Parameter",
             "type": "String",
             "optional": false,
             "field": "android_token",
-            "description": "<p>(Optional) Token from your mobile</p> "
+            "description": "<p>Token from your mobile</p> "
           }
         ]
       }
@@ -1630,6 +1630,13 @@
             "optional": false,
             "field": "birth_date",
             "description": "<p>Your birth date format YYYY-mm-dd</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "username",
+            "description": "<p>Your new username</p> "
           },
           {
             "group": "Parameter",

@@ -3,15 +3,12 @@ $I = new ApiTester($scenario);
 $I->wantTo('Email login');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 $I->sendPOST('register', [
-    'email' => 'demouser'.time().'@hotmail.com',
-    'username' => 'demo'.time(),
+    'email' => 'connettoshark@gmail.com',
+    'username' => 'royle',
     'password' => '123456',
-    'gender' => 'male',
-    'birth_date' => '1985-08-30',
-    'ios_device_token' => [
-        'type' => 'product',
-        'key' => '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'
-    ]
+    'gender' => 'female',
+    'birth_date' => '1900-01-01',
+    'android_token' => 'APA91bEQkWLN5GN8VXZIyIq9lFFiKcig4rTQEbK_JHjxXqpW5JnG3U_XeFaN5Wq7Igf9mRRkFRC0gUrEtf0IyIdPKbtkYNsKxmxlAh5ytfaEvAd3SQgAYg2kknkGE7VUYa6Pnic0YvU8HMM8kUNcYkIoHoIOPKyi0xKC9qUUCrnS1vb80fsiljU'
 ]);
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
