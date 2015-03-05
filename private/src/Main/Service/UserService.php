@@ -58,14 +58,10 @@ class UserService extends BaseService {
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
         
-        $user_count = $this->getCollection()->find([
-            '$or'=> [
-                ['username' => $params['username']],
-                ['email' => $params['email']]
-            ]
-        ])->count();
+        $user_count = $this->getCollection()->find(['username' => $params['username']])->count();
+        $mail_count = $this->getCollection()->find(['email' => $params['email']])->count();
         
-        if($user_count > 0){
+        if($user_count > 0 OR $mail_count > 0){
             throw new ServiceException(ResponseHelper::validateError(['username'=> ['Duplicate username'], 'email'=> ['Duplicate email']]));
         }
         

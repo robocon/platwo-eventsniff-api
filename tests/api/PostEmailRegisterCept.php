@@ -3,7 +3,7 @@ $I = new ApiTester($scenario);
 $I->wantTo('Email login');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 $I->sendPOST('register', [
-    'email' => 'connettoshark@gmail.com',
+    'email' => 'connettoshark@hotmail.com',
     'username' => 'royle',
     'password' => '123456',
     'gender' => 'female',
