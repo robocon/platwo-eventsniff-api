@@ -52,16 +52,19 @@ class UserService extends BaseService {
         $v->rule('email', ["email"]);
         $v->rule('lengthBetween', 'username', 4, 32);
         $v->rule('lengthBetween', 'password', 6, 32);
-//        $v->rule('in', 'gender', ['male', 'female', 'unspecify']);
 
         if(!$v->validate()) {
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
         
-        $user_count = $this->getCollection()->find(['username' => $params['username']])->count();
-        $mail_count = $this->getCollection()->find(['email' => $params['email']])->count();
-        
-        if($user_count > 0 OR $mail_count > 0){
+        // Check username and email are duplicate?
+        $user_count = $this->getCollection()->find([
+            '$or' => [
+                ['username' => $params['username']],
+                ['email' => $params['email']]
+            ]
+        ])->count();
+        if($user_count > 0){
             throw new ServiceException(ResponseHelper::validateError(['username'=> ['Duplicate username'], 'email'=> ['Duplicate email']]));
         }
         
@@ -88,6 +91,7 @@ class UserService extends BaseService {
             'display_name' => $data['username'],
             'birth_date' => $birth_date,
             'email' => $data['email'],
+            'username' => $data['username'],
 
             'display_notification_number' => 0,
             'type' => 'normal',
@@ -103,7 +107,9 @@ class UserService extends BaseService {
 
             'group_role' => ['group_id' => '54e855072667467f7709320e', 'role_perm_id' => '54eaf79810f0ed0d0a8b4568']
         ];
-            
+        
+        $this->getCollection()->insert($entity);
+        /*
         if($user === null){
             $this->getCollection()->insert($entity);
         }  else {
@@ -117,6 +123,7 @@ class UserService extends BaseService {
             $this->getCollection()->update(['_id' => new \MongoId($user['_id']->{'$id'})], ['$set' => $entity]);
             $entity['_id'] = $user['_id'];
         }
+        */
         
         // remember device token
         if(isset($params['ios_device_token'])){
