@@ -85,6 +85,7 @@ class UserService extends BaseService {
             'birth_date' => $birth_date,
             'email' => $data['email'],
             'username' => $data['username'],
+            'gender' => $data['gender'],
 
             'display_notification_number' => 0,
             'type' => 'normal',
