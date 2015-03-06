@@ -1121,6 +1121,19 @@ define({ "api": [
         ]
       }
     },
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Access-Token",
+            "description": "<p>(Optional) User Access Token if register from guest</p> "
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {

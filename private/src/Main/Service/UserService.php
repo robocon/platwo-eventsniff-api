@@ -18,6 +18,7 @@ use Main\Context\Context,
     Main\Helper\ResponseHelper,
     Main\Helper\URL,
     Main\Helper\UserHelper,
+    Main\Http\RequestInfo,
     Valitron\Validator;
 
 class UserService extends BaseService {
@@ -68,14 +69,6 @@ class UserService extends BaseService {
             throw new ServiceException(ResponseHelper::validateError(['username'=> ['Duplicate username'], 'email'=> ['Duplicate email']]));
         }
         
-        $device_token = isset($params['ios_device_token']) ? $params['ios_device_token']['key'] : $params['android_token'] ; 
-        $user = $this->getCollection()->findOne([
-            '$or' => [
-                ['ios_device_token.key' => $device_token],
-                ['android_token' => $device_token]
-            ]
-        ]);
-        
         $now = new \MongoDate();
         $default_setting = UserHelper::defaultSetting();
         $birth_date = new \MongoDate(strtotime($data['birth_date'].' 00:00:00'));
@@ -108,22 +101,26 @@ class UserService extends BaseService {
             'group_role' => ['group_id' => '54e855072667467f7709320e', 'role_perm_id' => '54eaf79810f0ed0d0a8b4568']
         ];
         
-        $this->getCollection()->insert($entity);
-        /*
-        if($user === null){
+        // If send from guest
+        $token = RequestInfo::getToken();
+        if($token === false){
             $this->getCollection()->insert($entity);
-        }  else {
-            
+        }else{
             unset($entity['_id']);
             unset($entity['private_key']);
             unset($entity['created_at']);
             
+            $token_count = $this->getCollection()->findOne(['access_token' => $token],['_id','private_key','access_token','type']);
+            if ($token_count === null) {
+                throw new ServiceException(ResponseHelper::error('Invalid token'));
+            }
+            
             // Override access_token
-            $entity['access_token'] = UserHelper::generate_token(MongoHelper::standardId($user['_id']), $user['private_key']);
-            $this->getCollection()->update(['_id' => new \MongoId($user['_id']->{'$id'})], ['$set' => $entity]);
-            $entity['_id'] = $user['_id'];
+            $entity['access_token'] = UserHelper::generate_token($token_count['_id']->{'$id'}, $token_count['private_key']);
+            $this->getCollection()->update(['_id' => new \MongoId($token_count['_id']->{'$id'})], ['$set' => $entity]);
+            $entity['_id'] = $token_count['_id'];
+        
         }
-        */
         
         // remember device token
         if(isset($params['ios_device_token'])){
