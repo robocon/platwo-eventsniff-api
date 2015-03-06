@@ -1034,14 +1034,27 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "ios_device_token",
-            "description": "<p>Token from your mobile</p> "
+            "description": "<p>(Optional) Token from your mobile</p> "
           },
           {
             "group": "Parameter",
             "type": "String",
             "optional": false,
             "field": "android_token",
-            "description": "<p>Token from your mobile</p> "
+            "description": "<p>(Optional) Token from your mobile</p> "
+          }
+        ]
+      }
+    },
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Access-Token",
+            "description": "<p>(Optional) User Access Token if register from guest</p> "
           }
         ]
       }

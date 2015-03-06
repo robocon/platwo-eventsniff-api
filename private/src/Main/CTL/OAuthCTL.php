@@ -21,8 +21,9 @@ class OAuthCTL extends BaseCTL {
      * @apiName PostOauthFacebook
      * @apiGroup Resister
      * @apiParam {String} facebook_token
-     * @apiParam {String} ios_device_token Token from your mobile
-     * @apiParam {String} android_token Token from your mobile
+     * @apiParam {String} ios_device_token (Optional) Token from your mobile
+     * @apiParam {String} android_token (Optional) Token from your mobile
+     * @apiHeader {String} Access-Token (Optional) User Access Token if register from guest
      * @apiSuccessExample {json} Success-Response:
      * {
      *  "user_id": "54506d34da354df2078b4569",

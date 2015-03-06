@@ -110,22 +110,20 @@ class OAuthService extends BaseService {
                 // Upload facebook profile picture to Media Server
                 $pic = Image::upload(base64_encode($pictureSource));
                 $item['picture'] = $pic->toArray();
-                
-                // Check mobile device token
-                $device_token = isset($params['ios_device_token']) ? $params['ios_device_token']['key'] : $params['android_token'] ; 
-                $user = $this->getUsersCollection()->findOne([
-                    '$or' => [
-                        ['ios_device_token.key' => $device_token],
-                        ['android_token' => $device_token]
-                    ]
-                ]);
-                
-                if($user === null){
+                    
+                $token = RequestInfo::getToken();
+                if($token === false){
                     $this->getUsersCollection()->insert($item);
-                }  else {
+                }  else { // If send from guest
                     unset($item['_id']);
-                    $this->getUsersCollection()->update(['_id' => new \MongoId($user['_id']->{'$id'})], ['$set' => $item]);
-                    $item['_id'] = $user['_id'];
+                    
+                    $token_count = $this->getCollection()->findOne(['access_token' => $token],['_id','private_key','access_token','type']);
+                    if ($token_count === null) {
+                        throw new ServiceException(ResponseHelper::error('Invalid token'));
+                    }
+                    
+                    $this->getUsersCollection()->update(['_id' => new \MongoId($token_count['_id']->{'$id'})], ['$set' => $item]);
+                    $item['_id'] = $token_count['_id'];
                 }
                 
             }
