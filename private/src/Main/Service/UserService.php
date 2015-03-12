@@ -909,12 +909,12 @@ HTML;
         // Check old password was match from database?
         if(isset($user['password'])){
             $old_password = UserHelper::generate_password($data['password'], $user['private_key']);
-            if($old_password !== $user['new_password']){
+            if($old_password !== $user['password']){
                 throw new ServiceException(ResponseHelper::error('Invalid password'));
             }
         }
         
-        $password = UserHelper::generate_password($data['password'], $user['private_key']);
+        $password = UserHelper::generate_password($data['new_password'], $user['private_key']);
         $res = $this->getCollection()->update(['_id'=> new \MongoId($user_id)], ['$set'=> ['password' => $password]]);
         if ($res['n'] == 0) {
             return false;

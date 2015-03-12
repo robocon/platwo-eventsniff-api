@@ -3,7 +3,7 @@ $I = new ApiTester($scenario);
 $I->wantTo('Email login');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-$I->setHeader('access-token', '589ac58201a6fc08f4514ed7cd1d2781a25815611853b84484a61bfcc1be0417');
+//$I->setHeader('access-token', '589ac58201a6fc08f4514ed7cd1d2781a25815611853b84484a61bfcc1be0417');
 
 $I->sendPOST('register', [
     'email' => 'stan.southpark@gmail.com',
