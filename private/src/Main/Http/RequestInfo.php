@@ -16,6 +16,7 @@ class RequestInfo {
         $files = array(),
         $method = 'GET',
         $url_params = array();
+    public static $input_content = null;
 
     public function __construct($method, $queries, $params, $files, $url_params){
         $this->method = $method;
@@ -33,7 +34,8 @@ class RequestInfo {
         $method = isset($_SERVER['REQUEST_METHOD'])? $_SERVER['REQUEST_METHOD']: 'GET';
 
         if($ctType=='application/json'){
-            $jsonText = file_get_contents('php://input');
+//            $jsonText = file_get_contents('php://input');
+            $jsonText = self::getInputContent();
             $params = json_decode($jsonText, true);
             $params = array_merge($_GET, $params);
         }
@@ -42,7 +44,8 @@ class RequestInfo {
         }
         else if($method=='PUT' || $method == 'DELETE'){
             $put = array();
-            parse_str(file_get_contents("php://input"), $put);
+            $content = self::getInputContent();
+            parse_str($content, $put);
             $params = $put;
         }
         else {
@@ -90,6 +93,13 @@ class RequestInfo {
     {
         return $this->method;
     }
+    
+    public static function getInputContent() {
+        if(self::$input_content === null){
+            self::$input_content = file_get_contents("php://input");
+        }
+        return self::$input_content;
+    }
 
     /**
      * @return array
@@ -111,8 +121,15 @@ class RequestInfo {
      * @return string
      */
     public static function getHeader($name){
-        $header = apache_request_headers();
-        $res = isset($header[$name]) ? $header[$name] : false ;
+        $headers = apache_request_headers();
+        
+        $new_header = [];
+        foreach($headers as $key => $value){
+            $key_name = strtolower($key);
+            $new_header[$key_name] = $value;
+        }
+        
+        $res = isset($new_header[$name]) ? $new_header[$name] : false ;
         return $res;
     }
     
@@ -122,6 +139,25 @@ class RequestInfo {
      * @return bool
      */
     public static function getToken() {
-        return self::getHeader('Access-Token');
+        $header_token = self::getHeader('access-token');
+        if($header_token === false){
+
+            $method = $_SERVER['REQUEST_METHOD'];
+            if($method=='POST'){
+                $params = $_POST;
+            }
+            else if($method=='PUT' || $method == 'DELETE'){
+                $put = array();
+                $content = self::getInputContent();
+                parse_str($content, $put);
+                $params = $put;
+            
+            }
+            else {
+                $params = $_GET;
+            }
+            $header_token = isset($params['access_token']) ? (string)$params['access_token'] : false ;
+        }
+        return $header_token;
     }
 }
