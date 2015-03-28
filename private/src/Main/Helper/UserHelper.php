@@ -65,7 +65,7 @@ class UserHelper {
         $db = DB::getDB();
         $user = $db->users->findOne([
             'access_token' => $token
-        ],['_id','access_token','email','username','group_role','default_location']);
+        ],['_id','access_token','email','username','group_role','default_location','active_group']);
         
         if ($user !== null) {
             $user['id'] = $user['_id']->{'$id'};
@@ -74,14 +74,26 @@ class UserHelper {
             self::$user_id = $user['id'];
             
             if (self::$group_role == null) {
+                
+                $active_role = false;
+                foreach($user['group_role'] as $user_group){
+                    if($user_group['group_id'] == $user['active_group']){
+                        $active_role = $user_group['role_perm_id'];
+                    }
+                }
+                
                 $role_perm = $db->role_perm->findOne([
-                    '_id' => new \MongoId($user['group_role']['role_perm_id'])
+                    '_id' => new \MongoId($active_role)
                 ]);
-
+                
                 self::$group_role = $role_perm['perms'];
             }
             
-            self::$default_location = $user['default_location'];
+            if(!isset($user['default_location'])){
+                self::$default_location = [];
+            }else{
+                self::$default_location = $user['default_location'];
+            }
             
             return true;
         }
