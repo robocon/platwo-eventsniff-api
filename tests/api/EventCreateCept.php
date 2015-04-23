@@ -21,7 +21,7 @@ $lng = (float) rand(98,98).'.'.mt_rand(978000, 993500);
 
 // Get test image and convert into base64
 $image = base64_encode(file_get_contents(dirname(dirname(__FILE__)).'/test.png'));
-$user_id = '54ba29c210f0edb8048b457a';
+$user_id = '54ed542810f0ed0d048b456a';
 
 /**
  * Booking an event
@@ -64,10 +64,10 @@ $I->seeResponseContainsJson([
  * Update event data
  */
 $test_time = time();
-//$test_date_start = date('Y-m-d H:i:s');
-//$test_date_end = date('Y-m-d H:i:s', strtotime('+2 week'));
-$test_date_start = date('Y-m-d H:i:s', strtotime('+1 week'));
+$test_date_start = date('Y-m-d H:i:s');
 $test_date_end = date('Y-m-d H:i:s', strtotime('+2 week'));
+//$test_date_start = date('Y-m-d H:i:s', strtotime('+1 week'));
+//$test_date_end = date('Y-m-d H:i:s', strtotime('+2 week'));
 
 $I->wantTo('Update an event data');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -102,8 +102,5 @@ $I->seeResponseContainsJson([
     'time_edit' => $time_edit,
     'id' => $event_id,
     'tags' => $tags,
-    'location' => [
-        'name' => $put['location_name'],
-    ],
     'status' => 200
 ]);

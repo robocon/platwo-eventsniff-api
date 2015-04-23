@@ -17,7 +17,8 @@ use Main\Context\Context,
     Main\Helper\ResponseHelper,
     Main\Helper\UserHelper,
     Main\Helper\URL,
-    Valitron\Validator;
+    Valitron\Validator,
+    Main\Http\RequestInfo;
 
 class EventService extends BaseService {
 
@@ -87,6 +88,16 @@ class EventService extends BaseService {
     
     public function all(Context $ctx) {
         
+        $params = [
+            'country' => RequestInfo::getHeader('country'),
+            'city' => RequestInfo::getHeader('city')
+        ];
+        $v = new Validator($params);
+        $v->rule('required', ['country', 'city']);
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
         $date = new \DateTime();
         $current_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_day = new \MongoDate($current_time);
@@ -97,17 +108,26 @@ class EventService extends BaseService {
         $events = $this->getCollection()->find([
             'approve' => 1,
             'build' => 1,
-            '$or' => [
-                ['date_start' => ['$gte' => $current_day]],
-                [
-                    '$and' => [
-                        ['date_start' => ['$lte' => $current_day]],
-                        ['date_end' => ['$gte' => $current_day]]
+            '$and' => [
+                '$or'=> [
+                    ['location' => $params['city']],
+                    ['location' => $params['country']]
+                ],
+                '$or' => [
+                    ['date_start' => ['$gte' => $current_day]],
+                    [
+                        '$and' => [
+                            ['date_start' => ['$lte' => $current_day]],
+                            ['date_end' => ['$gte' => $current_day]]
+                        ]
                     ]
                 ]
             ]
         ],['name', 'date_start', 'date_end'])->sort(['date_start' => 1]);
         
+        dump($params);
+        dump($current_day);
+        exit;
         $group_one = [];
         $group_two =[];
         
@@ -395,7 +415,9 @@ class EventService extends BaseService {
         $set['credit'] = $params['credit'];
         $set['time_edit'] = new \MongoDate(time());
         $set['build'] = 1;
-        $set['location'] = [$params['country'], $params['city']];
+        $set['location'] = [$params['location']['0'], $params['location']['1']];
+        $set['country'] = $params['country'];
+        $set['city'] = $params['city'];
 
         $this->getCollection()->update(['_id'=> $id], ['$set'=> $set]);
         unset($set['build']);
