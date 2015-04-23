@@ -109,25 +109,22 @@ class EventService extends BaseService {
             'approve' => 1,
             'build' => 1,
             '$and' => [
-                '$or'=> [
-                    ['location' => $params['city']],
-                    ['location' => $params['country']]
-                ],
-                '$or' => [
-                    ['date_start' => ['$gte' => $current_day]],
-                    [
-                        '$and' => [
-                            ['date_start' => ['$lte' => $current_day]],
-                            ['date_end' => ['$gte' => $current_day]]
+                ['country' => $params['country']],
+                ['city' => $params['city']],
+                [
+                    '$or' => [
+                        ['date_start' => ['$gte' => $current_day]],
+                        [
+                            '$and' => [
+                                ['date_start' => ['$lte' => $current_day]],
+                                ['date_end' => ['$gte' => $current_day]]
+                            ]
                         ]
                     ]
                 ]
             ]
         ],['name', 'date_start', 'date_end'])->sort(['date_start' => 1]);
         
-        dump($params);
-        dump($current_day);
-        exit;
         $group_one = [];
         $group_two =[];
         
