@@ -515,6 +515,16 @@ class EventService extends BaseService {
     
     public function today($category_lists, Context $ctx) {
         
+        $params = [
+            'country' => RequestInfo::getHeader('country'),
+            'city' => RequestInfo::getHeader('city')
+        ];
+        $v = new Validator($params);
+        $v->rule('required', ['country', 'city']);
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
         $date = new \DateTime();
         $current_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_day = new \MongoDate($current_time);
@@ -540,6 +550,8 @@ class EventService extends BaseService {
                         'approve' => 1,
                         'build' => 1,
                         '_id' => new \MongoId($item['event_id']),
+                        'country' => $params['country'],
+                        'city' => $params['city'],
                         '$or' => [
                             ['date_start' => ['$gte' => $current_day]],
                             [
@@ -599,6 +611,8 @@ class EventService extends BaseService {
                         'approve' => 1,
                         'build' => 1,
                         '_id' => new \MongoId($item['event_id']),
+                        'country' => $params['country'],
+                        'city' => $params['city'],
                         '$or' => [
                             ['date_start' => ['$gte' => $current_day]],
                             [
@@ -660,6 +674,16 @@ class EventService extends BaseService {
     
     public function upcoming($options = [], Context $ctx) {
         
+        $params = [
+            'country' => RequestInfo::getHeader('country'),
+            'city' => RequestInfo::getHeader('city')
+        ];
+        $v = new Validator($params);
+        $v->rule('required', ['country', 'city']);
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
         $limit = 20;
         if (!empty($options['limit'])) {
             $limit = $options['limit'];
@@ -668,11 +692,12 @@ class EventService extends BaseService {
         $date = new \DateTime();
         $set_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_time = new \MongoDate($set_time);
-        
         $items = $this->getCollection()->find([
             'approve' => 1,
             'build' => 1,
             '$and' => [
+                ['country' => $params['country']],
+                ['city' => $params['city']],
                 ['date_start' => ['$gte' => $current_time]],
                 ['date_end' => ['$gte' => $current_time]]
             ]
