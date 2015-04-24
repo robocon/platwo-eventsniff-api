@@ -92,38 +92,50 @@ class EventService extends BaseService {
             'country' => RequestInfo::getHeader('country'),
             'city' => RequestInfo::getHeader('city')
         ];
-        $v = new Validator($params);
-        $v->rule('required', ['country', 'city']);
-        if(!$v->validate()){
-            throw new ServiceException(ResponseHelper::validateError($v->errors()));
-        }
         
         $date = new \DateTime();
         $current_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_day = new \MongoDate($current_time);
         
-        $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
-        $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
-        
-        $events = $this->getCollection()->find([
+        $condition = [
             'approve' => 1,
             'build' => 1,
-            '$and' => [
-                ['country' => $params['country']],
-                ['city' => $params['city']],
+            '$or' => [
+                ['date_start' => ['$gte' => $current_day]],
                 [
-                    '$or' => [
-                        ['date_start' => ['$gte' => $current_day]],
-                        [
-                            '$and' => [
-                                ['date_start' => ['$lte' => $current_day]],
-                                ['date_end' => ['$gte' => $current_day]]
+                    '$and' => [
+                        ['date_start' => ['$lte' => $current_day]],
+                        ['date_end' => ['$gte' => $current_day]]
+                    ]
+                ]
+            ]
+        ];
+        if($params['country'] !== false && $params['city'] !== false){
+            $condition = [
+                'approve' => 1,
+                'build' => 1,
+                '$and' => [
+                    ['country' => $params['country']],
+                    ['city' => $params['city']],
+                    [
+                        '$or' => [
+                            ['date_start' => ['$gte' => $current_day]],
+                            [
+                                '$and' => [
+                                    ['date_start' => ['$lte' => $current_day]],
+                                    ['date_end' => ['$gte' => $current_day]]
+                                ]
                             ]
                         ]
                     ]
                 ]
-            ]
-        ],['name', 'date_start', 'date_end'])->sort(['date_start' => 1]);
+            ];
+        }
+        
+        $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
+        $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
+        
+        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end'])->sort(['date_start' => 1]);
         
         $group_one = [];
         $group_two =[];
@@ -454,7 +466,12 @@ class EventService extends BaseService {
     }
 
     public function category_lists($category_lists, Context $ctx) {
-
+        
+        $params = [
+            'country' => RequestInfo::getHeader('country'),
+            'city' => RequestInfo::getHeader('city')
+        ];
+        
         $date = new \DateTime();
         $set_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_time = new \MongoDate($set_time);
@@ -472,13 +489,26 @@ class EventService extends BaseService {
                 $event_lists = [];
                 $i = 0;
                 foreach ($event_tags as $item) {
-
-                    $event = $this->getCollection()->findOne([
+                    
+                    $condition = [
                         'approve' => 1,
                         'build' => 1,
                         '_id' => new \MongoId($item['event_id']),
                         'date_start' => ['$gt' => $current_time]
-                    ],['name', 'date_start', 'date_end']);
+                    ];
+                    
+                    if($params['country'] !== false && $params['city'] !== false){
+                        $condition = [
+                            'approve' => 1,
+                            'build' => 1,
+                            'country' => $params['country'],
+                            'city' => $params['city'],
+                            '_id' => new \MongoId($item['event_id']),
+                            'date_start' => ['$gt' => $current_time]
+                        ];
+                    }
+                    
+                    $event = $this->getCollection()->findOne($condition,['name', 'date_start', 'date_end']);
                     
                     if ($event !== null) {
                         $event['id'] = $event['_id']->{'$id'};
@@ -519,11 +549,6 @@ class EventService extends BaseService {
             'country' => RequestInfo::getHeader('country'),
             'city' => RequestInfo::getHeader('city')
         ];
-        $v = new Validator($params);
-        $v->rule('required', ['country', 'city']);
-        if(!$v->validate()){
-            throw new ServiceException(ResponseHelper::validateError($v->errors()));
-        }
         
         $date = new \DateTime();
         $current_time = strtotime($date->format('Y-m-d H:i:s'));
@@ -545,13 +570,11 @@ class EventService extends BaseService {
                 $i = 0;
                 
                 foreach ($event_tags as $item) {
-
-                    $event = $this->getCollection()->findOne([
+                    
+                    $condition = [
                         'approve' => 1,
                         'build' => 1,
                         '_id' => new \MongoId($item['event_id']),
-                        'country' => $params['country'],
-                        'city' => $params['city'],
                         '$or' => [
                             ['date_start' => ['$gte' => $current_day]],
                             [
@@ -561,7 +584,28 @@ class EventService extends BaseService {
                                 ]
                             ]
                         ]
-                    ],['name', 'date_start', 'date_end']);
+                    ];
+        
+                    if($params['country'] !== false && $params['city'] !== false){
+                        $condition = [
+                            'approve' => 1,
+                            'build' => 1,
+                            '_id' => new \MongoId($item['event_id']),
+                            'country' => $params['country'],
+                            'city' => $params['city'],
+                            '$or' => [
+                                ['date_start' => ['$gte' => $current_day]],
+                                [
+                                    '$and' => [
+                                        ['date_start' => ['$lte' => $current_day]],
+                                        ['date_end' => ['$gte' => $current_day]]
+                                    ]
+                                ]
+                            ]
+                        ];
+                    }
+                    
+                    $event = $this->getCollection()->findOne($condition,['name', 'date_start', 'date_end']);
                     
                     if($event !== null){
                         
@@ -607,12 +651,11 @@ class EventService extends BaseService {
             } // End if
             elseif ($event_tags_count == 1) {
                 foreach ($event_tags as $item) {
-                    $event = $this->getCollection()->findOne([
+                    
+                    $condition = [
                         'approve' => 1,
                         'build' => 1,
                         '_id' => new \MongoId($item['event_id']),
-                        'country' => $params['country'],
-                        'city' => $params['city'],
                         '$or' => [
                             ['date_start' => ['$gte' => $current_day]],
                             [
@@ -622,7 +665,28 @@ class EventService extends BaseService {
                                 ]
                             ]
                         ]
-                    ],['name', 'date_start', 'date_end']);
+                    ];
+                    
+                    if($params['country'] !== false && $params['city'] !== false){
+                        $condition = [
+                            'approve' => 1,
+                            'build' => 1,
+                            '_id' => new \MongoId($item['event_id']),
+                            'country' => $params['country'],
+                            'city' => $params['city'],
+                            '$or' => [
+                                ['date_start' => ['$gte' => $current_day]],
+                                [
+                                    '$and' => [
+                                        ['date_start' => ['$lte' => $current_day]],
+                                        ['date_end' => ['$gte' => $current_day]]
+                                    ]
+                                ]
+                            ]
+                        ];
+                    }
+                    
+                    $event = $this->getCollection()->findOne($condition,['name', 'date_start', 'date_end']);
                     if($event !== null){
                         
                         $event['id'] = $event['_id']->{'$id'};
@@ -678,11 +742,6 @@ class EventService extends BaseService {
             'country' => RequestInfo::getHeader('country'),
             'city' => RequestInfo::getHeader('city')
         ];
-        $v = new Validator($params);
-        $v->rule('required', ['country', 'city']);
-        if(!$v->validate()){
-            throw new ServiceException(ResponseHelper::validateError($v->errors()));
-        }
         
         $limit = 20;
         if (!empty($options['limit'])) {
@@ -692,16 +751,29 @@ class EventService extends BaseService {
         $date = new \DateTime();
         $set_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_time = new \MongoDate($set_time);
-        $items = $this->getCollection()->find([
+        
+        $condition = [
             'approve' => 1,
             'build' => 1,
             '$and' => [
-                ['country' => $params['country']],
-                ['city' => $params['city']],
                 ['date_start' => ['$gte' => $current_time]],
                 ['date_end' => ['$gte' => $current_time]]
             ]
-        ],['name','detail','date_start'])->sort(['date_start' => 1])->limit($limit);
+        ];
+        if($params['country'] !== false && $params['city'] !== false){
+            $condition = [
+                'approve' => 1,
+                'build' => 1,
+                '$and' => [
+                    ['country' => $params['country']],
+                    ['city' => $params['city']],
+                    ['date_start' => ['$gte' => $current_time]],
+                    ['date_end' => ['$gte' => $current_time]]
+                ]
+            ];
+        }
+        
+        $items = $this->getCollection()->find($condition,['name','detail','date_start'])->sort(['date_start' => 1])->limit($limit);
         
         $res = [];
         foreach ($items as $item) {
@@ -726,6 +798,11 @@ class EventService extends BaseService {
     
     public function category_set($category_id, Context $ctx) {
         
+        $params = [
+            'country' => RequestInfo::getHeader('country'),
+            'city' => RequestInfo::getHeader('city')
+        ];
+        
         $date = new \DateTime();
         $current_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_day = new \MongoDate($current_time);
@@ -737,13 +814,25 @@ class EventService extends BaseService {
         $end_of_day = new \MongoDate($end_time);
         
         $item_lists = [];
-
-        // Filter by date_start only
-        $first_items = $this->getCollection()->find([
+        
+        $condition = [
+            'approve' => 1,
+            'build' => 1,
+            'date_start' => ['$gt' => $start_of_day, '$lt' => $end_of_day]
+        ];
+        
+        if($params['country'] !== false && $params['city'] !== false){
+            $condition = [
                 'approve' => 1,
                 'build' => 1,
+                'country' => $params['country'],
+                'city' => $params['city'],
                 'date_start' => ['$gt' => $start_of_day, '$lt' => $end_of_day]
-            ],['name','date_start'])
+            ];
+        }
+        
+        // Filter by date_start only
+        $first_items = $this->getCollection()->find($condition,['name','date_start'])
             ->sort(['date_start' => 1])
             ->limit(10);
         
@@ -768,7 +857,7 @@ class EventService extends BaseService {
             }
         }
         
-        $second_items = $this->getCollection()->find([
+        $condition = [
             'approve' => 1,
             'build' => 1,
             '$and' => [
@@ -776,7 +865,23 @@ class EventService extends BaseService {
                 ['date_end' => ['$gte' => $current_day]]
             ],
             '_id' => ['$nin' => $check_duplicate_id]
-        ], ['name','date_start'])
+        ];
+        
+        if($params['country'] !== false && $params['city'] !== false){
+            $condition = [
+                'approve' => 1,
+                'build' => 1,
+                '$and' => [
+                    ['country' => $params['country']],
+                    ['city' => $params['city']],
+                    ['date_start' => ['$lte' => $current_day]],
+                    ['date_end' => ['$gte' => $current_day]]
+                ],
+                '_id' => ['$nin' => $check_duplicate_id]
+            ];
+        }
+        
+        $second_items = $this->getCollection()->find($condition, ['name','date_start'])
         ->sort(['date_start' => -1])
         ->limit(10);
         foreach ($second_items as $item) {
@@ -803,6 +908,11 @@ class EventService extends BaseService {
     
     public function category_upcoming($category_id, Context $ctx) {
         
+        $params = [
+            'country' => RequestInfo::getHeader('country'),
+            'city' => RequestInfo::getHeader('city')
+        ];
+        
         $date = new \DateTime();
         $set_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_time = new \MongoDate($set_time);
@@ -812,12 +922,25 @@ class EventService extends BaseService {
         $event_tags = $this->getEventTagCollection()->find(['tag_id' => $category_id]);
         foreach ($event_tags as $item) {
             
-            $event = $this->getCollection()->findOne([
+            $condition = [
                 'approve' => 1,
                 'build' => 1,
                 '_id' => new \MongoId($item['event_id']),
                 'date_start' => ['$gt' => $current_time]
-            ],['name', 'date_start', 'date_end']);
+            ];
+            
+            if($params['country'] !== false && $params['city'] !== false){
+                $condition = [
+                    'approve' => 1,
+                    'build' => 1,
+                    'country' => $params['country'],
+                    'city' => $params['city'],
+                    '_id' => new \MongoId($item['event_id']),
+                    'date_start' => ['$gt' => $current_time]
+                ];
+            }
+            
+            $event = $this->getCollection()->findOne($condition,['name', 'date_start', 'date_end']);
             
             if ($event !== null) {
                 $event['id'] = $event['_id']->{'$id'};
