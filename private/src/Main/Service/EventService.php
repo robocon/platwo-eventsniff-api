@@ -234,7 +234,7 @@ class EventService extends BaseService {
     public function get($id, Context $ctx) {
 
         $id = MongoHelper::mongoId($id);
-        $item = $this->getCollection()->findOne(['_id' => $id]);
+        $item = $this->getCollection()->findOne(['_id' => $id],['_id','date_end','date_start','time_edit','time_stamp']);
 
         $item['id'] = $item['_id']->{'$id'};
         unset($item['_id']);
@@ -259,7 +259,7 @@ class EventService extends BaseService {
         
         // Get latest 5 pictures
         $gallery = $this->getGalleryCollection()
-            ->find(['event_id' => $item['id']])
+            ->find(['event_id' => $item['id']],['picture'])
             ->sort(['_id' => -1])
             ->limit(5);
         $item['pictures'] = [];
@@ -277,7 +277,7 @@ class EventService extends BaseService {
             ->find(['event_id' => $item['id']])
             ->sort(['_id' => -1])
             ->limit(20);
-        $item['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['id']])->count();
+        $item['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['id']],['_id','user_id'])->count();
         $item['sniffer'] = [];
         if ($sniffers->count(true)) {
             $user_lists = [];
@@ -286,9 +286,10 @@ class EventService extends BaseService {
                 unset($sniffer['_id']);
 
                 // Get user detail
-                $user = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($sniffer['user_id'])));
+                $user = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($sniffer['user_id'])),['_id','display_name','picture']);
                 $user_lists[] = [
                     'id' => $user['_id']->{'$id'},
+                    'name' => $user['display_name'],
                     'picture' => Image::load($user['picture'])->toArrayResponse()
                 ];
             }
@@ -297,7 +298,7 @@ class EventService extends BaseService {
 
         // get latest 3 comment
         $comment_lists = $this->getCommentCollection()
-            ->find(['event_id' => $item['id']])
+            ->find(['event_id' => $item['id']],['_id','user_id','time_stamp'])
             ->sort(['_id' => -1])
             ->limit(3);
         $item['total_comment'] = $this->getCommentCollection()->find(['event_id' => $item['id']])->count();
@@ -310,7 +311,7 @@ class EventService extends BaseService {
                 unset($comment['_id']);
 
                 // Get user detail
-                $user = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($comment['user_id'])));
+                $user = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($comment['user_id'])),['display_name','picture']);
                 $comment['user'] = [
                     'display_name' => $user['display_name'],
                     'picture' => Image::load($user['picture'])->toArrayResponse()
@@ -321,8 +322,6 @@ class EventService extends BaseService {
             }
             $item['comments'] = $comments;
         }
-        
-        
 
         return $item;
     }
