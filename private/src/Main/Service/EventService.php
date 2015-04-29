@@ -298,7 +298,7 @@ class EventService extends BaseService {
 
         // get latest 3 comment
         $comment_lists = $this->getCommentCollection()
-            ->find(['event_id' => $item['id']],['_id','user_id','time_stamp'])
+            ->find(['event_id' => $item['id']],['_id','detail','user_id','time_stamp'])
             ->sort(['_id' => -1])
             ->limit(3);
         $item['total_comment'] = $this->getCommentCollection()->find(['event_id' => $item['id']])->count();
