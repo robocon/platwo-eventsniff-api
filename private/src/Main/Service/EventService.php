@@ -322,7 +322,8 @@ class EventService extends BaseService {
             }
             $item['comments'] = $comments;
         }
-
+        $item['node'] = [ "share"=> URL::share('/event.php?id='.$item['id']) ];
+        
         return $item;
     }
 
