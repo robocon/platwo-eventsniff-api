@@ -234,7 +234,7 @@ class EventService extends BaseService {
     public function get($id, Context $ctx) {
 
         $id = MongoHelper::mongoId($id);
-        $item = $this->getCollection()->findOne(['_id' => $id],['_id','detail','date_end','date_start','time_edit','time_stamp']);
+        $item = $this->getCollection()->findOne(['_id' => $id],['_id','name','detail','credit','alarm','date_end','date_start','time_edit','time_stamp']);
 
         $item['id'] = $item['_id']->{'$id'};
         unset($item['_id']);
