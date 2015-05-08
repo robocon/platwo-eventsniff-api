@@ -490,6 +490,8 @@ class EventCTL extends BaseCTL {
      * @apiDescription List an event that is not empty
      * @apiName GetEventCategory
      * @apiGroup Event
+     * @apiHeader {String} country (Optional) Country id
+     * @apiHeader {String} city (Optional) City id
      * @apiParam {String} lang Language like en, th. Default is en
      * @apiSuccessExample {json} Success-Response:
     {
@@ -699,6 +701,8 @@ class EventCTL extends BaseCTL {
      * @apiDescription Get event list when click from /event/category_lists/:lang
      * @apiName GetEventCategoryUpcoming
      * @apiGroup Event
+     * @apiHeader {String} country (Optional) Country id
+     * @apiHeader {String} city (Optional) City id
      * @apiParam {String} category_id Category Id
      * @apiSuccessExample {json} Success-Response:
 {

@@ -219,6 +219,26 @@ define({ "api": [
     "description": "<p>List an event that is not empty</p> ",
     "name": "GetEventCategory",
     "group": "Event",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "country",
+            "description": "<p>(Optional) Country id</p> "
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "city",
+            "description": "<p>(Optional) City id</p> "
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [
@@ -285,6 +305,26 @@ define({ "api": [
     "description": "<p>Get event list when click from /event/category_lists/:lang</p> ",
     "name": "GetEventCategoryUpcoming",
     "group": "Event",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "country",
+            "description": "<p>(Optional) Country id</p> "
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "city",
+            "description": "<p>(Optional) City id</p> "
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [
