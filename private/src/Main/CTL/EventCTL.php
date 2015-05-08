@@ -34,6 +34,8 @@ class EventCTL extends BaseCTL {
      * @apiDescription Get all event for mobile
      * @apiName GetAllEvent
      * @apiGroup Event
+     * @apiHeader {String} country (Optional) Country id
+     * @apiHeader {String} city (Optional) City id
      * @apiSuccessExample {json} Success-Response:
 {
     "data": [
@@ -547,6 +549,8 @@ class EventCTL extends BaseCTL {
      * @apiName GetEventToday
      * @apiGroup Event
      * @apiParam {String} lang Language like en, th. Default is en
+     * @apiHeader {String} country (Optional) Country id
+     * @apiHeader {String} city (Optional) City id
      * @apiSuccessExample {json} Success-Response:
 {
     "data": [
@@ -605,6 +609,8 @@ class EventCTL extends BaseCTL {
      * @apiDescription Show an upcoming event 
      * @apiName GetEventUpcoming
      * @apiGroup Event
+     * @apiHeader {String} country (Optional) Country id
+     * @apiHeader {String} city (Optional) City id
      * @apiParam {String} limit [Optional] Limit event to display. Default is 20
      * @apiParamExample {String} Request-Example:
      * /event/upcoming?limit=2

@@ -100,6 +100,26 @@ define({ "api": [
     "description": "<p>Get all event for mobile</p> ",
     "name": "GetAllEvent",
     "group": "Event",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "country",
+            "description": "<p>(Optional) Country id</p> "
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "city",
+            "description": "<p>(Optional) City id</p> "
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {
@@ -311,6 +331,26 @@ define({ "api": [
         ]
       }
     },
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "country",
+            "description": "<p>(Optional) Country id</p> "
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "city",
+            "description": "<p>(Optional) City id</p> "
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {
@@ -331,6 +371,26 @@ define({ "api": [
     "description": "<p>Show an upcoming event</p> ",
     "name": "GetEventUpcoming",
     "group": "Event",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "country",
+            "description": "<p>(Optional) Country id</p> "
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "city",
+            "description": "<p>(Optional) City id</p> "
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [
