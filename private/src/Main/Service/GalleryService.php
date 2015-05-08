@@ -55,8 +55,9 @@ class GalleryService extends BaseService {
         
         // Insert into MongoDB
         $this->getCollection()->insert($insert_data);
-        $picture = $upload->toArrayResponse();
-        
+        $test_load = Image::load($insert_data['picture']);
+        $picture = $test_load->toArrayResponse();
+        $picture['detail'] = $insert_data['detail'];
         return $picture;
     }
     

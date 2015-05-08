@@ -414,6 +414,13 @@ define({ "api": [
             "optional": false,
             "field": "user_id",
             "description": "<p>User id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "detail",
+            "description": "<p>(Optional)Picture description</p> "
           }
         ]
       }
@@ -454,6 +461,13 @@ define({ "api": [
             "optional": false,
             "field": "user_id",
             "description": "<p>User id</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "detail",
+            "description": "<p>(Optional)Picture description</p> "
           }
         ]
       }

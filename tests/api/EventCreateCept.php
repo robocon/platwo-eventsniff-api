@@ -21,7 +21,7 @@ $lng = (float) rand(98,98).'.'.mt_rand(978000, 993500);
 
 // Get test image and convert into base64
 $image = base64_encode(file_get_contents(dirname(dirname(__FILE__)).'/test.png'));
-$user_id = '54ed542810f0ed0d048b456a';
+$user_id = '54edda6b10f0ed15048b4567';
 
 /**
  * Booking an event
@@ -31,7 +31,8 @@ $I->wantTo('Booking an event');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 $I->sendPOST('event/gallery', [
     'picture' => $image,
-    'user_id' => $user_id
+    'user_id' => $user_id,
+    'detail' => 'กรอบรูป แอ็คชั่นกุนซือแคทวอล์คฟอร์ม',
     ]);
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
@@ -51,7 +52,8 @@ $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 $I->sendPOST('event/gallery/'.$event_id, [
     'event_id' => $event_id,
     'picture' => $image,
-    'user_id' => $user_id
+    'user_id' => $user_id,
+    'detail' => 'โมหจริตฮาลาล หงวนอัลมอนด์สตรอเบอรีหน่อมแน้มพรีเซ็นเตอร์'
 ]);
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();

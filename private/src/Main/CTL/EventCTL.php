@@ -258,6 +258,7 @@ class EventCTL extends BaseCTL {
      * @apiGroup Event
      * @apiParam {String} picture Picture in base64_encode
      * @apiParam {String} user_id User id
+     * @apiParam {String} detail (Optional)Picture description
      * @apiSuccessExample {json} Success-Response:
     {
         "event_id": "54b5e76510f0edc9068b4572",
@@ -288,6 +289,7 @@ class EventCTL extends BaseCTL {
                 'picture' => $this->reqInfo->param('picture'),
                 'user_id' => $event['user_id'],
                 'event_id' => $event['id'],
+                'detail' => $this->reqInfo->param('detail')
             ];
 
             $res = [
@@ -313,6 +315,7 @@ class EventCTL extends BaseCTL {
      * @apiParam {String} event_id Event id
      * @apiParam {String} picture Picture in base64_encode
      * @apiParam {String} user_id User id
+     * @apiParam {String} detail (Optional)Picture description
      * @apiSuccessExample {json} Success-Response:
     {
         "picture": {
@@ -336,7 +339,8 @@ class EventCTL extends BaseCTL {
             $data = [
                 'picture' => $this->reqInfo->param('picture'),
                 'user_id' => $this->reqInfo->param('user_id'),
-                'event_id' => $this->reqInfo->urlParam('id')
+                'event_id' => $this->reqInfo->urlParam('id'),
+                'detail' => $this->reqInfo->param('detail'),
             ];
 
             $res = [];

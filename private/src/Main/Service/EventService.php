@@ -259,7 +259,7 @@ class EventService extends BaseService {
         
         // Get latest 5 pictures
         $gallery = $this->getGalleryCollection()
-            ->find(['event_id' => $item['id']],['picture'])
+            ->find(['event_id' => $item['id']],['picture','detail'])
             ->sort(['_id' => -1])
             ->limit(5);
         $item['pictures'] = [];
@@ -267,7 +267,10 @@ class EventService extends BaseService {
         if ($gallery->count(true)) {
             $pictures = [];
             foreach ($gallery as $picture) {
-                $pictures[] = Image::load($picture['picture'])->toArrayResponse();
+                
+                $set_url = Image::load($picture['picture'])->toArrayResponse();
+                $set_url['detail'] = $picture['detail'];
+                $pictures[] = $set_url;
             }
             $item['pictures'] = $pictures;
         }
