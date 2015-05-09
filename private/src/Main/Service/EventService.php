@@ -227,7 +227,7 @@ class EventService extends BaseService {
                 $res['paging']['prev'] = URL::absolute('/event'.'?'.  http_build_query(['page' => (int)$options['page']-1, 'limit' => (int)$options['limit']]));
             }
         }
-
+        
         return $res;
     }
 
@@ -427,7 +427,6 @@ class EventService extends BaseService {
         $set['credit'] = $params['credit'];
         $set['time_edit'] = new \MongoDate(time());
         $set['build'] = 1;
-        $set['location'] = [$params['location']['0'], $params['location']['1']];
         $set['country'] = $params['country'];
         $set['city'] = $params['city'];
 
@@ -546,7 +545,7 @@ class EventService extends BaseService {
         return $new_category_lists;
     }
     
-    public function today($category_lists, Context $ctx) {
+    public function today($lang, Context $ctx) {
         
         $params = [
             'country' => RequestInfo::getHeader('country'),
@@ -560,183 +559,75 @@ class EventService extends BaseService {
         $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
         $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
         
-        $new_category_lists = [];
-        $first_category_lists = [];
+//        $new_category_lists = [];
+//        $first_category_lists = [];
         
-        foreach ($category_lists['data'] as $category) {
-            
-            $event_tags = $this->getEventTagCollection()->find(['tag_id' => $category['id']]);
-            $event_tags_count = $event_tags->count(true);
-            if ($event_tags_count > 1) {
-                
-                $event_lists = [];
-                $i = 0;
-                
-                foreach ($event_tags as $item) {
-                    
-                    $condition = [
-                        'approve' => 1,
-                        'build' => 1,
-                        '_id' => new \MongoId($item['event_id']),
-                        '$or' => [
-                            ['date_start' => ['$gte' => $current_day]],
-                            [
-                                '$and' => [
-                                    ['date_start' => ['$lte' => $current_day]],
-                                    ['date_end' => ['$gte' => $current_day]]
-                                ]
-                            ]
-                        ]
-                    ];
+        $condition = [
+            'approve' => 1,
+            'build' => 1,
+            'date_start' => ['$lte' => $current_day],
+            'date_end' => ['$gte' => $current_day]
+        ];
         
-                    if($params['country'] !== false && $params['city'] !== false){
-                        $condition = [
-                            'approve' => 1,
-                            'build' => 1,
-                            '_id' => new \MongoId($item['event_id']),
-                            'country' => $params['country'],
-                            'city' => $params['city'],
-                            '$or' => [
-                                ['date_start' => ['$gte' => $current_day]],
-                                [
-                                    '$and' => [
-                                        ['date_start' => ['$lte' => $current_day]],
-                                        ['date_end' => ['$gte' => $current_day]]
-                                    ]
-                                ]
-                            ]
-                        ];
-                    }
-                    
-                    $event = $this->getCollection()->findOne($condition,['name', 'date_start', 'date_end']);
-                    
-                    if($event !== null){
-                        
-                        $event['id'] = $event['_id']->{'$id'};
-                        unset($event['_id']);
-                        
-                        $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
-                        $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
-                        
-                        $set_key = (string)strtotime($event['date_start']);
-                        
-                        $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
-                        $event['thumb'] = Image::load($picture['picture'])->toArrayResponse();
-                        
-                        $sniffer = $this->getSnifferCollection()->find(['event_id' => $event['id']]);
-                        $event['total_sniffer'] = $sniffer->count(true);
-                        
-                        $event_lists[$set_key] = $event;
-                        $i++;
-                        
-                    }
-                }
-                
-                if ($i > 0) {
-                    ksort($event_lists, SORT_NUMERIC);
-                    $get_keys = array_keys($event_lists);
-                    $first_event = (string)$get_keys['0'];
-                    $real_event = $event_lists[$first_event];
-
-                    $category['thumb'] = $real_event['thumb'];
-                    $category['total_sniffer'] = $real_event['total_sniffer'];
-                    $category['date_end'] = $real_event['date_end'];
-                    $category['type'] = 'category';
-                    $category['date_start'] = $first_event;
-                    
-                    if ($get_keys['0'] > $start_time && $get_keys['0'] < $end_time) {
-                        $first_category_lists[] = $category;
-                    }else{
-                        $new_category_lists[] = $category;
-                    }
-                }
-                
-            } // End if
-            elseif ($event_tags_count == 1) {
-                foreach ($event_tags as $item) {
-                    
-                    $condition = [
-                        'approve' => 1,
-                        'build' => 1,
-                        '_id' => new \MongoId($item['event_id']),
-                        '$or' => [
-                            ['date_start' => ['$gte' => $current_day]],
-                            [
-                                '$and' => [
-                                    ['date_start' => ['$lte' => $current_day]],
-                                    ['date_end' => ['$gte' => $current_day]]
-                                ]
-                            ]
-                        ]
-                    ];
-                    
-                    if($params['country'] !== false && $params['city'] !== false){
-                        $condition = [
-                            'approve' => 1,
-                            'build' => 1,
-                            '_id' => new \MongoId($item['event_id']),
-                            'country' => $params['country'],
-                            'city' => $params['city'],
-                            '$or' => [
-                                ['date_start' => ['$gte' => $current_day]],
-                                [
-                                    '$and' => [
-                                        ['date_start' => ['$lte' => $current_day]],
-                                        ['date_end' => ['$gte' => $current_day]]
-                                    ]
-                                ]
-                            ]
-                        ];
-                    }
-                    
-                    $event = $this->getCollection()->findOne($condition,['name', 'date_start', 'date_end']);
-                    if($event !== null){
-                        
-                        $event['id'] = $event['_id']->{'$id'};
-                        unset($event['_id']);
-                        
-                        $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
-                        $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
-                        
-                        $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
-                        $category['thumb'] = Image::load($picture['picture'])->toArrayResponse();
-                        
-                        $sniffer = $this->getSnifferCollection()->find(['event_id' => $event['id']]);
-                        $category['total_sniffer'] = $sniffer->count(true);
-                        
-                        $category['id'] = $event['id'];
-                        $category['type'] = 'item';
-                        $category['name'] = $event['name'];
-                        $event_time = strtotime($event['date_start']);
-                        $category['date_start'] = (string)$event_time;
-                        $category['date_end'] = $event['date_end'];
-                        
-                        if ($event_time > $start_time && $event_time < $end_time) {
-                            $first_category_lists[] = $category;
-                        }else{
-                            $new_category_lists[] = $category;
-                        }
-                    }
-                } // End foreach
-            } // End if
-        } // End foreach
-        
-        usort($first_category_lists, function($a, $b){
-            return $a['date_start'] - $b['date_start'];
-        });
-        
-        usort($new_category_lists, function($a, $b){
-            return $a['date_start'] - $b['date_start'];
-        });
-        
-        $final_category = array_merge($first_category_lists, array_reverse($new_category_lists));
-        
-        $i = 0;
-        foreach ($final_category as $item) {
-            $final_category[$i]['date_start'] = date('Y-m-d H:i:s', $item['date_start']);
-            $i++;
+        if($params['country'] !== false && $params['city'] !== false){
+            $condition = [
+                'approve' => 1,
+                'build' => 1,
+                'country' => $params['country'],
+                'city' => $params['city'],
+                'date_start' => ['$lte' => $current_day],
+                'date_end' => ['$gte' => $current_day]
+            ];
         }
-        return $final_category;
+        
+        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end'])->sort(["date_start" => -1]);
+        $test_category_set = [];
+
+        foreach($events as $event){
+            
+            $event['id'] = $event['_id']->{'$id'};
+            unset($event['_id']);
+
+            $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+            $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
+            
+            $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture','detail']);
+            $event['thumb'] = Image::load($picture['picture'])->toArrayResponse();
+            $event['thumb']['detail'] = isset($picture['detail']) ? $picture['detail'] : '' ;
+
+            $sniffer = $this->getSnifferCollection()->find(['event_id' => $event['id']]);
+            $event['total_sniffer'] = $sniffer->count(true);
+            
+            $tag = $this->getEventTagCollection()->findOne(['event_id' => $event['id']]);
+            $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag['tag_id'])],[$lang['lang']]);
+            $event['category_id'] = $category['_id']->{'$id'};
+            $event['category_name'] = $category[$lang['lang']];
+            
+            $test_category_set[$category['_id']->{'$id'}][] = $event;
+        }
+        
+        $final_item_lists = [];
+        foreach ($test_category_set as $key => $item) {
+            
+            if(count($item) > 1){
+                $item['0']['name'] = $item['0']['category_name'];
+                $item['0']['id'] = $item['0']['category_id'];
+                $item['0']['type'] = 'folder';
+                
+                unset($item['0']['category_id']);
+                unset($item['0']['category_name']);
+                unset($item['0']['total_sniffer']);
+                $final_item_lists[] = $item['0'];
+            }else{
+                $item['0']['type'] = 'item';
+                
+                unset($item['0']['category_id']);
+                unset($item['0']['category_name']);
+                $final_item_lists[] = $item['0'];
+            }
+        }
+        
+        return $final_item_lists;
     }
     
     public function upcoming($options = [], Context $ctx) {

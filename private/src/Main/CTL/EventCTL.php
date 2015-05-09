@@ -593,11 +593,8 @@ class EventCTL extends BaseCTL {
             if(!$v->validate()){
                 throw new ServiceException(ResponseHelper::validateError($v->errors()));
             }
-            
-            // Get categories
-            $category_lists = SniffService::getInstance()->gets($params['lang'], [], $this->getCtx());
 
-            $res['data'] = EventService::getInstance()->today($category_lists, $this->getCtx());
+            $res['data'] = EventService::getInstance()->today($params, $this->getCtx());
             $res['length'] = count($res['data']);
             return $res;
 
