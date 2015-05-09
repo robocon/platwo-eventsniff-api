@@ -746,7 +746,10 @@ class EventService extends BaseService {
 
                 $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
                 $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
-
+                
+                $sniffer = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
+                $item['total_sniffer'] = $sniffer->count(true);
+                
                 $item_lists[] = $item;
             }
         }
@@ -792,7 +795,10 @@ class EventService extends BaseService {
 
                 $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
                 $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
-
+                
+                $sniffer = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
+                $item['total_sniffer'] = $sniffer->count(true);
+                
                 $item_lists[] = $item;
             }
         }
