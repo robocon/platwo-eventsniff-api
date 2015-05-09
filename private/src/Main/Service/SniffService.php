@@ -60,6 +60,11 @@ class SniffService extends BaseService {
         return $db->event_tag;
     }
     
+    public function getGalleryCollection(){
+         $db = DB::getDB();
+        return $db->gallery;
+    }
+    
     public function gets($lang, $options = array(), Context $ctx) {
         
         // default lang is en
@@ -217,7 +222,7 @@ class SniffService extends BaseService {
             ],
         ];
         
-        $locations = $this->getLocationCollection()->find($search,['event_id']);
+        $locations = $this->getLocationCollection()->find($search,['event_id','position']);
         $event_lists = [];
         foreach($locations as $item){
             
@@ -237,7 +242,7 @@ class SniffService extends BaseService {
                         ]
                     ]
                 ]
-            ],['name','date_start']);
+            ],['name','date_start','date_end']);
             
             if($event !== null){
                 
@@ -259,6 +264,7 @@ class SniffService extends BaseService {
                 }
                 
                 $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+                $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
 
                 $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['event_id']])->count();
                 $event['view'] = $this->getLogCollection()->find([
@@ -266,6 +272,12 @@ class SniffService extends BaseService {
                     'status' => 'view',
                     'reference_id' => $event['id'],
                 ])->count();
+                
+                $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture','detail']);
+                $event['thumb'] = Image::load($picture['picture'])->toArrayResponse();
+                $event['thumb']['detail'] = isset($picture['detail']) ? $picture['detail'] : '' ;
+                
+                $event['position'] = $item['position'];
                 
                 $event_lists[] = $event;
                 

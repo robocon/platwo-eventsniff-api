@@ -180,9 +180,18 @@ class SniffCTL extends BaseCTL {
         {
             "name":"test add name 1424340350",
             "date_start":"2015-02-26 17:05:50",
+            "date_end":"2015-02-26 20:05:50",
             "id":"54e5b57c10f0edf6058b4595",
             "total_sniffer":0,
-            "view":4
+            "view":4,
+            "thumb":{
+                "id":"5515684290cc13c2048b4570jpg",
+                "width":600,
+                "height":259,
+                "url":"http:\/\/110.164.70.60\/get\/5515684290cc13c2048b4570jpg\/",
+                "detail":""
+            },
+            "position":[18.797755,98.9733769]
         },
         {...}
     ],
