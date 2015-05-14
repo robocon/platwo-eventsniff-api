@@ -4,9 +4,9 @@ $I->wantTo('Send message to user');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 
 $I->sendPOST('message', [
-    'access_token' => '9049734e4ece4a26b62f9fbe67b72117d14cb7a7bc0eb2810482f800bb517277',
+    'access_token' => '3cd42328e92c3caffa9267db101eeb35ab9c3f5a2126cd4f0e50f94f5429c303',
     'to' => 'users',
-    'message' => 'test seand a message '.time(),
+    'message' => 'ทดสอบส่งข้อความจ้าาาาาาาาาาาา  '.time(),
     'users_id' => ['54d9bc4dda354d757b8b4569'],
 ]);
 $I->seeResponseCodeIs(200);

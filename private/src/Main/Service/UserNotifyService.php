@@ -108,9 +108,16 @@ class UserNotifyService extends BaseService {
 
         $this->getUserCollection()->update(['_id'=> $user['_id']], ['$set'=> ['display_notification_number'=> 0]]);
         NotifyHelper::clearBadge($user);
-        $user['display_notification_number'] = 0;
+        
+        $user['id'] = $user['_id']->{'$id'};
+        unset($user['_id']);
+        
+        $res = [
+            'id' => $user['id'],
+            'display_notification_number' => $user['display_notification_number'],
+        ];
 
-        return $user;
+        return $res;
     }
 
     public function delete($id, Context $ctx){
