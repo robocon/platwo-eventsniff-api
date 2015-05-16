@@ -467,7 +467,9 @@ class EventCTL extends BaseCTL {
      * @apiSuccessExample {json} Success-Response:
         {
             "event_id": "54ba191510f0edb7048b456a",
-            "active": 1
+            "active": 1,
+            "user_id": "54edda6b10f0ed15048b4567",
+            "alarm_date": "2015-08-17 12:11:53",
         }
      *
      * @PUT

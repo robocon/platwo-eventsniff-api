@@ -790,8 +790,8 @@
   },
   {
     "type": "put",
-    "url": "/event/alarm/:event_id/:active",
-    "title": "PUT /event/alarm/:event_id/:active",
+    "url": "/event/alarm/:event_id",
+    "title": "PUT /event/alarm/:event_id",
     "description": "<p>Update alarm an event</p> ",
     "name": "PutEventAlarm",
     "group": "Event",
@@ -811,6 +811,20 @@
             "optional": false,
             "field": "active",
             "description": "<p>0 is Disable, 1 is Enable</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "alarm_date",
+            "description": "<p>Date time e.g. 2015-11-12 14:11:13</p> "
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "user_id",
+            "description": "<p>User ID</p> "
           }
         ]
       }
@@ -819,7 +833,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n    \"event_id\": \"54ba191510f0edb7048b456a\",\n    \"active\": 1\n}",
+          "content": "{\n    \"event_id\": \"54ba191510f0edb7048b456a\",\n    \"active\": 1,\n    \"user_id\": \"54edda6b10f0ed15048b4567\",\n    \"alarm_date\": \"2015-08-17 12:11:53\",\n}",
           "type": "json"
         }
       ]
