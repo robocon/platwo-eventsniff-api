@@ -456,12 +456,14 @@ class EventCTL extends BaseCTL {
      *
      * @return type
      *
-     * @api {put} /event/alarm/:event_id/:active PUT /event/alarm/:event_id/:active
+     * @api {put} /event/alarm/:event_id PUT /event/alarm/:event_id
      * @apiDescription Update alarm an event
      * @apiName PutEventAlarm
      * @apiGroup Event
      * @apiParam {String} event_id Event id
      * @apiParam {Integer} active 0 is Disable, 1 is Enable
+     * @apiParam {String} alarm_date Date time e.g. 2015-11-12 14:11:13
+     * @apiParam {String} user_id User ID
      * @apiSuccessExample {json} Success-Response:
         {
             "event_id": "54ba191510f0edb7048b456a",
@@ -469,13 +471,15 @@ class EventCTL extends BaseCTL {
         }
      *
      * @PUT
-     * @uri /alarm/[h:event_id]/[i:active]
+     * @uri /alarm/[h:event_id]
      */
     public function alarm() {
         try {
             $params = [
                 'event_id' => $this->reqInfo->urlParam('event_id'),
-                'active' => (int)$this->reqInfo->urlParam('active'),
+                'active' => $this->reqInfo->param('active'),
+                'alarm_date' => $this->reqInfo->param('alarm_date'),
+                'user_id' => $this->reqInfo->param('user_id'),
             ];
 
             $update = EventService::getInstance()->alarm($params, $this->getCtx());

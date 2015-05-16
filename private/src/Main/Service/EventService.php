@@ -243,7 +243,21 @@ class EventService extends BaseService {
         $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
         $item['time_edit'] = MongoHelper::dateToYmd($item['time_edit']);
         $item['time_stamp'] = MongoHelper::dateToYmd($item['time_stamp']);
+        
+        $token = RequestInfo::getHeader('access-token');
+        if($token !== false){
 
+            $user = $this->getUsersCollection()->findOne(['access_token' => $token],['_id']);
+            foreach($item['alarm'] as $alarm){
+                if($user['_id']->{'$id'} == $alarm['user_id']){
+                    $item['alarm'] = $alarm;
+                }
+            }
+
+        }else{
+            $item['alarm'] = 0;
+        }
+            
         // Get location
         $location = $this->getLocationCollection()->findOne([
             'event_id' => $item['id']
@@ -269,7 +283,11 @@ class EventService extends BaseService {
             foreach ($gallery as $picture) {
                 
                 $set_url = Image::load($picture['picture'])->toArrayResponse();
-                $set_url['detail'] = $picture['detail'];
+                
+                if(isset($picture['detail'])){
+                    $set_url['detail'] = $picture['detail'];
+                }
+                
                 $pictures[] = $set_url;
             }
             $item['pictures'] = $pictures;
@@ -441,7 +459,7 @@ class EventService extends BaseService {
 
         $v = new Validator($params);
         $v->rules([
-                'required' => [ ['event_id'], ['active'] ],
+                'required' => [ ['event_id'], ['active'], ['user_id'] ],
                 'integer' => [ ['active'] ],
                 'length' => [['active', 1]]
             ]);
@@ -451,20 +469,38 @@ class EventService extends BaseService {
 
         // Set this ID First
         $event_id = MongoHelper::mongoId($params['event_id']);
-
-        $find_event = $this->getCollection()->findOne(['_id' => $event_id]);
-        if ($find_event === null) {
-            return ResponseHelper::error("Can not find this event :(");
+        
+        $find_event = $this->getCollection()->findOne([
+            '_id' => $event_id,
+            'alarm.user_id' => $params['user_id']
+        ]);
+        
+        $data = [
+            'user_id' => $params['user_id'],
+            'active' => $params['active'],
+            'alarm_date' => $params['alarm_date']
+        ];
+        
+        if($find_event === null){
+            $update = $this->getCollection()->update(
+                ['_id' => $event_id],
+                ['$addToSet' => ['alarm' => $data]]
+            );
+        }else{
+            
+            $update = $this->getCollection()->update(
+                ['_id' => $event_id, 'alarm.user_id' => $params['user_id']],
+                ['$pull' => ['alarm' => ['user_id' => $params['user_id']]]]
+            );
+            
+            $update = $this->getCollection()->update(
+                ['_id' => $event_id],
+                ['$addToSet' => ['alarm' => $data]]
+            );
         }
+        $data['event_id'] = $params['event_id'];
 
-        $this->getCollection()->update(
-            ['_id' => $event_id],
-            ['$set'=> [
-                'alarm' => $params['active']
-                ]
-            ]);
-
-        return $params;
+        return $data;
     }
 
     public function category_lists($category_lists, Context $ctx) {

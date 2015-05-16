@@ -1,8 +1,8 @@
 <?php
 $I = new ApiTester($scenario);
 $I->wantTo('Show events');
-//$I->setHeader('access-token', '4d1cee2298152bede6876e16e4086c5c7f1cc23973166a226401cdfccc664cf7');
-$I->sendGET('event/554cccdc10f0edd00c8b456f');
+//$I->setHeader('access-token', '9049734e4ece4a26b62f9fbe67b72117d14cb7a7bc0eb2810482f800bb517277');
+$I->sendGET('event/5556c4adf889296d373c9869');
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
 $id = $I->grabDataFromJsonResponse('id');
