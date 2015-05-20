@@ -189,6 +189,7 @@ class OAuthService extends BaseService {
         
         $check_user_password = UserHelper::generate_password($params['password'], $item['private_key']);
         
+        
         if(!isset($item['password']) || $item['password'] != $check_user_password){
             throw new ServiceException(ResponseHelper::error('Wrong password'));
         }
@@ -209,7 +210,7 @@ class OAuthService extends BaseService {
         }
 
         // set last login
-        $this->getUsersCollection()->update(['_id'=> $item['_id']], ['$set'=> ['last_login'=> new \MongoTimestamp()]]);
+        $this->getUsersCollection()->update(['_id'=> $item['_id']], ['$set'=> ['last_login'=> new \MongoDate()]]);
 
         return ['user_id'=> MongoHelper::standardId($item['_id']), 'access_token'=> $item['access_token'], 'type'=> $item['type']];
     }
