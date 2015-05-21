@@ -155,7 +155,12 @@ class UserService extends BaseService {
     
     public function noneuser($params, Context $ctx) {
         
-        $device_token = isset($params['ios_device_token']) ? $params['ios_device_token']['key'] : $params['android_token'] ; 
+        $device_token = isset($params['ios_device_token']) ? $params['ios_device_token']['key'] : ( isset($params['android_token']) ? $params['android_token'] : null ) ; 
+        
+        if($device_token === null){
+            throw new ServiceException(ResponseHelper::error('Required device token'));
+        }
+        
         $user = $this->getCollection()->findOne([
             '$or' => [
                 ['ios_device_token.key' => $device_token],

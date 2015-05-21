@@ -4,8 +4,8 @@ $I->wantTo('Register none user');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 $I->sendPOST('register/noneuser', [
     'ios_device_token' => [
-        'type' => 'product',
-        'key' => '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'
+        'type' => 'dev',
+        'key' => '03a5a8a7a4f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'
     ]
 ]);
 $I->seeResponseCodeIs(200);
