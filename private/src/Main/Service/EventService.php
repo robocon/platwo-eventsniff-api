@@ -709,7 +709,8 @@ class EventService extends BaseService {
         foreach ($items as $item) {
             
             $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
-
+            $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
+            
             $item['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
             
@@ -779,7 +780,8 @@ class EventService extends BaseService {
             if ($category_id == $item['category']) {
                 $check_duplicate_id[] = new \MongoId($item['id']);
                 $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
-
+                $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
+                
                 $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
                 $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
                 
@@ -828,7 +830,8 @@ class EventService extends BaseService {
             if ($category_id == $item['category']) {
                 $check_duplicate_id[] = new \MongoId($item['id']);
                 $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
-
+                $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
+                
                 $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
                 $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
                 
