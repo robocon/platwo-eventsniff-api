@@ -3,7 +3,7 @@ $I = new ApiTester($scenario);
 $I->wantTo('Event search');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 $I->sendPOST('event/search', [
-    'word' => '99'
+    'word' => 'งาน'
 ]);
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();

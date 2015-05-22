@@ -922,13 +922,22 @@ class EventService extends BaseService {
                     ]
                 ]
             ]
-        ],['name'])->sort(['date_start' => -1]);
+        ],['name','date_start','date_end'])->sort(['date_start' => -1]);
         
         $item_lists = [];
         if ($items->count() > 0) {
             foreach($items as $item){
                 $item['id'] = $item['_id']->{'$id'};
                 unset($item['_id']);
+                
+                $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+                $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
+
+                $picture = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
+                $item['thumb'] = Image::load($picture['picture'])->toArrayResponse();
+                
+                $sniffer = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
+                $item['total_sniffer'] = $sniffer->count(true);
                 
                 $item_lists[] = $item;
             }
