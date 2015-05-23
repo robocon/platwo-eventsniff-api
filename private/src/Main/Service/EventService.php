@@ -481,6 +481,15 @@ class EventService extends BaseService {
             'alarm_date' => $params['alarm_date']
         ];
         
+        // Check alarm is array
+        $ev = $this->getCollection()->findOne(['_id' => $event_id],['alarm']);
+        if($ev['alarm'] == 0){
+            $update = $this->getCollection()->update(
+                ['_id' => $event_id],
+                ['$set' => ['alarm' => []]]
+            );
+        }
+        
         if($find_event === null){
             $update = $this->getCollection()->update(
                 ['_id' => $event_id],
