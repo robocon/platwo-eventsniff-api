@@ -577,7 +577,7 @@ HTML;
         
         $item_lists = [];
         foreach ($items as $item) {
-            
+            dump($item);
             $event = $this->getEventCollection()->findOne([
                 '_id' => new \MongoId($item['event_id']),
                 '$or' => [
@@ -602,10 +602,22 @@ HTML;
                 $event['picture'] = Image::load($picture['picture'])->toArrayResponse();
 
                 $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $event['id']])->count();
-            
+                
+                if($event['alarm'] != 0 && count($event['alarm']) > 0){
+                    foreach($event['alarm'] as $alarm){
+                        if($user_id == $alarm['user_id']){
+                            $event['alarm'] = $alarm;
+                        }
+                    }
+                }else{
+                    $event['alarm'] = [];
+                }
+                
                 $item_lists[] = $event;
             }
         }
+        
+        exit;
         return $item_lists;
     }
     

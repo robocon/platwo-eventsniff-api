@@ -21,7 +21,7 @@ $lng = (float) rand(98,98).'.'.mt_rand(978000, 993500);
 
 // Get test image and convert into base64
 $image = base64_encode(file_get_contents(dirname(dirname(__FILE__)).'/test.png'));
-$user_id = '54edda6b10f0ed15048b4567';
+$user_id = '54ed542810f0ed0d048b456a';
 
 /**
  * Booking an event

@@ -245,9 +245,14 @@ class EventService extends BaseService {
         $item['time_stamp'] = MongoHelper::dateToYmd($item['time_stamp']);
         
         $token = RequestInfo::getHeader('access-token');
-        if($token !== false){
-
+        if($token !== false && !empty($item['alarm'])){
+            
+            // Find own alarm by access-token
             $user = $this->getUsersCollection()->findOne(['access_token' => $token],['_id']);
+            if($user === null){
+                return ResponseHelper::error('Invalid token');
+            }
+            
             foreach($item['alarm'] as $alarm){
                 if($user['_id']->{'$id'} == $alarm['user_id']){
                     $item['alarm'] = $alarm;
@@ -255,7 +260,9 @@ class EventService extends BaseService {
             }
 
         }else{
-            $item['alarm'] = 0;
+            
+            // If not access-token return empty array
+            $item['alarm'] = [];
         }
             
         // Get location
@@ -447,11 +454,12 @@ class EventService extends BaseService {
         $set['build'] = 1;
         $set['country'] = $params['country'];
         $set['city'] = $params['city'];
+        $set['alarm'] = [];
 
         $this->getCollection()->update(['_id'=> $id], ['$set'=> $set]);
         unset($set['build']);
-        $set['local'] = $set['location'];
-        unset($set['location']);
+//        $set['local'] = $set['location'];
+//        unset($set['location']);
         return $set;
     }
 
