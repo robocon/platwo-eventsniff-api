@@ -577,7 +577,7 @@ HTML;
         
         $item_lists = [];
         foreach ($items as $item) {
-            dump($item);
+            // dump($item);
             $event = $this->getEventCollection()->findOne([
                 '_id' => new \MongoId($item['event_id']),
                 '$or' => [
@@ -624,7 +624,7 @@ HTML;
             }
         }
         
-        exit;
+        // exit;
         return $item_lists;
     }
     
