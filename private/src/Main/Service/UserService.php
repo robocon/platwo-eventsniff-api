@@ -604,11 +604,18 @@ HTML;
                 $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $event['id']])->count();
                 
                 if($event['alarm'] != 0 && count($event['alarm']) > 0){
+                    $test_alarm = false;
                     foreach($event['alarm'] as $alarm){
                         if($user_id == $alarm['user_id']){
                             $event['alarm'] = $alarm;
+                            $test_alarm = true;
                         }
                     }
+                    
+                    if($test_alarm === false){
+                        $event['alarm'] = [];
+                    }
+
                 }else{
                     $event['alarm'] = [];
                 }

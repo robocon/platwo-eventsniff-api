@@ -253,12 +253,18 @@ class EventService extends BaseService {
                 return ResponseHelper::error('Invalid token');
             }
             
+            $test_alarm = false;
             foreach($item['alarm'] as $alarm){
                 if($user['_id']->{'$id'} == $alarm['user_id']){
                     $item['alarm'] = $alarm;
+                    $test_alarm = true;
                 }
             }
-
+            
+            if($test_alarm === false){
+                $item['alarm'] = [];
+            }
+            
         }else{
             
             // If not access-token return empty array
