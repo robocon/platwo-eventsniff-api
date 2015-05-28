@@ -49,8 +49,12 @@ class Context {
     }
 
     public function loadAccessToken($accessToken){
-        $db = DB::getDB();
-        $this->user = $db->users->findOne(['access_token'=> $accessToken]);
+        $this->user = null;
+                
+        if($accessToken !== null){
+            $db = DB::getDB();
+            $this->user = $db->users->findOne(['access_token'=> $accessToken]);
+        }
     }
 
     public function loadLang($lang){

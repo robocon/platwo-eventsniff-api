@@ -20,8 +20,9 @@ class BaseCTL {
     public function __construct(RequestInfo $reqInfo){
         $this->reqInfo = $reqInfo;
         $this->ctx = new Context();
-
-        $token = isset($_SERVER['HTTP_X_AUTH_TOKEN'])? $_SERVER['HTTP_X_AUTH_TOKEN']: $reqInfo->input('access_token', null);
+        
+        $get_token = RequestInfo::getToken();
+        $token = ($get_token !== false) ? $get_token : $reqInfo->input('access_token', null);
         $appKey = $reqInfo->input('app_key', null);
         $this->ctx->loadAppKey($appKey);
         $this->ctx->loadAccessToken($token);
