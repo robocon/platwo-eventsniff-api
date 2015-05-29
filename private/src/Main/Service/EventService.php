@@ -17,6 +17,7 @@ use Main\Context\Context,
     Main\Helper\ResponseHelper,
     Main\Helper\UserHelper,
     Main\Helper\URL,
+    Main\Helper\NotifyHelper,
     Valitron\Validator,
     Main\Http\RequestInfo;
 
@@ -524,6 +525,63 @@ class EventService extends BaseService {
         $data['event_id'] = $params['event_id'];
 
         return $data;
+    }
+    
+    public function notify_alarm($params, Context $ctx){
+        
+        $user = $ctx->getUser();
+        if($user === null){
+            ResponseHelper::error('Access denied');
+        }
+        
+        $v = new Validator($params);
+        $v->rule('required', ['event_id']);
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $items = $this->getCollection()->findOne([
+            '_id' => new \MongoId($params['event_id']),
+            'alarm' => [ '$ne' => 0 ]
+        ],['name','alarm']);
+        
+        $message = 'Alarm for '.$items['name'];
+        
+        $insert = ArrayHelper::filterKey(['message'], [ 'message' => $message ]);
+        MongoHelper::setCreatedAt($insert);
+
+        DB::getDB()->messages->insert($insert);
+        
+        foreach($items['alarm'] as $key => $item){
+
+            $user_id = new \MongoId($item['user_id']);
+            $user = $this->getUsersCollection()->findOne(['_id' => $user_id]);
+            
+            $entity = NotifyHelper::create($insert['_id'], "alarm", "ข้อความจากระบบ", $message, $user_id, $items['_id']);
+            NotifyHelper::incBadge($user_id);
+            $user['display_notification_number']++;
+
+            $args = [
+                'id'=> MongoHelper::standardId($entity['_id']),
+                'object_id'=> MongoHelper::standardId($insert['_id']),
+                'type'=> "alarm"
+            ];
+
+            if(!isset($user['setting']))
+                continue;
+
+            if(!$user['setting']['notify_message'])
+                continue;
+
+            NotifyHelper::send($user, $entity['preview_content'], $args);
+        }
+        
+        $res = [
+            'user_id' => $user['_id']->{'$id'},
+            'message' => $message,
+        ];
+        return $res;
+//        exit;
     }
 
     public function category_lists($category_lists, Context $ctx) {

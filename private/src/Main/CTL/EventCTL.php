@@ -490,6 +490,22 @@ class EventCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
+    
+    /**
+     * Manual send notification alarm by user
+     * 
+     * @POST
+     * @uri /notify/alarm
+     */
+    public function alarm_alert() {
+        try {
+            
+            $items = EventService::getInstance()->notify_alarm($this->reqInfo->params(), $this->getCtx());
+            return $items;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 
     /**
      * @api {get} /event/category_lists/:lang GET /event/category_lists/:lang

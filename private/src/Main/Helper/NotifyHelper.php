@@ -111,7 +111,7 @@ class NotifyHelper {
         }
     }
 
-    public static function create($objectId, $type, $header, $message, $userId){
+    public static function create($objectId, $type, $header, $message, $userId, $event_id = null){
         $db = DB::getDB();
         $objectId = MongoHelper::mongoId($objectId);
         $userId = MongoHelper::mongoId($userId);
@@ -128,6 +128,10 @@ class NotifyHelper {
             'opened'=> false,
             'created_at'=> $now
         );
+        
+        if($event_id != null){
+            $entity['event_id'] = $event_id;
+        }
 
         $db->notify->insert($entity);
         return $entity;

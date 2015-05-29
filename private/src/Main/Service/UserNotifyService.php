@@ -42,10 +42,10 @@ class UserNotifyService extends BaseService {
         $skip = ($options['page']-1)*$options['limit'];
 
         $userId = MongoHelper::mongoId($userId);
-        $condition = ['user_id' => $userId];
+        $condition = ['object.type' => 'alarm', 'user_id' => $userId];
 
         $cursor = $this->getCollection()
-            ->find($condition, ['created_at', 'opened', 'object', 'preview_content', 'preview_header'])
+            ->find($condition, ['created_at', 'opened', 'object', 'preview_content', 'preview_header', 'event_id'])
             ->limit((int)$options['limit'])
             ->skip((int)$skip)
             ->sort(['created_at'=> -1]);
@@ -55,6 +55,12 @@ class UserNotifyService extends BaseService {
             $item['created_at'] = MongoHelper::timeToStr($item['created_at']);
             MongoHelper::standardIdEntity($item);
             $item['object']['id'] = MongoHelper::standardId($item['object']['id']);
+            
+            if(isset($item['event_id'])){
+                $item['event_id'] = $item['event_id']->{'$id'};
+            }
+            unset($item['object']);
+            
             $data[] = $item;
         }
 
