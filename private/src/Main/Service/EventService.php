@@ -493,7 +493,7 @@ class EventService extends BaseService {
         $data = [
             'user_id' => $params['user_id'],
             'active' => $params['active'],
-            'alarm_date' => $params['alarm_date']
+            'alarm_date' => new \MongoDate(strtotime($params['alarm_date']))
         ];
         
         // Check alarm is array
@@ -540,41 +540,45 @@ class EventService extends BaseService {
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
         
-        $items = $this->getCollection()->findOne([
+        $item = $this->getCollection()->findOne([
             '_id' => new \MongoId($params['event_id']),
-            'alarm' => [ '$ne' => 0 ]
+//            'alarm' => [ '$ne' => 0 ]
         ],['name','alarm']);
         
-        $message = 'Alarm for '.$items['name'];
+        $message = 'Alarm for '.$item['name'];
         
         $insert = ArrayHelper::filterKey(['message'], [ 'message' => $message ]);
         MongoHelper::setCreatedAt($insert);
 
         DB::getDB()->messages->insert($insert);
         
-        foreach($items['alarm'] as $key => $item){
+//        $user_id = new \MongoId($item['user_id']);
+//        $user = $this->getUsersCollection()->findOne(['_id' => $user_id]);
 
-            $user_id = new \MongoId($item['user_id']);
-            $user = $this->getUsersCollection()->findOne(['_id' => $user_id]);
-            
-            $entity = NotifyHelper::create($insert['_id'], "alarm", "ข้อความจากระบบ", $message, $user_id, $items['_id']);
-            NotifyHelper::incBadge($user_id);
-            $user['display_notification_number']++;
+        $entity = NotifyHelper::create($insert['_id'], "alarm", "ข้อความจากระบบ", $message, $user['_id']->{'$id'}, $item['_id']);
+        NotifyHelper::incBadge($user['_id']->{'$id'});
+        $user['display_notification_number']++;
 
-            $args = [
-                'id'=> MongoHelper::standardId($entity['_id']),
-                'object_id'=> MongoHelper::standardId($insert['_id']),
-                'type'=> "alarm"
-            ];
+        $args = [
+            'id'=> MongoHelper::standardId($entity['_id']),
+            'object_id'=> MongoHelper::standardId($insert['_id']),
+            'type'=> "alarm"
+        ];
 
-            if(!isset($user['setting']))
-                continue;
+//        if(!isset($user['setting']))
+//            continue;
 
-            if(!$user['setting']['notify_message'])
-                continue;
-
-            NotifyHelper::send($user, $entity['preview_content'], $args);
+        if(!$user['setting']['notify_message']){
+            ResponseHelper::error('Notification message not enable');
         }
+//            continue;
+
+        NotifyHelper::send($user, $entity['preview_content'], $args);
+        
+//        foreach($items['alarm'] as $key => $item){
+//
+//            
+//        }
         
         $res = [
             'user_id' => $user['_id']->{'$id'},

@@ -5,6 +5,9 @@ config.php
 nbproject/*
 .idea
 
+# node modules
+node_modules/*
+
 # ETC.
 vendor/*
 rundoc.sh

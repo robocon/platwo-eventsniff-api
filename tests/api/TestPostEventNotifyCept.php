@@ -1,10 +1,10 @@
 <?php 
-$event_id = '550fbd14f88929ec573c9869';
+$event_id = '551523e7f889294d1d3c9869';
 
 $I = new ApiTester($scenario);
 $I->wantTo('Test post event notification by user manual');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-$I->setHeader('access-token', '1dc7db50bf23d72bedd355ebfc5bc9397a75d3082045196bff46bb07421fddd7');
+$I->setHeader('access-token', '9e0f594ad0b3f56bbbaa06251feecc2339a53b4e6b027e9d59bb70e2ee773a55');
 $I->sendPOST('event/notify/alarm', [
     'event_id' => $event_id,
 ]);
