@@ -1061,4 +1061,16 @@ HTML;
         return true;
     }
     
+    function delete_picture(Context $ctx){
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        
+        $res = $this->getCollection()->update(['_id'=> $user['_id']],['$set' => ['picture' => '']]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+    }
 }
