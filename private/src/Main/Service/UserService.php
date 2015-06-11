@@ -99,7 +99,12 @@ class UserService extends BaseService {
             'level' => 1,
             'advertiser' => 0,
 
-            'group_role' => ['group_id' => '54e855072667467f7709320e', 'role_perm_id' => '54eaf79810f0ed0d0a8b4568']
+            'group_role' => ['group_id' => '54e855072667467f7709320e', 'role_perm_id' => '54eaf79810f0ed0d0a8b4568'],
+            'picture' => [
+                'id' => '54297c9390cc13a5048b4567png',
+                'width' => 200,
+                'height' => 200
+            ]
         ];
         
         // If send from guest
@@ -1061,16 +1066,26 @@ HTML;
         return true;
     }
     
-    function delete_picture(Context $ctx){
+    function replace_picture(Context $ctx){
         $user = $ctx->getUser();
         if(!$user){
             throw new ServiceException(ResponseHelper::error('Invalid token'));
         }
         
-        $res = $this->getCollection()->update(['_id'=> $user['_id']],['$set' => ['picture' => '']]);
+        // Using Default picture
+        $update_picture['picture'] = [
+            'id'=> '54297c9390cc13a5048b4567png',
+            'width'=> 200,
+            'height'=> 200
+        ];
+        
+        $res = $this->getCollection()->update(['_id'=> $user['_id']],['$set' => $update_picture]);
         if ($res['n'] == 0) {
-            return false;
+            $update_picture['success'] = false;
+            unset($update_picture['picture']);
         }
-        return true;
+        
+        $update_picture['success'] = true;
+        return $update_picture;
     }
 }

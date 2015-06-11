@@ -472,8 +472,8 @@ class UserCTL extends BaseCTL {
      */
     public function profile(){
         try {
-            $response = UserService::getInstance()->delete_picture($this->getCtx());
-            return ['success' => $response];
+            $response = UserService::getInstance()->replace_picture($this->getCtx());
+            return $response;
         } catch (ServiceException $e) {
             return $e->getResponse();
         }

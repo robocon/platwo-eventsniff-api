@@ -4,10 +4,10 @@ $I->wantTo('Email login');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 
 //$I->setHeader('access-token', '589ac58201a6fc08f4514ed7cd1d2781a25815611853b84484a61bfcc1be0417');
-
+$test_username = 'user_'.uniqid();
 $I->sendPOST('register', [
-    'email' => 'stan.southpark@gmail.com',
-    'username' => 'stan',
+    'email' => $test_username.'@gmail.com',
+    'username' => $test_username,
     'password' => '123456',
     'gender' => 'female',
     'birth_date' => '1985-03-18',

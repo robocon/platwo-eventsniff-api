@@ -5,4 +5,7 @@ $I->setHeader('access-token', '1dc7db50bf23d72bedd355ebfc5bc9397a75d3082045196bf
 $I->sendDELETE('user/profile');
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
-$I->seeResponseContains('{"success":true}');
+$success = $I->grabDataFromJsonResponse('success');
+$I->seeResponseContainsJson([
+    'success' => $success
+]);
