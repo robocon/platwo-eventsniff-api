@@ -38,6 +38,16 @@ class UserHelper {
         ];
     }
     
+    public static function notification_setting() {
+        return [
+            'alarm' => true,
+            'event_update' => true,
+            'category_add_event' => true,
+            'like_checkin' => true,
+        ];
+    }
+
+
     public static function generate_key() {
         return hash('sha256', time().uniqid().SITE_BLOWFISH);
     }

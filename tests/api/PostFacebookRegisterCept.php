@@ -6,7 +6,7 @@ $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 //$I->setHeader('access-token', '15f0890c37b57bc837c31fbcadde3150f192509fe199c3012b78c94113706492');
 
 $I->sendPOST('oauth/facebook', [
-    'facebook_token' => 'CAAM1TzhIHDwBALsyB6BYElmesii2xwzGd1L3VAzmmjak20giFvaMGN9ul9AY9Xgr9IpHFmzOFoGPZCdf5CZBZAIdEmUROsIGEZAq1ZCkM2wgzYNwRZAuBIxONX66Bky7s2dK4SG833Kf4OtIiZBFQHTFwOx8ZA2EIjqY6ZA4fYp2g9vmL7SWSJ2F5O9Y9wO53SyVZAUZBcqyU0QnGl4AW6cRZCeHBuFUbcf9gdAZD',
+    'facebook_token' => 'CAAM1TzhIHDwBAKa5wdtZCZCtQKpBtvYV45SUPuulzZCiSjqNjf3Ke1a9LysA1pyZBBKEOPccnZC43jKzFZAZAN5ooesf2awyp7QqBZBqK1k2ahy52uZBNEeAUvR5zp9zr8dDHJ43IbaIyJ2KkdJA6dDej5Al2vy4XsmU7s6OHsUHZAvtUQ8eSTMAIyOofAY7HFSXoqMaZBMIDFlLkrm74qbzbGb25LJ8cJ3eIMZD',
     
 // Example ios
     'ios_device_token' => [

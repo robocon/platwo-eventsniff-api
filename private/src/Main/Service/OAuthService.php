@@ -70,6 +70,8 @@ class OAuthService extends BaseService {
                     $birth_date_timestamp = time();
                 }
                 
+                $notification_settings = UserHelper::notification_setting();
+                
                 $birth_date = new \MongoDate($birth_date_timestamp);
                 $user_private_key = UserHelper::generate_key();
                 $item = [
@@ -86,6 +88,7 @@ class OAuthService extends BaseService {
                     'updated_at'=> $now,
                     'type'=> 'normal',
                     'setting'=> UserHelper::defaultSetting(),
+                    'notification' => $notification_settings,
                     'display_notification_number' => 0,
                     'detail' => '',
                     'username' => '',

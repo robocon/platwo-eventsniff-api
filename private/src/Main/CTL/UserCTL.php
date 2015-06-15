@@ -478,4 +478,34 @@ class UserCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
+    
+    /**
+     * @PUT
+     * @uri /notification
+     */
+    public function update_notify() {
+        try {
+            
+            $response = UserService::getInstance()->update_notify($this->reqInfo->params(), $this->getCtx());
+            return ['success' => $response];
+            
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
+    
+    /**
+     * @GET
+     * @uri /notification
+     */
+    public function get_notify(){
+        try {
+            
+            $items = UserService::getInstance()->get_notify($this->getCtx());
+            return $items;
+            
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }

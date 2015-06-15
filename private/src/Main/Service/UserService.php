@@ -76,7 +76,9 @@ class UserService extends BaseService {
         $id = new \MongoId();
         $user_private_key = UserHelper::generate_key();
         $access_token = UserHelper::generate_token(MongoHelper::standardId($id), $user_private_key);
-
+        
+        $notification_settings = UserHelper::notification_setting();
+        
         $entity = [
             '_id' => $id,
 
@@ -91,6 +93,7 @@ class UserService extends BaseService {
             'type' => 'normal',
 
             'setting' => $default_setting,
+            'notification' => $notification_settings,
             'created_at' => $now,
             'last_login' => $now,
 
@@ -180,6 +183,9 @@ class UserService extends BaseService {
             $user_private_key = UserHelper::generate_key();
             
             $_id = new \MongoId();
+            
+            $notification_settings = UserHelper::notification_setting();
+            
             $data = [
                 '_id' => $_id,
                 'display_name' => 'user '.uniqid(),
@@ -187,6 +193,7 @@ class UserService extends BaseService {
                 'last_login' => $now,
                 'access_token' => UserHelper::generate_token(MongoHelper::standardId($_id), $user_private_key),
                 'private_key' => $user_private_key,
+                'notification' => $notification_settings,
                 'type' => 'none',
                 'level' => 0,
                 'group_role' => ['group_id' => '54e855072667467f7709320e', 'role_perm_id' => '54eae7ab10f0ed0d0a8b4567']
@@ -1066,7 +1073,7 @@ HTML;
         return true;
     }
     
-    function replace_picture(Context $ctx){
+    public function replace_picture(Context $ctx){
         $user = $ctx->getUser();
         if(!$user){
             throw new ServiceException(ResponseHelper::error('Invalid token'));
@@ -1087,5 +1094,58 @@ HTML;
         
         $update_picture['success'] = true;
         return $update_picture;
+    }
+    
+    public function update_notify($params, Context $ctx){
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        
+        $v = new Validator($params);
+        $v->rule('required', ["type", "status"]);
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $status = ($params['status'] == 'true') ? 'true' : 'false' ;
+        
+        if($params['type'] == 'alarm'){
+            $update = ['notification.alarm' => $status];
+            
+        } else if($params['type'] == 'event'){
+            $update = ['notification.event_update' => $status];
+            
+        } else if($params['type'] == 'category'){
+            $update = ['notification.category_add_event' => $status];
+            
+        } else if($params['type'] == 'checkin'){
+            $update = ['notification.like_checkin' => $status];
+            
+        } else {
+            throw new ServiceException(ResponseHelper::error('Invalid type'));
+        }
+        
+        $res = $this->getCollection()->update(['_id'=> $user['_id']],['$set' => $update]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+        
+    }
+    
+    public function get_notify(Context $ctx){
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        
+        $item = $this->getCollection()->findOne(['_id' => $user['_id']],['notification']);
+        return [
+            'alarm' => $item['notification']['alarm'],
+            'event' => $item['notification']['event_update'],
+            'category' => $item['notification']['category_add_event'],
+            'checkin' => $item['notification']['like_checkin']
+        ];
     }
 }
