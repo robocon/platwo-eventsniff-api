@@ -508,4 +508,32 @@ class UserCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
+    
+    /**
+     * @PUT
+     * @uri /sound
+     */
+    public function update_sound() {
+        try {
+            $response = UserService::getInstance()->update_sound($this->reqInfo->params(), $this->getCtx());
+            return ['success' => $response];
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
+    
+    /**
+     * @GET
+     * @uri /sound
+     */
+    public function get_sound(){
+        try {
+            
+            $items = UserService::getInstance()->get_sound($this->getCtx());
+            return $items;
+            
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }

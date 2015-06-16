@@ -1148,4 +1148,57 @@ HTML;
             'checkin' => $item['notification']['like_checkin']
         ];
     }
+    
+    public function update_sound($params, Context $ctx) {
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        
+        $v = new Validator($params);
+        $v->rule('required', ["type", "status"]);
+        if(!$v->validate()) {
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $status = ($params['status'] == 'true') ? 'true' : 'false' ;
+        
+        if($params['type'] == 'alarm'){
+            $update = ['sound.alarm' => $status];
+            
+        } else if($params['type'] == 'event'){
+            $update = ['sound.event_update' => $status];
+            
+        } else if($params['type'] == 'category'){
+            $update = ['sound.category_add_event' => $status];
+            
+        } else if($params['type'] == 'checkin'){
+            $update = ['sound.like_checkin' => $status];
+            
+        } else {
+            throw new ServiceException(ResponseHelper::error('Invalid type'));
+        }
+        
+        $res = $this->getCollection()->update(['_id'=> $user['_id']],['$set' => $update]);
+        if ($res['n'] == 0) {
+            return false;
+        }
+        return true;
+        
+    }
+    
+    public function get_sound(Context $ctx){
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        
+        $item = $this->getCollection()->findOne(['_id' => $user['_id']],['sound']);
+        return [
+            'alarm' => $item['sound']['alarm'],
+            'event' => $item['sound']['event_update'],
+            'category' => $item['sound']['category_add_event'],
+            'checkin' => $item['sound']['like_checkin']
+        ];
+    }
 }
