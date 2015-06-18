@@ -4,7 +4,7 @@ $I->wantTo('Email login');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 
 $I->sendPOST('oauth/password', [
-    'username' => 'wat007',
+    'username' => 'user_5582ac89cba31',
     'password' => '123456',
 //    'username' => 'stan',
 //    'password' => '111111',
