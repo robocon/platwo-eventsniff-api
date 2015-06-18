@@ -46,7 +46,7 @@ class OAuthCTL extends BaseCTL {
 
     /**
      * @api {post} /oauth/password POST /oauth/password
-     * @apiDescription Register with username or email
+     * @apiDescription Login with username or email
      * @apiName PostUserLogin
      * @apiGroup Resister
      * @apiParam {String} username Your username or your email
