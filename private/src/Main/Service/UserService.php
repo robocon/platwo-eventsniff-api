@@ -94,6 +94,7 @@ class UserService extends BaseService {
 
             'setting' => $default_setting,
             'notification' => $notification_settings,
+            'sound' => $notification_settings,
             'created_at' => $now,
             'last_login' => $now,
 

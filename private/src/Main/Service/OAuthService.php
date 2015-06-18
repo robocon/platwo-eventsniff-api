@@ -89,6 +89,7 @@ class OAuthService extends BaseService {
                     'type'=> 'normal',
                     'setting'=> UserHelper::defaultSetting(),
                     'notification' => $notification_settings,
+                    'sound' => $notification_settings,
                     'display_notification_number' => 0,
                     'detail' => '',
                     'username' => '',

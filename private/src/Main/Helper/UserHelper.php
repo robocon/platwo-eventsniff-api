@@ -40,10 +40,10 @@ class UserHelper {
     
     public static function notification_setting() {
         return [
-            'alarm' => true,
-            'event_update' => true,
-            'category_add_event' => true,
-            'like_checkin' => true,
+            'alarm' => 'true',
+            'event_update' => 'true',
+            'category_add_event' => 'true',
+            'like_checkin' => 'true',
         ];
     }
 
