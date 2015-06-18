@@ -57,9 +57,10 @@ class ContactCommentService extends BaseService {
     public function add($params, Context $ctx){
         $now = new \MongoTimestamp();
         $user = $ctx->getUser();
-        if(is_null($user)){
-            throw new ServiceException(ResponseHelper::requireAuthorize());
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
         }
+        
         $entity = array(
             "message"=> $params['message'],
             "created_at"=> $now,
