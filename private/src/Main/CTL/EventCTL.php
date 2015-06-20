@@ -569,7 +569,7 @@ class EventCTL extends BaseCTL {
     
     /**
      * @api {get} /event/today/:lang GET /event/today/:lang
-     * @apiDescription Show an event from the future
+     * @apiDescription Show an event tab "NOW" on mobile
      * @apiName GetEventToday
      * @apiGroup Event
      * @apiParam {String} lang Language like en, th. Default is en

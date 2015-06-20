@@ -674,34 +674,27 @@ class EventService extends BaseService {
         ];
         
         $date = new \DateTime();
-        $current_time = strtotime($date->format('Y-m-d H:i:s'));
-        $current_day = new \MongoDate($current_time);
+//        $current_time = strtotime($date->format('Y-m-d H:i:s'));
+//        $current_day = new \MongoDate($current_time);
         
-        $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
-        $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
-        
-//        $new_category_lists = [];
-//        $first_category_lists = [];
+        $start_time = new \MongoDate(strtotime($date->format('Y-m-d').' 00:00:00'));
+        $end_time = new \MongoDate(strtotime($date->format('Y-m-d').' 23:59:59'));
         
         $condition = [
             'approve' => 1,
             'build' => 1,
-            'date_start' => ['$lte' => $current_day],
-            'date_end' => ['$gte' => $current_day]
+            '$and' => [
+                ['date_start' => ['$gte' => $start_time]],
+                ['date_start' => ['$lte' => $end_time]]
+            ]
         ];
         
-        if($params['country'] !== false && $params['city'] !== false){
-            $condition = [
-                'approve' => 1,
-                'build' => 1,
-                'country' => $params['country'],
-                'city' => $params['city'],
-                'date_start' => ['$lte' => $current_day],
-                'date_end' => ['$gte' => $current_day]
-            ];
+        if($params['country'] !== false && $params['city'] !== false){            
+            $condition['country'] = $params['country'];
+            $condition['city'] = $params['city'];
         }
         
-        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end'])->sort(["date_start" => -1]);
+        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end'])->sort(['date_start' => -1]);
         $test_category_set = [];
 
         foreach($events as $event){
@@ -716,8 +709,15 @@ class EventService extends BaseService {
             $event['thumb'] = Image::load($picture['picture'])->toArrayResponse();
             $event['thumb']['detail'] = isset($picture['detail']) ? $picture['detail'] : '' ;
 
-            $sniffer = $this->getSnifferCollection()->find(['event_id' => $event['id']]);
-            $event['total_sniffer'] = $sniffer->count(true);
+            $sniffers = $this->getSnifferCollection()->find(['event_id' => $event['id']])->sort(['_id' => -1]);
+            $sniff_users = [];
+            foreach($sniffers as $sniff){
+                $one_user = $this->getUsersCollection()->findOne(['_id' => new \MongoId($sniff['user_id'])],['display_name','picture']);
+                $one_user['picture'] = Image::load_picture($one_user['picture']);
+                $sniff_users = $one_user;
+            }
+            $event['sniffer'] = $sniff_users;
+            $event['total_sniffer'] = $sniffers->count(true);
             
             $tag = $this->getEventTagCollection()->findOne(['event_id' => $event['id']]);
             $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag['tag_id'])],[$lang['lang']]);
@@ -727,8 +727,14 @@ class EventService extends BaseService {
             $test_category_set[$category['_id']->{'$id'}][] = $event;
         }
         
-        $final_item_lists = [];
+        $first_item_lists = [];
+        $normal_item_lists = [];
+        $hour_start = strtotime($date->format('Y-m-d H:').' 00:00');
+        $hour_end = strtotime($date->format('Y-m-d H:').' 59:00');
+
         foreach ($test_category_set as $key => $item) {
+
+            $time_start = strtotime($item['0']['date_start']);
             
             if(count($item) > 1){
                 $item['0']['name'] = $item['0']['category_name'];
@@ -738,16 +744,28 @@ class EventService extends BaseService {
                 unset($item['0']['category_id']);
                 unset($item['0']['category_name']);
                 unset($item['0']['total_sniffer']);
-                $final_item_lists[] = $item['0'];
+                
+                if( $time_start >= $hour_start && $time_start <= $hour_end ){
+                    $first_item_lists[] = $item['0'];
+                }else{
+                    $normal_item_lists[] = $item['0'];
+                }
+                
             }else{
                 $item['0']['type'] = 'item';
                 
                 unset($item['0']['category_id']);
                 unset($item['0']['category_name']);
-                $final_item_lists[] = $item['0'];
+                
+                if( $time_start >= $hour_start && $time_start <= $hour_end ){
+                    $first_item_lists[] = $item['0'];
+                }else{
+                    $normal_item_lists[] = $item['0'];
+                }
             }
         }
         
+        $final_item_lists = array_merge($first_item_lists, $normal_item_lists);
         return $final_item_lists;
     }
     

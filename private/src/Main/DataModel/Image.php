@@ -72,4 +72,11 @@ class Image {
 
         return $data;
     }
+    
+    public static function load_picture($params){
+        if (empty($params['url'])) {
+            $params['url'] = 'http://'.MEDIA_HOST.'/get/'.$params['id'].'/';
+        }
+        return $params;
+    }
 }
