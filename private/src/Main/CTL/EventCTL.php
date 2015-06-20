@@ -598,25 +598,25 @@ class EventCTL extends BaseCTL {
 }
      *
      * @GET
-     * @uri /today/[a:lang]
+     * @uri /today
      */
     public function today() {
         try {
             
-            $params = [
-                'lang' => $this->reqInfo->urlParam('lang'),
-            ];
+//            $params = [
+//                'lang' => $this->reqInfo->urlParam('lang'),
+//            ];
 
-            $v = new Validator($params);
-            $v->rules([
-                    'required' => [ ['lang'] ],
-                    'length' => [['lang', 2]]
-                ]);
-            if(!$v->validate()){
-                throw new ServiceException(ResponseHelper::validateError($v->errors()));
-            }
+//            $v = new Validator($params);
+//            $v->rules([
+//                    'required' => [ ['lang'] ],
+//                    'length' => [['lang', 2]]
+//                ]);
+//            if(!$v->validate()){
+//                throw new ServiceException(ResponseHelper::validateError($v->errors()));
+//            }
 
-            $res['data'] = EventService::getInstance()->today($params, $this->getCtx());
+            $res['data'] = EventService::getInstance()->today($this->getCtx());
             $res['length'] = count($res['data']);
             return $res;
 

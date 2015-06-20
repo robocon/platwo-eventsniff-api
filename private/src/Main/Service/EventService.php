@@ -666,7 +666,7 @@ class EventService extends BaseService {
         return $new_category_lists;
     }
     
-    public function today($lang, Context $ctx) {
+    public function today(Context $ctx) {
         
         $params = [
             'country' => RequestInfo::getHeader('country'),
@@ -720,11 +720,13 @@ class EventService extends BaseService {
             $event['total_sniffer'] = $sniffers->count(true);
             
             $tag = $this->getEventTagCollection()->findOne(['event_id' => $event['id']]);
-            $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag['tag_id'])],[$lang['lang']]);
+            $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag['tag_id'])]);
             $event['category_id'] = $category['_id']->{'$id'};
-            $event['category_name'] = $category[$lang['lang']];
+            $cat_id = $event['category_id'];
+            unset($category['_id']);
+            $event['category_name'] = $category;
             
-            $test_category_set[$category['_id']->{'$id'}][] = $event;
+            $test_category_set[$cat_id][] = $event;
         }
         
         $first_item_lists = [];
@@ -744,6 +746,7 @@ class EventService extends BaseService {
                 unset($item['0']['category_id']);
                 unset($item['0']['category_name']);
                 unset($item['0']['total_sniffer']);
+                unset($item['0']['sniffer']);
                 
                 if( $time_start >= $hour_start && $time_start <= $hour_end ){
                     $first_item_lists[] = $item['0'];
