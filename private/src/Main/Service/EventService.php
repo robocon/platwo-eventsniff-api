@@ -791,26 +791,17 @@ class EventService extends BaseService {
         $condition = [
             'approve' => 1,
             'build' => 1,
-            '$and' => [
-                ['date_start' => ['$gte' => $current_time]],
-                ['date_end' => ['$gte' => $current_time]]
-            ]
+            'date_start' => ['$gte' => $current_time]
         ];
         if($params['country'] !== false && $params['city'] !== false){
-            $condition = [
-                'approve' => 1,
-                'build' => 1,
-                '$and' => [
-                    ['country' => $params['country']],
-                    ['city' => $params['city']],
-                    ['date_start' => ['$gte' => $current_time]],
-                    ['date_end' => ['$gte' => $current_time]]
-                ]
+            $condition['$and'] = [
+                ['country' => $params['country']],
+                ['city' => $params['city']]
             ];
         }
         
-        $items = $this->getCollection()->find($condition,['name','detail','date_start'])->sort(['date_start' => 1])->limit($limit);
-        
+        $items = $this->getCollection()->find($condition,['name','detail','date_start','date_end'])->sort(['date_start' => 1])->limit($limit);
+
         $res = [];
         foreach ($items as $item) {
             
@@ -823,11 +814,18 @@ class EventService extends BaseService {
             $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
             $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
             
-            $sniffer = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
-            $item['total_sniffer'] = $sniffer->count(true);
+            $sniffers = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
+            $sniff_users = [];
+            foreach($sniffers as $sniff){
+                $one_user = $this->getUsersCollection()->findOne(['_id' => new \MongoId($sniff['user_id'])],['display_name','picture']);
+                $one_user['picture'] = Image::load_picture($one_user['picture']);
+                $sniff_users = $one_user;
+            }
+            $item['sniffer'] = $sniff_users;
+            $item['total_sniffer'] = $sniffers->count(true);
             
             // For random an item
-            $item['rand'] = rand(100000, 199999);
+//            $item['rand'] = rand(100000, 199999);
             $res[] = $item;
         }
         return $res;
