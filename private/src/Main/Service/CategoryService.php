@@ -46,4 +46,47 @@ class CategoryService extends BaseService {
         
         return ['success' => true];
     }
+    
+    public function get_categorys(Context $ctx) {
+        $user = $ctx->getUser();
+        if($user === null){
+            return ResponseHelper::error('Access denied');
+        }
+        
+        $db = $this->connect();
+        
+        $categories = [];
+        $items = $db->tag->find([],['en']);
+        foreach($items as $item){
+            $item['id'] = $item['_id']->{'$id'};
+            
+            
+            $item['name'] = $item['en'];
+            
+            // sniff status
+            $item['sniffed'] = false;
+            if(in_array($item['id'], $user['sniff_category'])){
+                $item['sniffed'] = true;
+            }
+            
+            // Count an event
+//            $item['event_rows'] = $db->event_tag->find(['tag_id' => $item['id']])->count();
+            
+            
+            // @todo
+            // - Default picture
+            
+            unset($item['_id']);
+            unset($item['en']);
+            
+            $categories[] = $item;
+        }
+        
+        $res = [
+            'data' => $categories,
+            'length' => count($categories)
+        ];
+        
+        return $res;
+    }
 }

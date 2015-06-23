@@ -30,4 +30,16 @@ class CategoryCTL extends BaseCTL{
             return $e->getResponse();
         }
     }
+    
+    /**
+     * @GET
+     */
+    public function get_categorys() {
+        try {
+            $item = CategoryService::getInstance()->get_categorys($this->getCtx());
+            return $item;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }
