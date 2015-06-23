@@ -690,8 +690,11 @@ class EventService extends BaseService {
         ];
         
         if($params['country'] !== false && $params['city'] !== false){            
-            $condition['country'] = $params['country'];
-            $condition['city'] = $params['city'];
+            $add_country['$and'] = [
+                ['country' => $params['country']],
+                ['city' => $params['city']]
+            ];
+            $condition = array_merge_recursive($condition, $add_country);
         }
         
         $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end'])->sort(['date_start' => -1]);
@@ -713,8 +716,19 @@ class EventService extends BaseService {
             $sniff_users = [];
             foreach($sniffers as $sniff){
                 $one_user = $this->getUsersCollection()->findOne(['_id' => new \MongoId($sniff['user_id'])],['display_name','picture']);
+                
+                if(!$one_user['picture']){
+                    $one_user['picture'] = [
+                        'id' => '54297c9390cc13a5048b4567png',
+                        'width' => 200,
+                        'height' => 200
+                    ];
+                }
+                
                 $one_user['picture'] = Image::load_picture($one_user['picture']);
-                $sniff_users = $one_user;
+                $one_user['id'] = $one_user['_id']->{'$id'};
+                unset($one_user['_id']);
+                $sniff_users[] = $one_user;
             }
             $event['sniffer'] = $sniff_users;
             $event['total_sniffer'] = $sniffers->count(true);
@@ -739,7 +753,10 @@ class EventService extends BaseService {
             $time_start = strtotime($item['0']['date_start']);
             
             if(count($item) > 1){
-                $item['0']['name'] = $item['0']['category_name'];
+                
+                // Fix default category name to en
+                // @important Because Mobile App not send language to API
+                $item['0']['name'] = $item['0']['category_name']['en'];
                 $item['0']['id'] = $item['0']['category_id'];
                 $item['0']['type'] = 'folder';
                 
@@ -819,7 +836,8 @@ class EventService extends BaseService {
             foreach($sniffers as $sniff){
                 $one_user = $this->getUsersCollection()->findOne(['_id' => new \MongoId($sniff['user_id'])],['display_name','picture']);
                 $one_user['picture'] = Image::load_picture($one_user['picture']);
-                $sniff_users = $one_user;
+                unset($one_user['_id']);
+                $sniff_users[] = $one_user;
             }
             $item['sniffer'] = $sniff_users;
             $item['total_sniffer'] = $sniffers->count(true);
