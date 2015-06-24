@@ -14,9 +14,6 @@ class CategoryCTL extends BaseCTL{
     
     /**
      * Update When user sniff and unsniff category
-     * - category_id
-     * - status: true|false
-     * - token
      * 
      * @PUT
      * @uri /sniff

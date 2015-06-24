@@ -4,19 +4,12 @@ namespace Main\Service;
 
 use Main\DB,
     Main\Helper\ResponseHelper,
+    Main\Helper\MongoHelper,
     Main\DataModel\Image,
     Main\Context\Context;
 
-/**
- * Description of CategoryService
- *
- * @author robocon
- */
 class CategoryService extends BaseService {
-//    public $db = null;
-//    public function __construct() {
-//        
-//    }
+
     public $db = null;
     private function connect(){
         if($this->db == null){
@@ -26,6 +19,13 @@ class CategoryService extends BaseService {
         return $this->db;
     }
     
+    /**
+     * Sniff and Unsniff Category
+     * 
+     * @param type $params
+     * @param Context $ctx
+     * @return type
+     */
     public function sniff_category($params, Context $ctx){
         
         $user = $ctx->getUser();
@@ -51,6 +51,12 @@ class CategoryService extends BaseService {
         return ['success' => true];
     }
     
+    /**
+     * Show categories with default picture and event rows
+     * 
+     * @param Context $ctx
+     * @return type
+     */
     public function get_categorys(Context $ctx) {
         $user = $ctx->getUser();
         if($user === null){
@@ -97,11 +103,7 @@ class CategoryService extends BaseService {
 
             // - Default picture
             if(!isset($item['picture'])){
-                $item['picture'] = [
-                    'id' => '558b2b1990cc13a7048b4597png',
-                    'width' => '1000',
-                    'height' => '1000'
-                ];
+                $item['picture'] = Image::default_category_picture();
             }
             $item['picture'] = Image::load_picture($item['picture']);
             
@@ -119,20 +121,106 @@ class CategoryService extends BaseService {
         return $res;
     }
     
-    
-    public function event_in_category($id) {
-        $db = $this->connect();
-        
-    }
-    
-    
-    // @todo
-        // - Query Active to one array
-        // - Query Inactive Event
-        // - And then merge
     public function get_events($id, Context $ctx) {
         
-        dump('ASDFASDFASDF');
-        exit;
+        $user = $ctx->getUser();
+        if($user === null){
+            return ResponseHelper::error('Access denied');
+        }
+        
+        $db = $this->connect();
+        $dt = new \DateTime();
+        $time_stamp = $dt->getTimestamp();
+        $date_now = new \MongoDate($time_stamp);
+        
+        $condition = [
+            'build' => 1,
+            'approve' => 1,
+            'date_end' => [ '$gte' => $date_now ]
+        ];
+        
+        /**
+         * #############################
+         * 
+         * @todo Filter with sniff around
+         * 
+         * #############################
+         */
+        
+        $key_lists = [];
+        $events = $db->event->find($condition, ['_id']);
+        foreach($events as $event){
+            
+            // Key for match 
+            $key_lists[] = $event['_id']->{'$id'};
+        }
+        
+        // Search an event in key_lists
+        $filter_events = $db->event_tag->find([
+            'tag_id' => $id,
+            'event_id' => [ '$in' => $key_lists ]
+        ],['event_id']);
+        
+        $hour_start = strtotime($dt->format('Y-m-d 00:00:00'));
+        $hour_end = strtotime($dt->format('Y-m-d 23:59:59'));
+        $active_events = [];
+        $inactive_events = [];
+        
+        foreach($filter_events as $item){
+            
+            $event = $db->event->findOne(['_id' => new \MongoId($item['event_id'])],['name', 'detail', 'date_start', 'date_end', 'picture']);
+            
+            $event['id'] = $event['_id']->{'$id'};
+            
+            // Using this for sort an event
+            $event['time_sort'] = $event_timestamp = $event['date_start']->sec;
+            
+            $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+            $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
+            
+            $thumb = $db->gallery->findOne(['event_id' => $event['id']],['picture']);
+            $event['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
+            
+            $sniffers = $db->sniffer->find(['event_id' => $event['id']]);
+            $sniff_users = [];
+            $event['sniffed'] = false;
+            foreach($sniffers as $sniff){
+                $one_user = $db->users->findOne(['_id' => new \MongoId($sniff['user_id'])],['display_name','picture']);
+                
+                if($user['_id']->{'$id'} == $one_user['_id']->{'$id'}){
+                    $event['sniffed'] = true;
+                }
+                
+                if(!isset($one_user['picture'])){
+                    $one_user['picture'] = Image::default_profile_picture();
+                }
+                $one_user['picture'] = Image::load_picture($one_user['picture']);
+                unset($one_user['_id']);
+                $sniff_users[] = $one_user;
+            }
+            $event['sniffer'] = $sniff_users;
+            $event['total_sniffer'] = $sniffers->count(true);
+            
+            unset($event['_id']);
+            
+            // Find an event between two times
+            if($event_timestamp > $hour_start && $event_timestamp < $hour_end){
+                $active_events[] = $event;
+            }else{
+                $inactive_events[] = $event;
+            }
+        }
+        
+        usort($active_events, function($a, $b) {
+            return $a['time_sort'] - $b['time_sort'];
+        });
+        
+        usort($inactive_events, function($a, $b) {
+            return $a['time_sort'] - $b['time_sort'];
+        });
+        
+        $res = array_merge_recursive($active_events, $inactive_events);
+        
+        return ['data' => $res, 'length' => count($res)];
     }
 }

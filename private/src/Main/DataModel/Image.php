@@ -79,4 +79,12 @@ class Image {
         }
         return $params;
     }
+    
+    public static function default_profile_picture(){
+        return ['id' => '54297c9390cc13a5048b4567png','width' => 200,'height' => 200];
+    }
+    
+    public static function default_category_picture(){
+        return ['id' => '558b2b1990cc13a7048b4597png','width' => 1000,'height' => 1000];
+    }
 }
