@@ -3,7 +3,8 @@
 namespace Main\Service;
 
 use Main\DB,
-        Main\Helper\ResponseHelper,
+    Main\Helper\ResponseHelper,
+    Main\DataModel\Image,
     Main\Context\Context;
 
 /**
@@ -16,10 +17,13 @@ class CategoryService extends BaseService {
 //    public function __construct() {
 //        
 //    }
-    
+    public $db = null;
     private function connect(){
-        $db = DB::getDB();
-        return $db;
+        if($this->db == null){
+            $this->db = DB::getDB();
+        }
+        
+        return $this->db;
     }
     
     public function sniff_category($params, Context $ctx){
@@ -54,13 +58,25 @@ class CategoryService extends BaseService {
         }
         
         $db = $this->connect();
+        $dt = new \DateTime();
+        $time_stamp = $dt->getTimestamp();
+        $date_now = new \MongoDate($time_stamp);
+        
+        // Set an event into array
+        $event_lists = [];
+        $events = $db->event->find([
+            'build' => 1,
+            'approve' => 1,
+            'date_end' => [ '$gte' => $date_now ]
+        ],['date_end']);
+        foreach($events as $event){
+            $event_lists[] = $event['_id']->{'$id'};
+        }
         
         $categories = [];
         $items = $db->tag->find([],['en']);
         foreach($items as $item){
             $item['id'] = $item['_id']->{'$id'};
-            
-            
             $item['name'] = $item['en'];
             
             // sniff status
@@ -69,12 +85,25 @@ class CategoryService extends BaseService {
                 $item['sniffed'] = true;
             }
             
-            // Count an event
-//            $item['event_rows'] = $db->event_tag->find(['tag_id' => $item['id']])->count();
-            
-            
-            // @todo
+            // Search an event from event_tag in event(Array)
+            $events = $db->event_tag->find(['tag_id' => $item['id']],['event_id']);
+            $count_active_event = 0;
+            foreach($events as $event){
+                if(in_array($event['event_id'], $event_lists)){
+                    $count_active_event++;
+                }
+            }
+            $item['rows'] = $count_active_event;
+
             // - Default picture
+            if(!isset($item['picture'])){
+                $item['picture'] = [
+                    'id' => '558b2b1990cc13a7048b4597png',
+                    'width' => '1000',
+                    'height' => '1000'
+                ];
+            }
+            $item['picture'] = Image::load_picture($item['picture']);
             
             unset($item['_id']);
             unset($item['en']);
@@ -88,5 +117,22 @@ class CategoryService extends BaseService {
         ];
         
         return $res;
+    }
+    
+    
+    public function event_in_category($id) {
+        $db = $this->connect();
+        
+    }
+    
+    
+    // @todo
+        // - Query Active to one array
+        // - Query Inactive Event
+        // - And then merge
+    public function get_events($id, Context $ctx) {
+        
+        dump('ASDFASDFASDF');
+        exit;
     }
 }
