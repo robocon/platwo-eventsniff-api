@@ -875,4 +875,11 @@ class EventCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
+    
+    /**
+     * 
+     */
+    public function get_past(){
+        
+    }
 }

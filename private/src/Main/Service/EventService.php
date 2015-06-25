@@ -831,10 +831,15 @@ class EventService extends BaseService {
             $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
             $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
             
+            $ev_tag = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
+            $cat_name = $this->getTagCollection()->findOne(['_id' => new \MongoId($ev_tag['tag_id'])],['en']);
+            $item['category_name'] = $cat_name['en'];
+            
             $sniffers = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
             $sniff_users = [];
             foreach($sniffers as $sniff){
                 $one_user = $this->getUsersCollection()->findOne(['_id' => new \MongoId($sniff['user_id'])],['display_name','picture']);
+                $one_user['id'] = $one_user['_id']->{'$id'};
                 $one_user['picture'] = Image::load_picture($one_user['picture']);
                 unset($one_user['_id']);
                 $sniff_users[] = $one_user;
