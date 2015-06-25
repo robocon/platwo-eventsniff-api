@@ -877,9 +877,15 @@ class EventCTL extends BaseCTL {
     }
     
     /**
-     * 
+     * @GET
+     * @uri /past
      */
     public function get_past(){
-        
+        try {
+            $items = EventService::getInstance()->get_past($this->reqInfo->params(), $this->getCtx());
+            return $items;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
     }
 }

@@ -1141,4 +1141,89 @@ class EventService extends BaseService {
             throw new ServiceException(ResponseHelper::error($e->getMessage(), $e->getCode()));
         }
     }
+    
+    public function get_past($options = [], Context $ctx){
+        $user = $ctx->getUser();
+        if($user === null){
+            return ResponseHelper::error('Access denied');
+        }
+        
+        $default = array(
+            "page"=> 1,
+            "limit"=> 15
+        );
+        
+        $options = array_merge($default, $options);
+        $skip = ($options['page']-1) * $options['limit'];
+        
+        $now = new \MongoDate();
+        $where = [
+            'build' => 1,
+            'approve' => 1,
+            'date_end' => [ '$lt' => $now ]
+        ];
+        $items = $this->getCollection()->find($where,['name','detail','credit','date_start','date_end'])
+        ->limit($options['limit'])
+        ->skip($skip)
+        ->sort(['date_end' => -1]);
+        $length = $items->count(true);
+        
+        $total = $this->getCollection()->count($where);
+        
+        $data = [];
+        foreach($items as $event){
+            
+            $event['id'] = $event['_id']->{'$id'};
+            unset($event['_id']);
+
+            $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+            $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
+            
+            $pictures = $this->getGalleryCollection()->find(['event_id' => $event['id']],['picture','detail']);
+            $gallery_lists = [];
+            foreach($pictures as $picture){
+                $pic = Image::load_picture($picture['picture']);
+                $pic['detail'] = isset($picture['detail']) ? $pictures['detail'] : '' ;
+                $gallery_lists[] = $pic;
+                
+            }
+            $event['picture'] = $gallery_lists;
+            
+            $sniffers = $this->getSnifferCollection()->find(['event_id' => $event['id']])->sort(['_id' => -1]);
+            $event['total_sniffer'] = $sniffers->count(true);
+            
+            $comments = $this->getCommentCollection()->find(['event_id' => $event['id']],['_id']);
+            $event['total_comment'] = $comments->count(true);
+            
+            $test_sniff = $this->getSnifferCollection()->findOne([
+                'event_id' => $event['id'],
+                'user_id' => $user['_id']->{'$id'}
+            ],['_id']);
+            $event['sniffed'] = 'false';
+            if($test_sniff != null){
+                $event['sniffed'] = 'true';
+            }
+            
+            $data[] = $event;
+        }
+        
+        $res = [
+            'length' => $length,
+            'data' => $data,
+            'paging'=> [
+                'page'=> (int)$options['page'],
+                'limit'=> (int)$options['limit']
+            ]
+        ];
+
+        if ($length > 0 && $length <= $total ) {
+            $res['paging']['next'] = URL::absolute('/event/past'.'?'.  http_build_query(['page' => (int)$options['page']+1, 'limit' => (int)$options['limit']]));
+
+            if ($options['page'] > 1) {
+                $res['paging']['prev'] = URL::absolute('/event/past'.'?'.  http_build_query(['page' => (int)$options['page']-1, 'limit' => (int)$options['limit']]));
+            }
+        }
+        
+        return $res;
+    }
 }
