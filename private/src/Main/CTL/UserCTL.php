@@ -536,4 +536,20 @@ class UserCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
+    
+    /**
+     * - cities[]
+     * - token
+     * 
+     * @PUT
+     * @uri /sniff_around
+     */
+    public function set_sniff_around() {
+        try {
+            $items = UserService::getInstance()->set_sniff_around($this->reqInfo->params(), $this->getCtx());
+            return $items;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }

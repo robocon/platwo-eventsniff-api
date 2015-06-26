@@ -1202,4 +1202,16 @@ HTML;
             'checkin' => $item['sound']['like_checkin']
         ];
     }
+    
+    public function set_sniff_around($params, Context $ctx){
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        $this->getCollection()->update(
+            ['_id' => $user['_id']],
+            ['$set' => [ 'sniffing_around' => $params['cities'] ]]
+        );
+        return ['success' => 'true', 'cities' => $params['cities']];
+    }
 }
