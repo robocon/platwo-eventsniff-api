@@ -1214,4 +1214,14 @@ HTML;
         );
         return ['success' => 'true', 'cities' => $params['cities']];
     }
+    
+    public function get_sniff_around(Context $ctx){
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        
+        $item = $this->getCollection()->findOne(['_id' => $user['_id']],['sniffing_around']);
+        return ['cities' => $item['sniffing_around']];
+    }
 }
