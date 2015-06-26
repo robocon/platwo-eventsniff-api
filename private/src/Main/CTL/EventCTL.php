@@ -888,4 +888,17 @@ class EventCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
+    
+    /**
+     * @POST
+     * @uri /search_past
+     */
+    public function search_past(){
+        try {
+            $items = EventService::getInstance()->get_past($this->reqInfo->params(), $this->getCtx());
+            return $items;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }

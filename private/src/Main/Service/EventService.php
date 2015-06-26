@@ -1162,6 +1162,11 @@ class EventService extends BaseService {
             'approve' => 1,
             'date_end' => [ '$lt' => $now ]
         ];
+        
+        if(isset($options['word'])){
+            $where['name'] = new \MongoRegex("/".str_replace(['"', "'", "\x22", "\x27"], '', $options['word'])."/i");
+        }
+        
         $items = $this->getCollection()->find($where,['name','detail','credit','date_start','date_end'])
         ->limit($options['limit'])
         ->skip($skip)
