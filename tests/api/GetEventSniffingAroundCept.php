@@ -5,7 +5,7 @@ $I->setHeader('access-token', '54045a1c5e4acd555ed07c0a0cdc497a2099ef5ef34733114
 $I->sendGET('user/sniff_around');
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
-$data = $I->grabDataFromJsonResponse('data');
+$cities = $I->grabDataFromJsonResponse('cities');
 $I->seeResponseContainsJson([
-    'data' => $data
+    'cities' => $cities
 ]);

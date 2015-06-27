@@ -1226,7 +1226,17 @@ HTML;
             throw new ServiceException(ResponseHelper::error('Invalid token'));
         }
         
+        $db = DB::getDB();
         $item = $this->getCollection()->findOne(['_id' => $user['_id']],['sniffing_around']);
-        return ['cities' => $item['sniffing_around']];
+        $cities = [];
+        foreach($item['sniffing_around'] as $around){
+            $city = $db->cities->findOne(['_id' => new \MongoId($around)],['name']);
+            $cities[] = [
+                'id' => $around,
+                'name' => $city['name']
+            ];
+        }
+        
+        return ['length' => count($cities), 'cities' => $cities];
     }
 }
