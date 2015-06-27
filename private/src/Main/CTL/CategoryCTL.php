@@ -46,7 +46,6 @@ class CategoryCTL extends BaseCTL{
      */
     public function get_events(){
         try {
-            
             $item = CategoryService::getInstance()->get_events($this->reqInfo->urlParam('category_id'), $this->getCtx());
             return $item;
         } catch (ServiceException $e) {

@@ -1208,6 +1208,11 @@ HTML;
         if(!$user){
             throw new ServiceException(ResponseHelper::error('Invalid token'));
         }
+        
+        if(!isset($params['cities'])){
+            $params['cities'] = [];
+        }
+        
         $this->getCollection()->update(
             ['_id' => $user['_id']],
             ['$set' => [ 'sniffing_around' => $params['cities'] ]]

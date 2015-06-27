@@ -139,13 +139,9 @@ class CategoryService extends BaseService {
             'date_end' => [ '$gte' => $date_now ]
         ];
         
-        /**
-         * #############################
-         * 
-         * @todo Filter with sniff around
-         * 
-         * #############################
-         */
+        if(isset($user['sniffing_around']) && !empty($user['sniffing_around'])){
+            $condition['city'] = ['$in' => $user['sniffing_around']];
+        }
         
         $key_lists = [];
         $events = $db->event->find($condition, ['_id']);
