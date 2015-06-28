@@ -2,8 +2,8 @@
 
 // Get test image and convert into base64
 $image = base64_encode(file_get_contents(dirname(dirname(__FILE__)).'/test.png'));
-$user_id = '54ba29c210f0edb8048b457a';
-$event_id = '54cb466710f0ed24048b4567';
+$user_id = '5582a28110f0ed08048b4567';
+$event_id = '558e5626ef72597c048b456b';
 
 $I = new ApiTester($scenario);
 $I->wantTo('Add picture into event');
@@ -17,6 +17,6 @@ $I->sendPOST('gallery/'.$event_id, [
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
 $I->seeResponseContainsJson([
-    'user_id' => '54ba29c210f0edb8048b457a',
+    'user_id' => $user_id,
     'event_id' => $event_id,
 ]);

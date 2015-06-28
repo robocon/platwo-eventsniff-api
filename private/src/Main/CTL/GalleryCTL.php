@@ -41,7 +41,11 @@ class GalleryCTL extends BaseCTL {
             ];
             
             $res = [];
-            $res['picture'] = GalleryService::getInstance()->add($data, $this->getCtx());
+            $picture = GalleryService::getInstance()->add($data, $this->getCtx());
+            
+            $res['check_in'] = $picture['check_in'];
+            unset($picture['check_in']);
+            $res['picture'] = $picture;
             $res['user_id'] = $data['user_id'];
             $res['event_id'] = $data['event_id'];
             $res['id'] = $data['event_id'];

@@ -42,6 +42,8 @@ class GalleryService extends BaseService {
             $params['detail'] = '';
         }
         
+        $db = DB::getDB();
+        
         // Upload to media server
         $upload = Image::upload($params['picture']);
             
@@ -54,10 +56,34 @@ class GalleryService extends BaseService {
         ];
         
         // Insert into MongoDB
-        $this->getCollection()->insert($insert_data);
+        $db->gallery->insert($insert_data);
         $test_load = Image::load($insert_data['picture']);
         $picture = $test_load->toArrayResponse();
         $picture['detail'] = $insert_data['detail'];
+        $picture['check_in'] = 'false';
+        
+        // Check-in when upload photo
+        $date = new \DateTime();
+        $current_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_day = new \MongoDate($current_time);
+        
+        $condition = [
+            '_id' => new \MongoId($params['event_id']),
+            'approve' => 1,
+            'build' => 1,
+            '$and' => [
+                ['date_start' => ['$lte' => $current_day]],
+                ['date_end' => ['$gte' => $current_day]]
+            ]
+        ];
+        $event = $db->event->findOne($condition,['_id']);
+        
+        if($event !== null){
+            
+            $db->event->update(['_id' => $event['_id']],['$addToSet' => ['check_in' => $params['user_id']]]);
+            $picture['check_in'] = 'true';
+        }
+        
         return $picture;
     }
     
