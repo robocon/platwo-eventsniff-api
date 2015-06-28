@@ -16,6 +16,7 @@ use Main\Context\Context,
     Main\Helper\MongoHelper,
     Main\Helper\ResponseHelper,
     Main\Helper\UserHelper,
+    Main\Helper\EventHelper,
     Main\Helper\URL,
     Main\Helper\NotifyHelper,
     Valitron\Validator,
@@ -674,18 +675,18 @@ class EventService extends BaseService {
         ];
         
         $date = new \DateTime();
-//        $current_time = strtotime($date->format('Y-m-d H:i:s'));
-//        $current_day = new \MongoDate($current_time);
+        $current_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_day = new \MongoDate($current_time);
         
-        $start_time = new \MongoDate(strtotime($date->format('Y-m-d').' 00:00:00'));
-        $end_time = new \MongoDate(strtotime($date->format('Y-m-d').' 23:59:59'));
+//        $start_time = new \MongoDate(strtotime($date->format('Y-m-d').' 00:00:00'));
+//        $end_time = new \MongoDate(strtotime($date->format('Y-m-d').' 23:59:59'));
         
         $condition = [
             'approve' => 1,
             'build' => 1,
             '$and' => [
-                ['date_start' => ['$gte' => $start_time]],
-                ['date_start' => ['$lte' => $end_time]]
+                ['date_start' => ['$lte' => $current_day]],
+                ['date_end' => ['$gte' => $current_day]]
             ]
         ];
         
@@ -697,7 +698,9 @@ class EventService extends BaseService {
             $condition = array_merge_recursive($condition, $add_country);
         }
         
-        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end'])->sort(['date_start' => -1]);
+        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end'])
+                ->sort(['date_start' => -1])
+                ->limit(15);
         $test_category_set = [];
 
         foreach($events as $event){
@@ -712,26 +715,30 @@ class EventService extends BaseService {
             $event['thumb'] = Image::load($picture['picture'])->toArrayResponse();
             $event['thumb']['detail'] = isset($picture['detail']) ? $picture['detail'] : '' ;
 
-            $sniffers = $this->getSnifferCollection()->find(['event_id' => $event['id']])->sort(['_id' => -1]);
-            $sniff_users = [];
-            foreach($sniffers as $sniff){
-                $one_user = $this->getUsersCollection()->findOne(['_id' => new \MongoId($sniff['user_id'])],['display_name','picture']);
-                
-                if(!$one_user['picture']){
-                    $one_user['picture'] = [
-                        'id' => '54297c9390cc13a5048b4567png',
-                        'width' => 200,
-                        'height' => 200
-                    ];
-                }
-                
-                $one_user['picture'] = Image::load_picture($one_user['picture']);
-                $one_user['id'] = $one_user['_id']->{'$id'};
-                unset($one_user['_id']);
-                $sniff_users[] = $one_user;
-            }
-            $event['sniffer'] = $sniff_users;
-            $event['total_sniffer'] = $sniffers->count(true);
+//            $sniffers = $this->getSnifferCollection()->find(['event_id' => $event['id']])->sort(['_id' => -1]);
+//            $sniff_users = [];
+//            foreach($sniffers as $sniff){
+//                $one_user = $this->getUsersCollection()->findOne(['_id' => new \MongoId($sniff['user_id'])],['display_name','picture']);
+//                
+//                if(!$one_user['picture']){
+//                    $one_user['picture'] = [
+//                        'id' => '54297c9390cc13a5048b4567png',
+//                        'width' => 200,
+//                        'height' => 200
+//                    ];
+//                }
+//                
+//                $one_user['picture'] = Image::load_picture($one_user['picture']);
+//                $one_user['id'] = $one_user['_id']->{'$id'};
+//                unset($one_user['_id']);
+//                $sniff_users[] = $one_user;
+//            }
+//            $event['sniffer'] = $sniff_users;
+//            $event['total_sniffer'] = $sniffers->count(true);
+            $sniff = EventHelper::get_sniffers($event['id'], true);
+//            dump($test);
+            $event['sniffer'] = $sniff['users'];
+            $event['total_sniffer'] = $sniff['count'];
             
             $tag = $this->getEventTagCollection()->findOne(['event_id' => $event['id']]);
             $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag['tag_id'])]);
@@ -745,8 +752,8 @@ class EventService extends BaseService {
         
         $first_item_lists = [];
         $normal_item_lists = [];
-        $hour_start = strtotime($date->format('Y-m-d H:').' 00:00');
-        $hour_end = strtotime($date->format('Y-m-d H:').' 59:00');
+        $hour_start = strtotime($date->format('Y-m-d').' 00:00:00');
+        $hour_end = strtotime($date->format('Y-m-d').' 23:59:59');
 
         foreach ($test_category_set as $key => $item) {
 
@@ -1144,8 +1151,8 @@ class EventService extends BaseService {
     
     public function get_past($options = [], Context $ctx){
         $user = $ctx->getUser();
-        if($user === null){
-            return ResponseHelper::error('Access denied');
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
         }
         
         $default = array(
@@ -1188,7 +1195,7 @@ class EventService extends BaseService {
             $gallery_lists = [];
             foreach($pictures as $picture){
                 $pic = Image::load_picture($picture['picture']);
-                $pic['detail'] = isset($picture['detail']) ? $pictures['detail'] : '' ;
+                $pic['detail'] = isset($picture['detail']) ? $picture['detail'] : '' ;
                 $gallery_lists[] = $pic;
                 
             }
@@ -1230,5 +1237,67 @@ class EventService extends BaseService {
         }
         
         return $res;
+    }
+    
+    public function get_feeds(Context $ctx) {
+        
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        
+        $date = new \DateTime();
+        $current_timestamp = $date->getTimestamp();
+        $pre_conclution_end = strtotime('-1 day', $current_timestamp);
+        
+        $conclution_start = new \MongoDate($current_timestamp);
+        $conclution_end = new \MongoDate($pre_conclution_end);
+        
+        $where = [
+            'build' => 1,
+            'approve' => 1,
+            '$and' => [
+                [ 'date_end' => [ '$lte' => $conclution_start ] ],
+                [ 'date_end' => [ '$gte' => $conclution_end ] ]
+            ],
+        ];
+        
+        if(isset($user['sniffing_around']) && !empty($user['sniffing_around'])){
+            $where['city'] = ['$in' => $user['sniffing_around']];
+        }
+        
+        // Find conclution
+        $end_events = $this->getCollection()->find($where, ['name','detail','date_start','date_end'])->limit(5);
+        
+        $conclution_lists = [];
+        foreach($end_events as $item){
+            
+            $item['id'] = $item['_id']->{'$id'};
+            unset($item['_id']);
+            
+            $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+            $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
+            
+            $item['picture'] = EventHelper::get_gallery($item['id']);
+            $item['thumb'] = $item['picture']['0'];
+            
+            $sniffer = EventHelper::get_sniffers($item['id']);
+            $item['total_sniffer'] = $sniffer['count'];
+//            $item['sniffer'] = $sniffer['users'];
+            
+            $comments = EventHelper::get_comments($item['id']);
+            $item['total_comment'] = $comments['count'];
+            
+            /**
+             * @todo 
+             * - Check In
+             */
+            
+            $conclution_lists[] = $item;
+        }
+        
+//        $row = $end_events->count(true);
+        
+        return $conclution_lists;
     }
 }

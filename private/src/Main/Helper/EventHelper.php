@@ -1,0 +1,96 @@
+<?php
+
+namespace Main\Helper;
+
+use Main\DB,
+    Main\DataModel\Image;
+
+/**
+ * Description of EventHelper
+ *
+ * @author robocon
+ */
+class EventHelper {
+    
+    public static function get_gallery($id){
+        $db = DB::getDB();
+        
+        $items = $db->gallery->find(['event_id' => $id],['picture','detail']);
+        $pictures = [];
+        foreach($items as $item){
+            $pic = Image::load_picture($item['picture']);
+            $pic['detail'] = isset($item['detail']) ? $item['detail'] : '' ;
+            $pictures[] = $pic;
+        }
+        return $pictures;
+    }
+    
+    /**
+     * 
+     * @param type $id Event id
+     * @param type $count Set true to show user detail
+     * @return mixed users User diaplay_name and picture
+     * @return int count Total user in this event
+     */
+    public static function get_sniffers($id, $count = false){
+        $db = DB::getDB();
+        $items = $db->sniffer->find(['event_id' => $id],['user_id'])->sort(['_id' => -1]);
+        $res['count'] = $items->count(true);
+        
+        $sniff_user = [];
+        foreach($items as $item){
+            $sniff_user[] = new \MongoId($item['user_id']);
+        }
+        
+        if($count === true){
+            $user_lists = [];
+            $users = $db->users->find([ '_id' => [ '$in' => $sniff_user ] ],['display_name','picture']);
+            foreach($users as $user){
+                $user['id'] = $user['_id']->{'$id'};
+                unset($user['_id']);
+                if(!isset($user['picture'])){
+                    $user['picture'] = Image::default_profile_picture();
+                }else{
+                    $user['picture'] = Image::load_picture($user['picture']);
+                }
+                $user_lists[] = $user;
+            }
+
+            $res['users'] = $user_lists;
+        }
+        
+        return $res;
+    }
+    
+    
+    public static function get_comments($id, $count = false){
+        
+        $db = DB::getDB();
+        $items = $db->comment->find(['event_id' => $id],['user_id']);
+        $res['count'] = $items->count(true);
+        
+        $filter_user = [];
+        foreach($items as $item){
+            $filter_user[] = new \MongoId($item['user_id']);
+        }
+        
+        if($count === true){
+            $user_lists = [];
+            $users = $db->users->find([ '_id' => [ '$in' => $filter_user ] ],['display_name','picture']);
+            foreach($users as $user){
+                $user['id'] = $user['_id']->{'$id'};
+                unset($user['_id']);
+                if(!isset($user['picture'])){
+                    $user['picture'] = Image::default_profile_picture();
+                }else{
+                    $user['picture'] = Image::load_picture($user['picture']);
+                }
+                $user_lists[] = $user;
+            }
+
+            $res['users'] = $user_lists;
+        }
+        
+        return $res;
+    }
+}

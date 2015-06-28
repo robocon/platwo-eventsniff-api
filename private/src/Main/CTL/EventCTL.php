@@ -901,4 +901,17 @@ class EventCTL extends BaseCTL {
             return $e->getResponse();
         }
     }
+    
+    /**
+     * @GET
+     * @uri /feeds
+     */
+    public function get_feeds() {
+        try {
+            $items = EventService::getInstance()->get_feeds( $this->getCtx() );
+            return $items;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }
