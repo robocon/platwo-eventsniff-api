@@ -1178,15 +1178,21 @@ class EventService extends BaseService {
         ->limit($options['limit'])
         ->skip($skip)
         ->sort(['date_end' => -1]);
-        $length = $items->count(true);
+//        $length = $items->count(true);
         
         $total = $this->getCollection()->count($where);
         
         $data = [];
+        $i = 1;
         foreach($items as $event){
             
             $event['id'] = $event['_id']->{'$id'};
             unset($event['_id']);
+            
+            $find_category = $this->getEventTagCollection()->findOne(['tag_id' => $options['category_id'], 'event_id' => $event['id']]);
+            if($find_category === null){
+                continue;
+            }
 
             $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
             $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
@@ -1217,8 +1223,9 @@ class EventService extends BaseService {
             }
             
             $data[] = $event;
+            $i++;
         }
-        
+        $length = ( $i - 1 );
         $res = [
             'length' => $length,
             'data' => $data,
@@ -1229,14 +1236,52 @@ class EventService extends BaseService {
         ];
 
         if ($length > 0 && $length <= $total ) {
-            $res['paging']['next'] = URL::absolute('/event/past'.'?'.  http_build_query(['page' => (int)$options['page']+1, 'limit' => (int)$options['limit']]));
+            $res['paging']['next'] = URL::absolute('/event/past/'.$options['category_id'].'?'.  http_build_query(['page' => (int)$options['page']+1, 'limit' => (int)$options['limit']]));
 
             if ($options['page'] > 1) {
-                $res['paging']['prev'] = URL::absolute('/event/past'.'?'.  http_build_query(['page' => (int)$options['page']-1, 'limit' => (int)$options['limit']]));
+                $res['paging']['prev'] = URL::absolute('/event/past/'.$options['category_id'].'?'.  http_build_query(['page' => (int)$options['page']-1, 'limit' => (int)$options['limit']]));
             }
         }
         
         return $res;
+    }
+    
+    public function search_past($options = [], Context $ctx){
+        
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        /**
+         * @todo
+         * - หา upcoming event
+         * - หา past event
+         * - นำเอา user จากทั้งสอง มาทำการค้นหารายละเอียด
+         */
+//        $default = array(
+//            "page"=> 1,
+//            "limit"=> 15
+//        );
+        
+//        $options = array_merge($default, $options);
+//        $skip = ($options['page']-1) * $options['limit'];
+        
+        $now = new \MongoDate();
+        $where = [
+            'build' => 1,
+            'approve' => 1,
+            'date_end' => [ '$lt' => $now ],
+            'name' => new \MongoRegex("/".str_replace(['"', "'", "\x22", "\x27"], '', $options['word'])."/i")
+        ];
+        
+        $items = $this->getCollection()->find($where,['name','detail','picture'])
+//        ->limit($options['limit'])
+//        ->skip($skip)
+        ->sort(['date_end' => -1]);
+        
+        
+        
+        
     }
     
     public function get_feeds(Context $ctx) {
@@ -1267,7 +1312,10 @@ class EventService extends BaseService {
         }
         
         // Find conclution
-        $end_events = $this->getCollection()->find($where, ['name','detail','date_start','date_end'])->limit(5);
+        $end_events = $this->getCollection()
+                ->find($where, ['name','detail','date_start','date_end','check_in'])
+                ->sort(['date_end' => -1])
+                ->limit(5);
         
         $conclution_lists = [];
         foreach($end_events as $item){
@@ -1288,16 +1336,43 @@ class EventService extends BaseService {
             $comments = EventHelper::get_comments($item['id']);
             $item['total_comment'] = $comments['count'];
             
-            /**
-             * @todo 
-             * - Check In
-             */
+            if(!isset($item['check_in'])){
+                $item['total_check_in'] = 0;
+                $item['check_in'] = [];
+            }else{
+                $users = EventHelper::get_check_in($item['check_in']);
+                $item['total_check_in'] = $users['count'];
+                $item['check_in'] = $users['users'];
+            }
+            
+            $item['type'] = 'conclution';
             
             $conclution_lists[] = $item;
         }
         
-//        $row = $end_events->count(true);
+        // Get other 4 style feed
+        $time_stamp = $date->getTimestamp();
+        $current_day = new \MongoDate($time_stamp);
+        $where = [
+            'approve' => 1,
+            'build' => 1,
+            '$and' => [
+                ['date_start' => ['$lte' => $current_day]],
+                ['date_end' => ['$gte' => $current_day]]
+            ]
+        ];
         
-        return $conclution_lists;
+        if(isset($user['sniffing_around']) && !empty($user['sniffing_around'])){
+            $where['city'] = ['$in' => $user['sniffing_around']];
+        }
+        
+        $events = $this->getCollection()
+                ->find($where, ['name','detail','date_start','date_end','check_in'])
+                ->sort(['date_end' => -1])
+                ->limit(15);
+        foreach($events as $item){
+            
+        }
+//        return $conclution_lists;
     }
 }

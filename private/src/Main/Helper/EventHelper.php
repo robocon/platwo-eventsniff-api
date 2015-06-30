@@ -93,4 +93,33 @@ class EventHelper {
         
         return $res;
     }
+    
+    
+    public static function get_check_in($lists) {
+        
+        $res['count'] = count($lists);
+        $user_lists = [];
+        
+        $object_list = [];
+        foreach($lists as $item){
+            $object_list[] = new \MongoId($item);
+        }
+        
+        $db = DB::getDB();
+        $users = $db->users->find([ '_id' => [ '$in' => $object_list ] ],['display_name','picture']);
+        
+        foreach($users as $user){
+            $user['id'] = $user['_id']->{'$id'};
+            unset($user['_id']);
+            if(!isset($user['picture'])){
+                $user['picture'] = Image::default_profile_picture();
+            }else{
+                $user['picture'] = Image::load_picture($user['picture']);
+            }
+            $user_lists[] = $user;
+        }
+        
+        $res['users'] = $user_lists;
+        return $res;
+    }
 }
