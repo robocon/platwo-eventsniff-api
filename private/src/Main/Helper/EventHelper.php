@@ -122,4 +122,12 @@ class EventHelper {
         $res['users'] = $user_lists;
         return $res;
     }
+    
+    public static function get_event_thumbnail($id){
+        $db = DB::getDB();
+        $item = $db->gallery->findOne(['event_id' => $id],['picture']);
+        $item['thumb'] = Image::load_picture($item['picture']);
+        unset($item['_id']);
+        return $item;
+    }
 }

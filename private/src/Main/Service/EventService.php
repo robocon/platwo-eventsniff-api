@@ -1174,7 +1174,7 @@ class EventService extends BaseService {
             $where['name'] = new \MongoRegex("/".str_replace(['"', "'", "\x22", "\x27"], '', $options['word'])."/i");
         }
         
-        $items = $this->getCollection()->find($where,['name','detail','credit','date_start','date_end'])
+        $items = $this->getCollection()->find($where,['name','detail','credit','date_start','date_end','check_in'])
         ->limit($options['limit'])
         ->skip($skip)
         ->sort(['date_end' => -1]);
@@ -1222,6 +1222,14 @@ class EventService extends BaseService {
                 $event['sniffed'] = 'true';
             }
             
+            if(!isset($event['check_in'])){
+                $event['total_check_in'] = 0;
+                $event['check_in'] = [];
+            }else{
+                $users = EventHelper::get_check_in($event['check_in']);
+                $event['total_check_in'] = $users['count'];
+            }
+            
             $data[] = $event;
             $i++;
         }
@@ -1252,35 +1260,56 @@ class EventService extends BaseService {
         if(!$user){
             throw new ServiceException(ResponseHelper::error('Invalid token'));
         }
+        
+        $v = new Validator($options);
+        $v->rule('required', ['word']);
+        $v->rule('lengthMin', 'word', 3);
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        
         /**
          * @todo
-         * - หา upcoming event
-         * - หา past event
-         * - นำเอา user จากทั้งสอง มาทำการค้นหารายละเอียด
+         * - [] หา upcoming event
+         * - [x] หา past event
+         * - [] นำเอา user จากทั้งสอง มาทำการค้นหารายละเอียด
          */
-//        $default = array(
-//            "page"=> 1,
-//            "limit"=> 15
-//        );
-        
-//        $options = array_merge($default, $options);
-//        $skip = ($options['page']-1) * $options['limit'];
+
+        $name_search = new \MongoRegex("/".str_replace(['"', "'", "\x22", "\x27"], '', $options['word'])."/i");
         
         $now = new \MongoDate();
         $where = [
             'build' => 1,
             'approve' => 1,
             'date_end' => [ '$lt' => $now ],
-            'name' => new \MongoRegex("/".str_replace(['"', "'", "\x22", "\x27"], '', $options['word'])."/i")
+            'name' => $name_search
         ];
         
         $items = $this->getCollection()->find($where,['name','detail','picture'])
-//        ->limit($options['limit'])
-//        ->skip($skip)
-        ->sort(['date_end' => -1]);
+        ->sort(['date_end' => -1])
+        ->limit(15);
+        $past_events = [];
+        foreach ($items as $key => $value) {
+            
+            $value['id'] = $value['_id']->{'$id'};
+            unset($value['_id']);
+            
+            $find_category = $this->getEventTagCollection()->findOne(['tag_id' => $options['category_id'], 'event_id' => $value['id']]);
+            if($find_category === null){
+                continue;
+            }
+            
+            $thumb = EventHelper::get_event_thumbnail($value['id']);
+            $value['thumb'] = $thumb['thumb'];
+            
+            $past_events = $value;
+//            dump($value);
+        }
         
-        
-        
+        // Dummy
+        return ['data' => $past_events, 'length' => count($past_events)];
+//        exit;
         
     }
     

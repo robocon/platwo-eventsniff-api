@@ -894,12 +894,12 @@ class EventCTL extends BaseCTL {
     
     /**
      * @POST
-     * @uri /search_past/[h:category_id]
+     * @uri /search_past
      */
     public function search_past(){
         try {
             $params = $this->reqInfo->params();
-            $params['category_id'] = $this->reqInfo->urlParam('category_id');
+//            $params['category_id'] = $this->reqInfo->urlParam('category_id');
             $items = EventService::getInstance()->search_past($params, $this->getCtx());
             return $items;
         } catch (ServiceException $e) {
