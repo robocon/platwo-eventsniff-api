@@ -1269,16 +1269,9 @@ class EventService extends BaseService {
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
         
-        
-        /**
-         * @todo
-         * - [] หา upcoming event
-         * - [x] หา past event
-         * - [] นำเอา user จากทั้งสอง มาทำการค้นหารายละเอียด
-         */
 
         $name_search = new \MongoRegex("/".str_replace(['"', "'", "\x22", "\x27"], '', $options['word'])."/i");
-//        $now = new \MongoDate();
+
         $date = new \DateTime();
         $current_timestamp = $date->getTimestamp();
         $now = new \MongoDate($current_timestamp);
@@ -1304,8 +1297,8 @@ class EventService extends BaseService {
                 continue;
             }
             
-            $thumb = EventHelper::get_event_thumbnail($value['id']);
-            $value['thumb'] = $thumb['thumb'];
+            $value['thumb'] = EventHelper::get_event_thumbnail($value['id']);
+            $value['sniffed'] = EventHelper::check_sniffed($user['_id']->{'$id'}, $value['id']);
             $value['type'] = 'event';
             
             $past_events[] = $value;
@@ -1333,8 +1326,8 @@ class EventService extends BaseService {
                 continue;
             }
             
-            $thumb = EventHelper::get_event_thumbnail($value['id']);
-            $value['thumb'] = $thumb['thumb'];
+            $value['thumb'] = EventHelper::get_event_thumbnail($value['id']);
+            $value['sniffed'] = EventHelper::check_sniffed($user['_id']->{'$id'}, $value['id']);
             $value['type'] = 'event';
             
             $upcoming_event[] = $value;
@@ -1387,6 +1380,8 @@ class EventService extends BaseService {
         $conclution_start = new \MongoDate($current_timestamp);
         $conclution_end = new \MongoDate($pre_conclution_end);
         
+        
+        // Find conclution
         $where = [
             'build' => 1,
             'approve' => 1,
@@ -1400,9 +1395,8 @@ class EventService extends BaseService {
             $where['city'] = ['$in' => $user['sniffing_around']];
         }
         
-        // Find conclution
         $end_events = $this->getCollection()
-                ->find($where, ['name','detail','date_start','date_end','check_in'])
+                ->find($where, ['name','detail','date_start','date_end','check_in','user_id'])
                 ->sort(['date_end' => -1])
                 ->limit(5);
         
@@ -1416,7 +1410,7 @@ class EventService extends BaseService {
             $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
             
             $item['picture'] = EventHelper::get_gallery($item['id']);
-            $item['thumb'] = $item['picture']['0'];
+//            $item['thumb'] = $item['picture']['0'];
             
             $sniffer = EventHelper::get_sniffers($item['id']);
             $item['total_sniffer'] = $sniffer['count'];
@@ -1433,6 +1427,13 @@ class EventService extends BaseService {
                 $item['total_check_in'] = $users['count'];
                 $item['check_in'] = $users['users'];
             }
+            
+            $item['sniffed'] = EventHelper::check_sniffed($user['_id']->{'$id'}, $item['id']);
+            
+            $item['user'] = EventHelper::get_owner($item['user_id']);
+            unset($item['user_id']);
+            
+            $item['node'] = [ "share"=> URL::share('/event.php?id='.$item['id']) ];
             
             $item['type'] = 'conclution';
             
@@ -1456,12 +1457,41 @@ class EventService extends BaseService {
         }
         
         $events = $this->getCollection()
-                ->find($where, ['name','detail','date_start','date_end','check_in'])
+                ->find($where, ['name','detail','date_start','date_end','user_id','check_in'])
                 ->sort(['date_end' => -1])
                 ->limit(15);
         foreach($events as $item){
             
+            $item['id'] = $item['_id']->{'$id'};
+            unset($item['_id']);
+            
+            $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+            $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
+            
+            $item['thumb'] = EventHelper::get_event_thumbnail($item['id']);
+            
+            $sniffer = EventHelper::get_sniffers($item['id']);
+            $item['total_sniffer'] = $sniffer['count'];
+            
+            $comments = EventHelper::get_comments($item['id']);
+            $item['total_comment'] = $comments['count'];
+            
+            // @todo
+            // [] category name (feed 1, 2)
+            // [] check-in (feed 3)
+            // [] note (feed 5)
+            
+            $item['sniffed'] = EventHelper::check_sniffed($user['_id']->{'$id'}, $item['id']);
+            
+            $item['user'] = EventHelper::get_owner($item['user_id']);
+            unset($item['user_id']);
+            
+            $item['node'] = [ "share"=> URL::share('/event.php?id='.$item['id']) ];
+            
+            dump($item);
         }
+        
+        exit;
 //        return $conclution_lists;
     }
 }

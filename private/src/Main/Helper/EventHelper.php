@@ -126,8 +126,12 @@ class EventHelper {
     public static function get_event_thumbnail($id){
         $db = DB::getDB();
         $item = $db->gallery->findOne(['event_id' => $id],['picture']);
-        $item['thumb'] = Image::load_picture($item['picture']);
+        $item['id'] = $item['_id']->{'$id'};
         unset($item['_id']);
+        
+        $item['picture'] = Image::load_picture($item['picture']);
+        $item['detail'] = isset($item['detail']) ? $item['detail'] : '' ;
+        
         return $item;
     }
     
@@ -142,5 +146,19 @@ class EventHelper {
         }
            
         return $item;
+    }
+    
+    public static function check_sniffed($user_id, $event_id){
+        $db = DB::getDB();
+        $test_sniff = $db->sniffer->findOne([
+            'event_id' => $event_id,
+            'user_id' => $user_id
+        ],['_id']);
+        $check = 'false';
+        if($test_sniff != null){
+            $check = 'true';
+        }
+        
+        return $check;
     }
 }
