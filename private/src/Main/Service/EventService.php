@@ -1163,7 +1163,10 @@ class EventService extends BaseService {
         $options = array_merge($default, $options);
         $skip = ($options['page']-1) * $options['limit'];
         
-        $now = new \MongoDate();
+        $date = new \DateTime();
+        $current_timestamp = $date->getTimestamp();
+        $now = new \MongoDate($current_timestamp);
+        
         $where = [
             'build' => 1,
             'approve' => 1,
@@ -1275,15 +1278,18 @@ class EventService extends BaseService {
          */
 
         $name_search = new \MongoRegex("/".str_replace(['"', "'", "\x22", "\x27"], '', $options['word'])."/i");
+//        $now = new \MongoDate();
+        $date = new \DateTime();
+        $current_timestamp = $date->getTimestamp();
+        $now = new \MongoDate($current_timestamp);
         
-        $now = new \MongoDate();
+        // Search past event
         $where = [
             'build' => 1,
             'approve' => 1,
             'date_end' => [ '$lt' => $now ],
             'name' => $name_search
         ];
-        
         $items = $this->getCollection()->find($where,['name','detail','picture'])
         ->sort(['date_end' => -1])
         ->limit(15);
@@ -1300,15 +1306,71 @@ class EventService extends BaseService {
             
             $thumb = EventHelper::get_event_thumbnail($value['id']);
             $value['thumb'] = $thumb['thumb'];
+            $value['type'] = 'event';
             
-            $past_events = $value;
-//            dump($value);
+            $past_events[] = $value;
         }
         
-        // Dummy
-        return ['data' => $past_events, 'length' => count($past_events)];
-//        exit;
+        // Search upcoming event
+        $where = [
+            'build' => 1,
+            'approve' => 1,
+            'date_start' => ['$gte' => $now],
+            'name' => $name_search
+        ];
+        $items = $this->getCollection()->find($where,['name','detail','picture'])
+        ->sort(['date_end' => -1])
+        ->limit(15);
         
+        $upcoming_event = [];
+        foreach ($items as $key => $value) {
+            
+            $value['id'] = $value['_id']->{'$id'};
+            unset($value['_id']);
+            
+            $find_category = $this->getEventTagCollection()->findOne(['tag_id' => $options['category_id'], 'event_id' => $value['id']]);
+            if($find_category === null){
+                continue;
+            }
+            
+            $thumb = EventHelper::get_event_thumbnail($value['id']);
+            $value['thumb'] = $thumb['thumb'];
+            $value['type'] = 'event';
+            
+            $upcoming_event[] = $value;
+        }
+        
+        // Search user
+        $user_lists = [];
+        $items = $this->getUsersCollection()
+                ->find(['display_name' => $name_search],['display_name','picture','email'])
+                ->limit(15);
+        foreach ($items as $key => $value) {
+            
+            $value['id'] = $value['_id']->{'$id'};
+            unset($value['_id']);
+            
+            $value['picture'] = Image::load_picture($value['picture']);
+            $value['name'] = $value['display_name'];
+            unset($value['display_name']);
+            
+            $value['type'] = 'user';
+            $user_lists[] = $value;
+        }
+        
+        $final_data = array_merge($past_events, $upcoming_event, $user_lists);
+        usort($final_data, function($a, $b){
+            return strcmp($a["name"], $b["name"]);
+        });
+        
+        $res = ['data' => $final_data, 'length' => count($final_data)];
+        
+        return $res;
+        
+    }
+    
+    function cmp($a, $b){
+        return strcmp($a["name"], $b["name"]);
     }
     
     public function get_feeds(Context $ctx) {
