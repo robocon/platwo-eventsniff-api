@@ -1174,7 +1174,7 @@ class EventService extends BaseService {
             $where['name'] = new \MongoRegex("/".str_replace(['"', "'", "\x22", "\x27"], '', $options['word'])."/i");
         }
         
-        $items = $this->getCollection()->find($where,['name','detail','credit','date_start','date_end','check_in'])
+        $items = $this->getCollection()->find($where,['name','detail','credit','date_start','date_end','check_in','user_id'])
         ->limit($options['limit'])
         ->skip($skip)
         ->sort(['date_end' => -1]);
@@ -1197,15 +1197,7 @@ class EventService extends BaseService {
             $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
             $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
             
-            $pictures = $this->getGalleryCollection()->find(['event_id' => $event['id']],['picture','detail']);
-            $gallery_lists = [];
-            foreach($pictures as $picture){
-                $pic = Image::load_picture($picture['picture']);
-                $pic['detail'] = isset($picture['detail']) ? $picture['detail'] : '' ;
-                $gallery_lists[] = $pic;
-                
-            }
-            $event['picture'] = $gallery_lists;
+            $event['picture'] = EventHelper::get_gallery($event['id']);
             
             $sniffers = $this->getSnifferCollection()->find(['event_id' => $event['id']])->sort(['_id' => -1]);
             $event['total_sniffer'] = $sniffers->count(true);
@@ -1227,8 +1219,14 @@ class EventService extends BaseService {
                 $event['check_in'] = [];
             }else{
                 $users = EventHelper::get_check_in($event['check_in']);
+                $event['check_in'] = $users['users'];
                 $event['total_check_in'] = $users['count'];
             }
+            
+            $event['user'] = EventHelper::get_owner($event['user_id']);
+            unset($event['user_id']);
+            
+            $event['node'] = [ "share"=> URL::share('/event.php?id='.$event['id']) ];
             
             $data[] = $event;
             $i++;

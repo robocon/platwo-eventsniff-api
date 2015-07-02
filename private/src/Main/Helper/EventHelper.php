@@ -130,4 +130,17 @@ class EventHelper {
         unset($item['_id']);
         return $item;
     }
+    
+    
+    public static function get_owner($id){
+        $db = DB::getDB();
+        $item = $db->users->findOne(['_id' => new \MongoId($id)],['display_name','picture','type']);
+        if($item !== null){
+            $item['id'] = $id;
+            unset($item['_id']);
+            $item['picture'] = Image::load_picture($item['picture']);
+        }
+           
+        return $item;
+    }
 }
