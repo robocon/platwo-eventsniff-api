@@ -425,7 +425,18 @@ class EventService extends BaseService {
         if(!$v->validate()){
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
-
+        
+        $user = $this->getUsersCollection()->findOne(['_id' => new \MongoId($params['user_id'])],['type']);
+        if($user === null){
+            throw new ServiceException(ResponseHelper::error('Invalid User'));
+        }
+        
+        $params['admin_post'] = 'false';
+        
+        if ($user['type'] == 'admin') {
+            $params['admin_post'] = 'true';
+        }
+        
         // Set build and approve to 0 if send from mobile
         $params['build'] = 0;
         $params['approve'] = 0;
@@ -435,7 +446,7 @@ class EventService extends BaseService {
             'status' => 0
         ];
         
-        $insert = ArrayHelper::filterKey(['user_id', 'build', 'approve', 'time_stamp', 'alarm', 'advertise'], $params);
+        $insert = ArrayHelper::filterKey(['user_id', 'build', 'approve', 'time_stamp', 'alarm', 'advertise', 'admin_post'], $params);
 
         $this->getCollection()->insert($insert);
         return $insert;
@@ -463,6 +474,11 @@ class EventService extends BaseService {
         $set['country'] = $params['country'];
         $set['city'] = $params['city'];
         $set['alarm'] = [];
+        
+        $ev_test = $this->getCollection()->findOne(['_id'=> $id],['admin_post']);
+        if($ev_test['admin_post'] == 'true'){
+            $set['approve'] = 1;
+        }
 
         $this->getCollection()->update(['_id'=> $id], ['$set'=> $set]);
         unset($set['build']);
@@ -1457,9 +1473,11 @@ class EventService extends BaseService {
         }
         
         $events = $this->getCollection()
-                ->find($where, ['name','detail','date_start','date_end','user_id','check_in'])
+                ->find($where, ['name','detail','date_start','date_end','user_id','check_in','note','time_note'])
                 ->sort(['date_end' => -1])
                 ->limit(15);
+        
+        $event_lists = [];
         foreach($events as $item){
             
             $item['id'] = $item['_id']->{'$id'};
@@ -1477,9 +1495,9 @@ class EventService extends BaseService {
             $item['total_comment'] = $comments['count'];
             
             // @todo
-            // [] category name (feed 1, 2)
-            // [] check-in (feed 3)
-            // [] note (feed 5)
+            // [x] category name (feed 1, 2)
+            // [x] check-in (feed 3)
+            // [x] note (feed 5)
             
             $item['sniffed'] = EventHelper::check_sniffed($user['_id']->{'$id'}, $item['id']);
             
@@ -1488,10 +1506,63 @@ class EventService extends BaseService {
             
             $item['node'] = [ "share"=> URL::share('/event.php?id='.$item['id']) ];
             
-            dump($item);
+            $tag = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
+            $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag['tag_id'])]);
+            unset($category['_id']);
+            $item['category_name'] = $category;
+            
+            if($item['user']['type'] == 'admin'){
+                $item['type'] = 'admin';
+            }else{
+                $item['type'] = 'suggest';
+            }
+            
+            $test_date_start = strtotime($item['date_start']);
+            $test_date_end = strtotime($item['date_end']);
+            if($test_date_start <= $time_stamp && $test_date_end >= $time_stamp){
+                
+                $item['type'] = 'active';
+                $days = (abs($test_date_end - $time_stamp)) / (60*60*24);
+                $item['time_left'] = ceil($days);
+                
+                if(!isset($item['check_in'])){
+                    $item['total_check_in'] = 0;
+                    $item['check_in'] = [];
+                }else{
+                    $users = EventHelper::get_check_in($item['check_in']);
+                    $item['total_check_in'] = $users['count'];
+                    $item['check_in'] = $users['users'];
+                }
+            
+            }
+            
+            // @todo
+            // - NOTE FROM ADMIN
+            $note = null;
+            if(isset($item['note'])){
+                $note = $item['note'];
+                $time_note = $item['time_note'];
+            }
+            
+            unset($item['note']);
+            unset($item['time_note']);
+            
+            $event_lists[] = $item;
+            
+            if($note !== null){
+                unset($item['time_left']);
+                $item['type'] = 'edit';
+                $item['note'] = $note;
+                $item['time_note'] = $time_note;
+                $event_lists[] = $item;
+            }
         }
         
-        exit;
-//        return $conclution_lists;
+        $final_feed = array_merge($conclution_lists, $event_lists);
+        $res = [
+            'data' => $final_feed,
+            'length' => count($final_feed),
+        ];
+        return $res;
     }
 }
