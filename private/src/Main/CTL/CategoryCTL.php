@@ -52,4 +52,17 @@ class CategoryCTL extends BaseCTL{
             return $e->getResponse();
         }
     }
+    
+    /**
+     * @POST
+     * @uri /search
+     */
+    public function search_category() {
+        try {
+            $item = CategoryService::getInstance()->search_category($this->reqInfo->params(), $this->getCtx());
+            return $item;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }

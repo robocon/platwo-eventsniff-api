@@ -5,7 +5,9 @@ namespace Main\Service;
 use Main\DB,
     Main\Helper\ResponseHelper,
     Main\Helper\MongoHelper,
+    Main\Helper\EventHelper,
     Main\DataModel\Image,
+    Valitron\Validator,
     Main\Context\Context;
 
 class CategoryService extends BaseService {
@@ -218,5 +220,94 @@ class CategoryService extends BaseService {
         $res = array_merge_recursive($active_events, $inactive_events);
         
         return ['data' => $res, 'length' => count($res)];
+    }
+    
+    public function search_category($options, Context $ctx) {
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        
+        $v = new Validator($options);
+        $v->rule('required', ['word']);
+        $v->rule('lengthMin', 'word', 3);
+        if(!$v->validate()){
+            throw new ServiceException(ResponseHelper::validateError($v->errors()));
+        }
+        
+        $db = $this->connect();
+        $name_search = new \MongoRegex("/".str_replace(['"', "'", "\x22", "\x27"], '', $options['word'])."/i");
+
+        $date = new \DateTime();
+        $current_timestamp = $date->getTimestamp();
+        $now = new \MongoDate($current_timestamp);
+        
+        // Search an upcoming event
+        $where = [
+            'build' => 1,
+            'approve' => 1,
+            '$or' => [
+                ['date_start' => ['$gte' => $now]],
+                ['$and' => [
+                    ['date_start' => ['$lte' => $now]],
+                    ['date_end' => ['$gte' => $now]]
+                ]]
+            ],
+            'name' => $name_search
+        ];
+        $items = $db->event->find($where,['name','detail','picture','date_start','date_end'])
+        ->sort(['date_end' => -1])
+        ->limit(15);
+        
+        $upcoming_event = [];
+        foreach ($items as $key => $value) {
+            
+            $value['id'] = $value['_id']->{'$id'};
+            unset($value['_id']);
+            
+//            $find_category = $db->event_tag->findOne(['tag_id' => $options['category_id'], 'event_id' => $value['id']]);
+//            if($find_category === null){
+//                continue;
+//            }
+//            $value['date_start'] = MongoHelper::dateToYmd($value['date_start']);
+//            $value['date_end'] = MongoHelper::dateToYmd($value['date_end']);
+            
+            $value['thumb'] = EventHelper::get_event_thumbnail($value['id']);
+            $value['sniffed'] = EventHelper::check_sniffed($user['_id']->{'$id'}, $value['id']);
+            $value['type'] = 'event';
+            
+            $upcoming_event[] = $value;
+        }
+        
+
+        
+        // Search user
+        $user_lists = [];
+        $items = $db->users
+                ->find(['display_name' => $name_search],['display_name','picture','email'])
+                ->limit(15);
+        foreach ($items as $key => $value) {
+            
+            $value['id'] = $value['_id']->{'$id'};
+            unset($value['_id']);
+            
+            $value['picture'] = Image::load_picture($value['picture']);
+            $value['name'] = $value['display_name'];
+            unset($value['display_name']);
+            
+            $value['type'] = 'user';
+            $user_lists[] = $value;
+        }
+        
+        $final_data = array_merge($upcoming_event, $user_lists);
+        usort($final_data, function($a, $b){
+            return strcmp($a["name"], $b["name"]);
+        });
+        
+        $res = ['data' => $final_data, 'length' => count($final_data)];
+        
+        return $res;
+        
+        
     }
 }

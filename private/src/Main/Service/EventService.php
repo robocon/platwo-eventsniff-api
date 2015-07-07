@@ -1494,11 +1494,6 @@ class EventService extends BaseService {
             $comments = EventHelper::get_comments($item['id']);
             $item['total_comment'] = $comments['count'];
             
-            // @todo
-            // [x] category name (feed 1, 2)
-            // [x] check-in (feed 3)
-            // [x] note (feed 5)
-            
             $item['sniffed'] = EventHelper::check_sniffed($user['_id']->{'$id'}, $item['id']);
             
             $item['user'] = EventHelper::get_owner($item['user_id']);
@@ -1536,8 +1531,6 @@ class EventService extends BaseService {
             
             }
             
-            // @todo
-            // - NOTE FROM ADMIN
             $note = null;
             if(isset($item['note'])){
                 $note = $item['note'];
