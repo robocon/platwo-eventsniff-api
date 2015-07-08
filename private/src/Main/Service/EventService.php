@@ -234,9 +234,15 @@ class EventService extends BaseService {
     }
 
     public function get($id, Context $ctx) {
-
+        
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        $user['id'] = (string) $user['_id']->{'$id'};
+        
         $id = MongoHelper::mongoId($id);
-        $item = $this->getCollection()->findOne(['_id' => $id],['_id','name','detail','credit','alarm','date_end','date_start','time_edit','time_stamp']);
+        $item = $this->getCollection()->findOne(['_id' => $id],['_id','name','detail','credit','alarm','date_end','date_start','time_edit','time_stamp','user_id','note','time_note']);
 
         $item['id'] = $item['_id']->{'$id'};
         unset($item['_id']);
@@ -246,31 +252,12 @@ class EventService extends BaseService {
         $item['time_edit'] = MongoHelper::dateToYmd($item['time_edit']);
         $item['time_stamp'] = MongoHelper::dateToYmd($item['time_stamp']);
         
-        $token = RequestInfo::getHeader('access-token');
-        if($token !== false && !empty($item['alarm'])){
-            
-            // Find own alarm by access-token
-            $user = $this->getUsersCollection()->findOne(['access_token' => $token],['_id']);
-            if($user === null){
-                return ResponseHelper::error('Invalid token');
+        // default alarm
+        $item['alarm'] = [];
+        foreach($item['alarm'] as $alarm){
+            if($user['id'] == $alarm['user_id']){
+                $item['alarm'] = $alarm;
             }
-            
-            $test_alarm = false;
-            foreach($item['alarm'] as $alarm){
-                if($user['_id']->{'$id'} == $alarm['user_id']){
-                    $item['alarm'] = $alarm;
-                    $test_alarm = true;
-                }
-            }
-            
-            if($test_alarm === false){
-                $item['alarm'] = [];
-            }
-            
-        }else{
-            
-            // If not access-token return empty array
-            $item['alarm'] = [];
         }
             
         // Get location
@@ -291,8 +278,8 @@ class EventService extends BaseService {
             ->find(['event_id' => $item['id']],['picture','detail'])
             ->sort(['_id' => -1])
             ->limit(5);
+        
         $item['pictures'] = [];
-
         if ($gallery->count(true)) {
             $pictures = [];
             foreach ($gallery as $picture) {
@@ -315,23 +302,39 @@ class EventService extends BaseService {
             ->limit(20);
         $item['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['id']],['_id','user_id'])->count();
         $item['sniffer'] = [];
-        if ($sniffers->count(true)) {
+        
+        
+        $item['sniffed'] = 'false';
+        if ($item['total_sniffer'] > 0) {
             $user_lists = [];
             foreach($sniffers as $sniffer){
                 $sniffer['id'] = $sniffer['_id']->{'$id'};
                 unset($sniffer['_id']);
-
+                
+                if($sniffer['user_id'] == $user['id']){
+                    $item['sniffed'] = 'true';
+                }
+                
                 // Get user detail
-                $user = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($sniffer['user_id'])),['_id','display_name','picture']);
+                $duser = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($sniffer['user_id'])),['_id','display_name','picture']);
                 $user_lists[] = [
-                    'id' => $user['_id']->{'$id'},
-                    'name' => $user['display_name'],
-                    'picture' => Image::load($user['picture'])->toArrayResponse()
+                    'id' => $duser['_id']->{'$id'},
+                    'name' => $duser['display_name'],
+                    'picture' => Image::load_picture($duser['picture'])
                 ];
             }
             $item['sniffer'] = $user_lists;
         }
 
+        if($item['sniffed'] == 'true'){
+            if(isset($item['time_note'])){
+                $item['time_note'] = MongoHelper::dateToYmd($item['time_note']);
+            }
+        }else{
+            unset($item['note']);
+            unset($item['time_note']);
+        }
+        
         // get latest 3 comment
         $comment_lists = $this->getCommentCollection()
             ->find(['event_id' => $item['id']],['_id','detail','user_id','time_stamp'])
@@ -347,10 +350,10 @@ class EventService extends BaseService {
                 unset($comment['_id']);
 
                 // Get user detail
-                $user = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($comment['user_id'])),['display_name','picture']);
+                $cuser = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($comment['user_id'])),['display_name','picture']);
                 $comment['user'] = [
-                    'display_name' => $user['display_name'],
-                    'picture' => Image::load($user['picture'])->toArrayResponse()
+                    'display_name' => $cuser['display_name'],
+                    'picture' => Image::load_picture($cuser['picture'])
                 ];
                 $comment['time_stamp'] = MongoHelper::timeToStr($comment['time_stamp']);
 
@@ -358,7 +361,15 @@ class EventService extends BaseService {
             }
             $item['comments'] = $comments;
         }
+        
+        $item['user'] = EventHelper::get_owner($item['user_id']);
+        unset($item['user_id']);
+        
+        // Get link share
         $item['node'] = [ "share"=> URL::share('/event.php?id='.$item['id']) ];
+        
+        unset($item['approve']);
+        unset($item['build']);
         
         return $item;
     }
@@ -1542,7 +1553,7 @@ class EventService extends BaseService {
             
             $event_lists[] = $item;
             
-            if($note !== null){
+            if($note !== null && $item['sniffed'] == 'true'){
                 unset($item['time_left']);
                 $item['type'] = 'edit';
                 $item['note'] = $note;

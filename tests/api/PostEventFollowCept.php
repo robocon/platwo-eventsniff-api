@@ -1,5 +1,5 @@
 <?php 
-$event_id = '55891e65ef7259f2568b4567';
+$event_id = '5595063810f0ed0c048b456e';
 $I = new ApiTester($scenario);
 $I->wantTo('User follow an event');
 //$I->setHeader('access-token', '9049734e4ece4a26b62f9fbe67b72117d14cb7a7bc0eb2810482f800bb517277');

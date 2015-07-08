@@ -122,93 +122,18 @@ class EventCTL extends BaseCTL {
     }
 
     /**
-     * @api {get} /event/:event_id GET /event/:event_id
-     * @apiDescription Get event from id [not complete yet]
-     * @apiName GetEvent
-     * @apiGroup Event
-     * @apiParam {String} event_id Event id
-     * @apiHeader {String} Access-Token (Optional) User Access Token
-     * @apiSuccessExample {json} Success-Response:
-    {
-        "alarm": 0,
-        "credit": "https:\/\/www.google.com",
-        "date_end": "1970-01-01 07:00:00",
-        "date_start": "1970-01-01 07:00:00",
-        "detail": "Example detail",
-        "name": "Example title",
-        "time_edit": "1970-01-01 07:00:00",
-        "time_stamp": "1970-01-01 07:00:00",
-        "user_id": "1",
-        "id": "54ba191510f0edb7048b456a",
-        "location": {
-            "name": "",
-            "position": [
-                "19.906496",
-                "99.834254"
-            ],
-            "id": "54ba194110f0edb7048b456f"
-        },
-        "pictures": [
-            {
-                "id": "54ba7c3590cc13ab048b4628png",
-                "width": 100,
-                "height": 100,
-                "url": "http:\/\/110.164.70.60\/get\/54ba7c3590cc13ab048b4628png\/"
-            },
-            {...}
-        ],
-        "total_sniffer": 2,
-        "sniffer": [
-        {
-            "id": "54ba29c210f0edb8048b457a",
-            "picture": {
-                "id": "54ba8cd690cc1350158b4619jpg",
-                "width": 180,
-                "height": 180,
-                "url": "http:\/\/110.164.70.60\/get\/54ba8cd690cc1350158b4619jpg\/"
-            }
-        }
-        ],
-        "total_comment": 2,
-        "comments": [
-            {
-                "detail": "hello world",
-                "user_id": "54ba29c210f0edb8048b457a",
-                "event_id": "54ba191510f0edb7048b456a",
-                "time_stamp": "2015-01-21 11:09:11",
-                "id": "54bf266710f0ed12048b456a",
-                "user": {
-                    "display_name": "Kritsanasak Kuntaros",
-                    "picture": {
-                        "id": "54ba8cd690cc1350158b4619jpg",
-                        "width": 180,
-                        "height": 180,
-                        "url": "http:\/\/110.164.70.60\/get\/54ba8cd690cc1350158b4619jpg\/"
-                    }
-                }
-            },
-            {...}
-        ]
-    }
-     *
+     * Get single event 
+     * 
      * @GET
      * @uri /[h:event_id]
      */
     public function get() {
         try {
+            
             $item = EventService::getInstance()->get($this->reqInfo->urlParam('event_id'), $this->getCtx());
-            unset($item['approve']);
-            unset($item['build']);
             
             // For none register user
             UserHelper::$user_id = 0;
-                    
-            $token = \Main\Http\RequestInfo::getToken();
-            if($token !== false){
-                if(UserHelper::check_token() === false){
-                    throw new ServiceException(ResponseHelper::error('Invalid user'));
-                }
-            }
             
             $data_log = [
                 'reference_id' => $item['id'],
