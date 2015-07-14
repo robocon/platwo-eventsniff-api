@@ -365,7 +365,10 @@ class UserService extends BaseService {
             ])->toArrayResponse();
         }
         
-        $entity['birth_date'] = MongoHelper::dateToYmd($entity['birth_date']);
+        if(!empty($entity['birth_date'])){
+            $entity['birth_date'] = MongoHelper::dateToYmd($entity['birth_date']);
+        }
+        
         if (empty($entity['detail'])) {
             $entity['detail'] = '';
         }

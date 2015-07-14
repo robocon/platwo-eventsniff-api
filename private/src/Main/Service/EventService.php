@@ -252,14 +252,19 @@ class EventService extends BaseService {
         $item['time_edit'] = MongoHelper::dateToYmd($item['time_edit']);
         $item['time_stamp'] = MongoHelper::dateToYmd($item['time_stamp']);
         
-        // default alarm
-        $item['alarm'] = [];
+        $set_alarm = false;
         foreach($item['alarm'] as $alarm){
             if($user['id'] == $alarm['user_id']){
+                $set_alarm = true;
+                $alarm['alarm_date'] = MongoHelper::dateToYmd($alarm['alarm_date']);
                 $item['alarm'] = $alarm;
             }
         }
-            
+        
+        if($set_alarm === false){
+            $item['alarm'] = [];
+        }
+        
         // Get location
         $location = $this->getLocationCollection()->findOne([
             'event_id' => $item['id']

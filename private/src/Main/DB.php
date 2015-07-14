@@ -14,7 +14,7 @@ class DB {
     private static $mongo, $db;
     public static function getMongo(){
         if(is_null(self::$mongo)){
-            self::$mongo = new \MongoClient(MONGO_HOST.':'.MONGO_PORT);
+            self::$mongo = new \MongoClient("mongodb://".MONGO_HOST.":".MONGO_PORT);
         }
         return self::$mongo;
     }
