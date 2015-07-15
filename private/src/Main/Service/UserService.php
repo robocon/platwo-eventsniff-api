@@ -629,11 +629,11 @@ HTML;
                     }
                     
                     if($test_alarm === false){
-                        $event['alarm'] = [];
+                        $event['alarm'] =  new \stdClass();
                     }
 
                 }else{
-                    $event['alarm'] = [];
+                    $event['alarm'] =  new \stdClass();
                 }
                 
                 $item_lists[] = $event;

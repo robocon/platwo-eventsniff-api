@@ -262,7 +262,7 @@ class EventService extends BaseService {
         }
         
         if($set_alarm === false){
-            $item['alarm'] = [];
+            $item['alarm'] = new \stdClass();
         }
         
         // Get location
@@ -457,7 +457,7 @@ class EventService extends BaseService {
         $params['build'] = 0;
         $params['approve'] = 0;
         $params['time_stamp'] = new \MongoDate();
-        $params['alarm'] = 0;
+        $params['alarm'] = [];
         $params['advertise'] = [
             'status' => 0
         ];
@@ -489,7 +489,7 @@ class EventService extends BaseService {
         $set['build'] = 1;
         $set['country'] = $params['country'];
         $set['city'] = $params['city'];
-        $set['alarm'] = [];
+//        $set['alarm'] = [];
         
         $ev_test = $this->getCollection()->findOne(['_id'=> $id],['admin_post']);
         if($ev_test['admin_post'] == 'true'){
