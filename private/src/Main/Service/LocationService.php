@@ -52,7 +52,7 @@ class LocationService extends BaseService {
             
         $lat = (float)$position['0'];
         $lng = (float)$position['1'];
-        $location = [$lat, $lng];
+        $location = [$lng, $lat];
         
         $insert = [
             'name' => $name,
