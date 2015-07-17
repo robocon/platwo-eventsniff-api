@@ -15,12 +15,12 @@ class MapCTL extends BaseCTL {
     
     /**
      * @POST
-     * @uri minimap
+     * @uri /minimap
      */
     public function minimap() {
         try {
-            $item = MapService::getInstance()->minimap($this->reqInfo->params(), $this->getCtx());
-            return ['success' => $item];
+            $items = MapService::getInstance()->minimap($this->reqInfo->params(), $this->getCtx());
+            return $items;
         } catch (ServiceException $e) {
             return $e->getResponse();
         }

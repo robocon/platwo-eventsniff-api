@@ -2,12 +2,12 @@
 $I = new ApiTester($scenario);
 $I->wantTo('perform actions and see result');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-$I->setHeader('access-token', '9049734e4ece4a26b62f9fbe67b72117d14cb7a7bc0eb2810482f800bb517277');
+$I->setHeader('access-token', '54045a1c5e4acd555ed07c0a0cdc497a2099ef5ef347331144e5450b491fe74d');
 $I->sendPOST('map/minimap', [
-    'category' => 'all',
-//    'category' => [
-//        '54c0ad7410f0ed5e048b4572', '54c0ad7410f0ed5e048b4575', '54c0ad7410f0ed5e048b4579'
-//    ],
+//    'category' => 'all',
+    'category' => [
+        '54c0ad7410f0ed5e048b4567', '54c0ad7410f0ed5e048b456c', '54c0ad7410f0ed5e048b456f'
+    ],
     
     // Test location with center and near
 //    'location' => [18.78830184,98.98529291],
