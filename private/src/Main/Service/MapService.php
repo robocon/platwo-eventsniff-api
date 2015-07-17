@@ -26,7 +26,15 @@ class MapService extends BaseService{
         if (is_array($params['category'])) {
             $category = $params['category'];
         }
-        
+        /**
+         * If category not all
+         * find an event in event_tag befor event
+         * 
+         * if all
+         * find from location
+         * 
+         * @todo find active + inactive event
+         */
         /*
 ### $geoWithin
 db.event.find({"location": 

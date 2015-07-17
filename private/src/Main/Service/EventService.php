@@ -280,7 +280,7 @@ class EventService extends BaseService {
         
         // Get latest 5 pictures
         $gallery = $this->getGalleryCollection()
-            ->find(['event_id' => $item['id']],['picture','detail'])
+            ->find(['event_id' => $item['id']],['picture','detail','user_id'])
             ->sort(['_id' => -1])
             ->limit(5);
         
@@ -291,15 +291,18 @@ class EventService extends BaseService {
                 
                 $set_url = Image::load($picture['picture'])->toArrayResponse();
                 
-                if(isset($picture['detail'])){
-                    $set_url['detail'] = $picture['detail'];
+                $owner = EventHelper::get_owner($picture['user_id']);
+                $set_url['user'] = $owner;
+                if($owner === null){
+                    $set_url['user'] = '';
                 }
+                $set_url['detail'] = ( isset($picture['detail']) ) ? $picture['detail'] : '' ;
                 
                 $pictures[] = $set_url;
             }
             $item['pictures'] = $pictures;
         }
-
+        
         // Get latest 20 sniffer
         $sniffers = $this->getSnifferCollection()
             ->find(['event_id' => $item['id']])
