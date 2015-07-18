@@ -139,19 +139,29 @@ class GalleryService extends BaseService {
     }
     
     public function delete($picture_id, Context $ctx) {
+        
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        
         $v = new Validator(['picture_id' => $picture_id]);
         $v->rule('required', ['picture_id']);
 
         if(!$v->validate()){
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
-        $rows = $this->getCollection()->find(['_id' => new \MongoId($picture_id)])->count();
         
+        $rows = $this->getCollection()->find([
+            '_id' => new \MongoId($picture_id),
+            'user_id' => $user['_id']->{'$id'}
+            ])->count();
+
         if ($rows > 0) {
             $this->getCollection()->remove(['_id' => new \MongoId($picture_id)]);
             return ['success' => true];
         }else{
-            throw new ServiceException(ResponseHelper::error('Not found picture_id'));
+            throw new ServiceException(ResponseHelper::error('Not found your picture'));
         }
     }
 }
