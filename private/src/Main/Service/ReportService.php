@@ -25,12 +25,19 @@ class ReportService extends BaseService {
     
     public function save($params, Context $ctx) {
         
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        
         $v = new Validator($params);
-        $v->rule('required', ['detail', 'type', 'user_id', 'reference_id']);
+        $v->rule('required', ['detail', 'type', 'reference_id']);
 
         if(!$v->validate()){
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
+        unset($params['user_id']); // remove old parameter
+        $params['user_id'] = $user['_id']->{'$id'};
         
         $this->getReportCollection()->insert($params);
         
