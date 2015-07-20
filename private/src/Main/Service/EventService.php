@@ -1505,7 +1505,7 @@ class EventService extends BaseService {
         }
         
         $events = $this->getCollection()
-                ->find($where, ['name','detail','date_start','date_end','user_id','check_in','note','time_note','time_stamp','time_edit'])
+                ->find($where, ['name','detail','date_start','date_end','user_id','check_in','note','time_note','time_stamp','time_edit','cateogries'])
                 ->sort(['date_end' => -1])
                 ->limit(15);
         
@@ -1534,11 +1534,16 @@ class EventService extends BaseService {
             $item['node'] = [ "share"=> URL::share('index.php?page=share&id='.$item['id']) ];
             
 //            $tag = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
-            $tag = $item['categories']['0'];
-            
-            $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag)]);
-            unset($category['_id']);
-            $item['category_name'] = $category;
+            if(count($item['cateogries']) > 0){
+                $tag = $item['cateogries']['0'];
+                $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag)]);
+                
+                unset($category['_id']);
+                $item['category_name'] = $category;
+            }else{
+                $item['category_name'] = '';
+            }
+            unset($item['categories']);
             
             if($item['user']['type'] == 'admin'){
                 $item['type'] = 'admin';
