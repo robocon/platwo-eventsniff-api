@@ -318,25 +318,26 @@ class EventService extends BaseService {
         $item['total_sniffer'] = count($item['sniffer']);
         $item['sniffer'] = [];
         
-        
         $item['sniffed'] = 'false';
         if ($item['total_sniffer'] > 0) {
             $user_lists = [];
             foreach($sniffers as $sniffer){
-                $sniffer['id'] = $sniffer['_id']->{'$id'};
-                unset($sniffer['_id']);
+//                $sniffer['id'] = $sniffer['_id']->{'$id'};
+//                unset($sniffer['_id']);
                 
-                if($sniffer['user_id'] == $user['id']){
+                if($sniffer == $user['id']){
                     $item['sniffed'] = 'true';
                 }
-                
+//                dump(gettype($sniffer));
+//                exit;
                 // Get user detail
-                $duser = $this->getUsersCollection()->findOne(array("_id" => MongoHelper::mongoId($sniffer['user_id'])),['_id','display_name','picture']);
-                $user_lists[] = [
-                    'id' => $duser['_id']->{'$id'},
-                    'name' => $duser['display_name'],
-                    'picture' => Image::load_picture($duser['picture'])
-                ];
+//                $duser = $this->getUsersCollection()->findOne(array("_id" => new \MongoId($sniffer)),['_id','display_name','picture']);
+//                $user_lists[] = [
+//                    'id' => $duser['_id']->{'$id'},
+//                    'name' => $duser['display_name'],
+//                    'picture' => Image::load_picture($duser['picture'])
+//                ];
+                $user_lists[] = EventHelper::get_owner($sniffer);
             }
             $item['sniffer'] = $user_lists;
         }

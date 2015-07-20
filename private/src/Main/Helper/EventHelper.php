@@ -146,7 +146,13 @@ class EventHelper {
         if($item !== null){
             $item['id'] = $id;
             unset($item['_id']);
-            $item['picture'] = Image::load_picture($item['picture']);
+            
+            if(isset($item['picture'])){
+                $item['picture'] = Image::load_picture($item['picture']);
+            }else{
+                $item['picture'] = Image::default_profile_picture();
+            }
+            
         }
            
         return $item;
