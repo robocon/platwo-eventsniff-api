@@ -99,6 +99,9 @@ class SniffService extends BaseService {
         // Filter to check user and event exist?
         $search = $this->filter_follow($params);
         
+        $db = DB::getDB();
+            $db->event->update(['_id' => new \MongoId($params['event_id'])],['$addToSet' => ['sniffer' => $params['user_id']] ]);
+            
         if ($search === null) {
             $insert = ArrayHelper::filterKey(['event_id', 'user_id'], $params);
             $this->getSnifferCollection()->insert($insert);
@@ -121,10 +124,13 @@ class SniffService extends BaseService {
         // Filter to check user and event exist?
         $search = $this->filter_follow($params);
         
+        $db = DB::getDB();
+        $db->event->update(['_id' => new \MongoId($params['event_id'])],['$pull' => ['sniffer' => $params['user_id']] ]);
+            
         if ($search !== null) {
             $delete = ArrayHelper::filterKey(['event_id', 'user_id'], $params);
             $this->getSnifferCollection()->remove($delete);
-        
+            
             return $delete;
         }else{
             return ResponseHelper::error("Can not find this user and event :(");
@@ -242,7 +248,7 @@ class SniffService extends BaseService {
                         ]
                     ]
                 ]
-            ],['name','date_start','date_end']);
+            ],['name','date_start','date_end','categories','sniffer']);
             
             if($event !== null){
                 
@@ -250,7 +256,9 @@ class SniffService extends BaseService {
                 unset($event['_id']);
                 
                 if ($category !== null) {
-                    $tags = $this->getEventTagCollection()->find(['event_id' => $event['id']]);
+//                    $tags = $this->getEventTagCollection()->find(['event_id' => $event['id']]);
+                    $tags = $event['categories'];
+                    unset($event['categories']);
                     
                     $search_tag = false;
                     foreach($tags as $tag){
@@ -266,7 +274,10 @@ class SniffService extends BaseService {
                 $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
                 $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
 
-                $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['event_id']])->count();
+//                $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['event_id']])->count();
+                $event['total_sniffer'] = count($event['sniffer']);
+                unset($event['sniffer']);
+                
                 $event['view'] = $this->getLogCollection()->find([
                     'type' => 'event',
                     'status' => 'view',

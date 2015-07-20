@@ -18,6 +18,8 @@ class EventHelper {
         $items = $db->gallery->find(['event_id' => $id],['picture','detail']);
         $pictures = [];
         foreach($items as $item){
+            $item['id'] = $item['_id']->{'$id'};
+            unset($item['_id']);
             $pic = Image::load_picture($item['picture']);
             $pic['detail'] = isset($item['detail']) ? $item['detail'] : '' ;
             $pictures[] = $pic;
@@ -34,11 +36,13 @@ class EventHelper {
      */
     public static function get_sniffers($id, $count = false){
         $db = DB::getDB();
-        $items = $db->sniffer->find(['event_id' => $id],['user_id'])->sort(['_id' => -1]);
-        $res['count'] = $items->count(true);
+//        $items = $db->sniffer->find(['event_id' => $id],['user_id'])->sort(['_id' => -1]);
+        $items = $db->event->find(['_id' => new \MongoId($id)],['sniffer']);
+//        $res['count'] = $items->count(true);
+        $res['count'] = count($items['sniffer']);
         
         $sniff_user = [];
-        foreach($items as $item){
+        foreach($items['sniffer'] as $item){
             $sniff_user[] = new \MongoId($item['user_id']);
         }
         

@@ -16,6 +16,6 @@ class URL {
     }
 
     public static function share($url){
-        return "http://share.eventsniff.com".$url;
+        return "http://eventsniff.com/".$url;
     }
 }

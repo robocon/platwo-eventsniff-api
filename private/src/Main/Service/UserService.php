@@ -587,27 +587,30 @@ HTML;
         $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
         $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
         
-        $items = $this->getSnifferCollection()->find([
-            'user_id' => $user_id,
-        ],['event_id']);
+//        $items = $this->getSnifferCollection()->find([
+//            'user_id' => $user_id,
+//        ],['event_id']);
         
-        $item_lists = [];
-        foreach ($items as $item) {
-            // dump($item);
-            $event = $this->getEventCollection()->findOne([
-                '_id' => new \MongoId($item['event_id']),
-                '$or' => [
-                    ['date_start' => ['$gte' => $current_day]],
-                    [
-                        '$and' => [
-                            ['date_start' => ['$lte' => $current_day]],
-                            ['date_end' => ['$gte' => $current_day]]
-                        ]
+        $items = $this->getEventCollection()->findOne([
+//            '_id' => new \MongoId($item['event_id']),
+            'sniffer' => $user_id,
+            '$or' => [
+                ['date_start' => ['$gte' => $current_day]],
+                [
+                    '$and' => [
+                        ['date_start' => ['$lte' => $current_day]],
+                        ['date_end' => ['$gte' => $current_day]]
                     ]
                 ]
-            ],['name','date_start','date_end','alarm']);
+            ]
+        ],['name','date_start','date_end','alarm','sniffer']);
+        
+        $item_lists = [];
+        foreach ($items as $event) {
+            // dump($item);
             
-            if ($event !== null) {
+            
+//            if ($event !== null) {
                 $event['id'] = $event['_id']->{'$id'};
                 unset($event['_id']);
 
@@ -617,7 +620,9 @@ HTML;
                 $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
                 $event['picture'] = Image::load($picture['picture'])->toArrayResponse();
 
-                $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $event['id']])->count();
+//                $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $event['id']])->count();
+                $event['total_sniffer'] = count($event['sniffer']);
+                unset($event['sniffer']);
                 
                 if($event['alarm'] != 0 && count($event['alarm']) > 0){
                     $test_alarm = false;
@@ -637,7 +642,7 @@ HTML;
                 }
                 
                 $item_lists[] = $event;
-            }
+//            }
         }
         
         // exit;
@@ -650,22 +655,25 @@ HTML;
         $current_time = strtotime($date->format('Y-m-d H:i:s'));
         $current_day = new \MongoDate($current_time);
         
-        $items = $this->getSnifferCollection()->find([
-            'user_id' => $user_id,
-        ],['event_id']);
+//        $items = $this->getSnifferCollection()->find([
+//            'user_id' => $user_id,
+//        ],['event_id']);
+        
+        $items = $this->getEventCollection()->findOne([
+            'approve' => 1,
+            'build' => 1,
+//            '_id' => new \MongoId($item['event_id']),
+            'sniffer' => $user_id,
+            'date_end' => ['$lt' => $current_day]
+        ],['name','date_start','date_end','sniffer']);
         
         $item_lists = [];
         if ($items->count() > 0) {
-            foreach($items as $item){
+            foreach($items as $event){
                 
-                $event = $this->getEventCollection()->findOne([
-                    'approve' => 1,
-                    'build' => 1,
-                    '_id' => new \MongoId($item['event_id']),
-                    'date_end' => ['$lt' => $current_day]
-                ],['name','date_start','date_end']);
                 
-                if ($event !== null) {
+                
+//                if ($event !== null) {
                     $event['id'] = $event['_id']->{'$id'};
                     unset($event['_id']);
 
@@ -675,10 +683,11 @@ HTML;
                     $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
                     $event['picture'] = Image::load($picture['picture'])->toArrayResponse();
 
-                    $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $event['id']])->count();
-
+//                    $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $event['id']])->count();
+                    $event['total_sniffer'] = $event['sniffer'];
+                    unset($event['sniffer']);
                     $item_lists[] = $event;
-                }
+//                }
             }
             
             $item_lists = array_reverse($item_lists);

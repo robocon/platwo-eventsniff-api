@@ -137,7 +137,7 @@ class EventService extends BaseService {
         $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
         $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
         
-        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end'])->sort(['date_start' => 1]);
+        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end','sniffer'])->sort(['date_start' => 1]);
         
         $group_one = [];
         $group_two =[];
@@ -155,7 +155,9 @@ class EventService extends BaseService {
             $picture = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
             $item['thumb'] = Image::load($picture['picture'])->toArrayResponse();
                 
-            $item['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['id']])->count();
+//            $item['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['id']])->count();
+            $item['total_sniffer'] = count($item['sniffer']);
+            unset($item['sniffer']);
             
             if ($item_start > $start_time && $item_start < $end_time) {
                 $group_one[] = $item;
@@ -242,7 +244,7 @@ class EventService extends BaseService {
         $user['id'] = (string) $user['_id']->{'$id'};
         
         $id = MongoHelper::mongoId($id);
-        $item = $this->getCollection()->findOne(['_id' => $id],['_id','name','detail','credit','alarm','date_end','date_start','time_edit','time_stamp','user_id','note','time_note']);
+        $item = $this->getCollection()->findOne(['_id' => $id],['_id','name','detail','credit','alarm','date_end','date_start','time_edit','time_stamp','user_id','note','time_note','sniffer']);
 
         $item['id'] = $item['_id']->{'$id'};
         unset($item['_id']);
@@ -286,29 +288,34 @@ class EventService extends BaseService {
         
         $item['pictures'] = [];
         if ($gallery->count(true)) {
-            $pictures = [];
+            $new_pictures = [];
             foreach ($gallery as $picture) {
                 
-                $set_url = Image::load($picture['picture'])->toArrayResponse();
-                
+                $picture['id'] = $picture['_id']->{'$id'};
+                unset($picture['_id']);
+
+                $picture['picture'] = Image::load_picture($picture['picture']);
                 $owner = EventHelper::get_owner($picture['user_id']);
-                $set_url['user'] = $owner;
-                if($owner === null){
-                    $set_url['user'] = '';
-                }
-                $set_url['detail'] = ( isset($picture['detail']) ) ? $picture['detail'] : '' ;
+                unset($picture['user_id']);
                 
-                $pictures[] = $set_url;
+                $picture['user'] = $owner;
+                if($owner === null){
+                    $picture['user'] = '';
+                }
+                $picture['detail'] = ( isset($picture['detail']) ) ? $picture['detail'] : '' ;
+                $new_pictures[] = $picture;
             }
-            $item['pictures'] = $pictures;
+            $item['pictures'] = $new_pictures;
         }
         
         // Get latest 20 sniffer
-        $sniffers = $this->getSnifferCollection()
-            ->find(['event_id' => $item['id']])
-            ->sort(['_id' => -1])
-            ->limit(20);
-        $item['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['id']],['_id','user_id'])->count();
+//        $sniffers = $this->getSnifferCollection()
+//            ->find(['event_id' => $item['id']])
+//            ->sort(['_id' => -1])
+//            ->limit(20);
+//        $item['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $item['id']],['_id','user_id'])->count();
+        $sniffers = $item['sniffer'];
+        $item['total_sniffer'] = count($item['sniffer']);
         $item['sniffer'] = [];
         
         
@@ -374,7 +381,7 @@ class EventService extends BaseService {
         unset($item['user_id']);
         
         // Get link share
-        $item['node'] = [ "share"=> URL::share('/event.php?id='.$item['id']) ];
+        $item['node'] = [ "share"=> URL::share('index.php?page=share&id='.$item['id']) ];
         
         unset($item['approve']);
         unset($item['build']);
@@ -493,6 +500,7 @@ class EventService extends BaseService {
         $set['country'] = $params['country'];
         $set['city'] = $params['city'];
 //        $set['alarm'] = [];
+        $set['categories'] = $params['tags'];
         
         $ev_test = $this->getCollection()->findOne(['_id'=> $id],['admin_post']);
         if($ev_test['admin_post'] == 'true'){
@@ -733,7 +741,7 @@ class EventService extends BaseService {
             $condition = array_merge_recursive($condition, $add_country);
         }
         
-        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end'])
+        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end','cateogries'])
                 ->sort(['date_start' => -1])
                 ->limit(15);
         $test_category_set = [];
@@ -775,8 +783,10 @@ class EventService extends BaseService {
             $event['sniffer'] = $sniff['users'];
             $event['total_sniffer'] = $sniff['count'];
             
-            $tag = $this->getEventTagCollection()->findOne(['event_id' => $event['id']]);
-            $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag['tag_id'])]);
+//            $tag = $this->getEventTagCollection()->findOne(['event_id' => $event['id']]);
+            $tag = $event['cateogries']['0'];
+            unset($event['cateogries']);
+            $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag)]);
             $event['category_id'] = $category['_id']->{'$id'};
             $cat_id = $event['category_id'];
             unset($category['_id']);
@@ -859,7 +869,7 @@ class EventService extends BaseService {
             ];
         }
         
-        $items = $this->getCollection()->find($condition,['name','detail','date_start','date_end'])->sort(['date_start' => 1])->limit($limit);
+        $items = $this->getCollection()->find($condition,['name','detail','date_start','date_end','categories','sniffer'])->sort(['date_start' => 1])->limit($limit);
 
         $res = [];
         foreach ($items as $item) {
@@ -873,11 +883,14 @@ class EventService extends BaseService {
             $thumb = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
             $item['thumb'] = Image::load($thumb['picture'])->toArrayResponse();
             
-            $ev_tag = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
-            $cat_name = $this->getTagCollection()->findOne(['_id' => new \MongoId($ev_tag['tag_id'])],['en']);
+//            $ev_tag = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
+            $ev_tag = $item['categories']['0'];
+            unset($item['categories']);
+            $cat_name = $this->getTagCollection()->findOne(['_id' => new \MongoId($ev_tag)],['en']);
             $item['category_name'] = $cat_name['en'];
             
-            $sniffers = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
+//            $sniffers = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
+            $sniffers = $item['sniffer'];
             $sniff_users = [];
             foreach($sniffers as $sniff){
                 $one_user = $this->getUsersCollection()->findOne(['_id' => new \MongoId($sniff['user_id'])],['display_name','picture']);
@@ -1027,44 +1040,35 @@ class EventService extends BaseService {
         
         $new_lists = [];
         
-        $event_tags = $this->getEventTagCollection()->find(['tag_id' => $category_id]);
-        foreach ($event_tags as $item) {
-            
-            $condition = [
-                'approve' => 1,
-                'build' => 1,
-                '_id' => new \MongoId($item['event_id']),
-                'date_start' => ['$gt' => $current_time]
-            ];
-            
-            if($params['country'] !== false && $params['city'] !== false){
-                $condition = [
-                    'approve' => 1,
-                    'build' => 1,
-                    'country' => $params['country'],
-                    'city' => $params['city'],
-                    '_id' => new \MongoId($item['event_id']),
-                    'date_start' => ['$gt' => $current_time]
-                ];
-            }
-            
-            $event = $this->getCollection()->findOne($condition,['name', 'date_start', 'date_end']);
-            
-            if ($event !== null) {
-                $event['id'] = $event['_id']->{'$id'};
-                unset($event['_id']);
+        $condition = [
+            'approve' => 1,
+            'build' => 1,
+            'date_start' => ['$gt' => $current_time],
+            'categories' => $category_id,
+        ];
+        
+        if($params['country'] !== false && $params['city'] !== false){
+            $condition['country'] = $params['country'];
+            $condition['city'] = $params['city'];
+        }
+        
+        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end','sniffer']);
+        foreach($events as $key => $event){
+            $event['id'] = $event['_id']->{'$id'};
+            unset($event['_id']);
 
-                $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
-                $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
+            $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+            $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
 
-                $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
-                $event['thumb'] = Image::load($picture['picture'])->toArrayResponse();
-                
-                $sniffer = $this->getSnifferCollection()->find(['event_id' => $event['id']]);
-                $event['total_sniffer'] = $sniffer->count(true);
+            $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
+            $event['thumb'] = Image::load($picture['picture'])->toArrayResponse();
+
+//            $sniffer = $this->getSnifferCollection()->find(['event_id' => $event['id']]);
+//            $event['total_sniffer'] = $sniffer->count(true);
+            $event['total_sniffer'] = count($event['sniffer']);
+            unset($event['sniffer']);
             
-                $new_lists[] = $event;
-            }
+            $new_lists[] = $event;
         }
         
         return $new_lists;
@@ -1094,7 +1098,7 @@ class EventService extends BaseService {
                     ]
                 ]
             ]
-        ],['name','date_start','date_end'])->sort(['date_start' => -1]);
+        ],['name','date_start','date_end','sniffer'])->sort(['date_start' => -1]);
         
         $item_lists = [];
         if ($items->count() > 0) {
@@ -1108,8 +1112,10 @@ class EventService extends BaseService {
                 $picture = $this->getGalleryCollection()->findOne(['event_id' => $item['id']],['picture']);
                 $item['thumb'] = Image::load($picture['picture'])->toArrayResponse();
                 
-                $sniffer = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
-                $item['total_sniffer'] = $sniffer->count(true);
+//                $sniffer = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
+//                $item['total_sniffer'] = $sniffer->count(true);
+                $item['total_sniffer'] = count($item['sniffer']);
+                unset($item['sniffer']);
                 
                 $item_lists[] = $item;
             }
@@ -1125,7 +1131,7 @@ class EventService extends BaseService {
             $items = $this->getCollection()->find([
                 'advertise.enable' => 1,
                 'advertise.cities' => $location['1']
-                ],['name','date_start','date_end','advertise']);
+                ],['name','date_start','date_end','advertise','sniffer']);
             $item_lists = [];
             foreach($items as $item){
                 $item['id'] = $item['_id']->{'$id'};
@@ -1143,9 +1149,11 @@ class EventService extends BaseService {
                     }
                 }
                 
-                $sniffer = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
-                $item['total_sniffer'] = $sniffer->count(true);
-            
+//                $sniffer = $this->getSnifferCollection()->find(['event_id' => $item['id']]);
+//                $item['total_sniffer'] = $sniffer->count(true);
+                $item['total_sniffer'] = count($item['sniffer']);
+                unset($item['sniffer']);
+                
                 $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
                 $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
                 $item['advertise']['time_start'] = MongoHelper::dateToYmd($item['advertise']['time_start']);
@@ -1212,7 +1220,7 @@ class EventService extends BaseService {
             $where['name'] = new \MongoRegex("/".str_replace(['"', "'", "\x22", "\x27"], '', $options['word'])."/i");
         }
         
-        $items = $this->getCollection()->find($where,['name','detail','credit','date_start','date_end','check_in','user_id'])
+        $items = $this->getCollection()->find($where,['name','detail','credit','date_start','date_end','check_in','user_id','sniffer'])
         ->limit($options['limit'])
         ->skip($skip)
         ->sort(['date_end' => -1]);
@@ -1237,20 +1245,22 @@ class EventService extends BaseService {
             
             $event['picture'] = EventHelper::get_gallery($event['id']);
             
-            $sniffers = $this->getSnifferCollection()->find(['event_id' => $event['id']])->sort(['_id' => -1]);
-            $event['total_sniffer'] = $sniffers->count(true);
+//            $sniffers = $this->getSnifferCollection()->find(['event_id' => $event['id']])->sort(['_id' => -1]);
+//            $event['total_sniffer'] = $sniffers->count(true);
+            $event['total_sniffer'] = count($event['sniffer']);
             
             $comments = $this->getCommentCollection()->find(['event_id' => $event['id']],['_id']);
             $event['total_comment'] = $comments->count(true);
             
-            $test_sniff = $this->getSnifferCollection()->findOne([
-                'event_id' => $event['id'],
-                'user_id' => $user['_id']->{'$id'}
-            ],['_id']);
+//            $test_sniff = $this->getSnifferCollection()->findOne([
+//                'event_id' => $event['id'],
+//                'user_id' => $user['_id']->{'$id'}
+//            ],['_id']);
             $event['sniffed'] = 'false';
-            if($test_sniff != null){
+            if(!in_array($user['_id']->{'$id'}, $event['sniffer'])){
                 $event['sniffed'] = 'true';
             }
+            unset($event['sniffer']);
             
             if(!isset($event['check_in'])){
                 $event['total_check_in'] = 0;
@@ -1264,7 +1274,7 @@ class EventService extends BaseService {
             $event['user'] = EventHelper::get_owner($event['user_id']);
             unset($event['user_id']);
             
-            $event['node'] = [ "share"=> URL::share('/event.php?id='.$event['id']) ];
+            $event['node'] = [ "share"=> URL::share('index.php?page=share&id='.$event['id']) ];
             
             $data[] = $event;
             $i++;
@@ -1316,7 +1326,8 @@ class EventService extends BaseService {
             'build' => 1,
             'approve' => 1,
             'date_end' => [ '$lt' => $now ],
-            'name' => $name_search
+            'name' => $name_search,
+            'categories' => $options['category_id']
         ];
         $items = $this->getCollection()->find($where,['name','detail','picture'])
         ->sort(['date_end' => -1])
@@ -1327,10 +1338,10 @@ class EventService extends BaseService {
             $value['id'] = $value['_id']->{'$id'};
             unset($value['_id']);
             
-            $find_category = $this->getEventTagCollection()->findOne(['tag_id' => $options['category_id'], 'event_id' => $value['id']]);
-            if($find_category === null){
-                continue;
-            }
+//            $find_category = $this->getEventTagCollection()->findOne(['tag_id' => $options['category_id'], 'event_id' => $value['id']]);
+//            if($find_category === null){
+//                continue;
+//            }
             
             $value['thumb'] = EventHelper::get_event_thumbnail($value['id']);
             $value['sniffed'] = EventHelper::check_sniffed($user['_id']->{'$id'}, $value['id']);
@@ -1344,7 +1355,8 @@ class EventService extends BaseService {
             'build' => 1,
             'approve' => 1,
             'date_start' => ['$gte' => $now],
-            'name' => $name_search
+            'name' => $name_search,
+            'categories' => $options['category_id']
         ];
         $items = $this->getCollection()->find($where,['name','detail','picture'])
         ->sort(['date_end' => -1])
@@ -1356,10 +1368,10 @@ class EventService extends BaseService {
             $value['id'] = $value['_id']->{'$id'};
             unset($value['_id']);
             
-            $find_category = $this->getEventTagCollection()->findOne(['tag_id' => $options['category_id'], 'event_id' => $value['id']]);
-            if($find_category === null){
-                continue;
-            }
+//            $find_category = $this->getEventTagCollection()->findOne(['tag_id' => $options['category_id'], 'event_id' => $value['id']]);
+//            if($find_category === null){
+//                continue;
+//            }
             
             $value['thumb'] = EventHelper::get_event_thumbnail($value['id']);
             $value['sniffed'] = EventHelper::check_sniffed($user['_id']->{'$id'}, $value['id']);
@@ -1468,7 +1480,7 @@ class EventService extends BaseService {
             $item['user'] = EventHelper::get_owner($item['user_id']);
             unset($item['user_id']);
             
-            $item['node'] = [ "share"=> URL::share('/event.php?id='.$item['id']) ];
+            $item['node'] = [ "share"=> URL::share('index.php?page=share&id='.$item['id']) ];
             
             $item['type'] = 'conclution';
             
@@ -1492,7 +1504,7 @@ class EventService extends BaseService {
         }
         
         $events = $this->getCollection()
-                ->find($where, ['name','detail','date_start','date_end','user_id','check_in','note','time_note'])
+                ->find($where, ['name','detail','date_start','date_end','user_id','check_in','note','time_note','time_stamp','time_edit'])
                 ->sort(['date_end' => -1])
                 ->limit(15);
         
@@ -1518,10 +1530,12 @@ class EventService extends BaseService {
             $item['user'] = EventHelper::get_owner($item['user_id']);
             unset($item['user_id']);
             
-            $item['node'] = [ "share"=> URL::share('/event.php?id='.$item['id']) ];
+            $item['node'] = [ "share"=> URL::share('index.php?page=share&id='.$item['id']) ];
             
-            $tag = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
-            $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag['tag_id'])]);
+//            $tag = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
+            $tag = $item['categories']['0'];
+            
+            $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag)]);
             unset($category['_id']);
             $item['category_name'] = $category;
             
@@ -1555,17 +1569,24 @@ class EventService extends BaseService {
                 $note = $item['note'];
                 $time_note = $item['time_note'];
             }
-            
+            $time_save = $item['time_stamp']->sec;
+            $time_edit = $item['time_edit']->sec;
+            unset($item['time_stamp']);
+            unset($item['time_edit']);
             unset($item['note']);
             unset($item['time_note']);
             
             $event_lists[] = $item;
             
-            if($note !== null && $item['sniffed'] == 'true'){
+            if($time_save != $time_edit){
                 unset($item['time_left']);
                 $item['type'] = 'edit';
-                $item['note'] = $note;
-                $item['time_note'] = $time_note;
+                
+                if($note !== null && $item['sniffed'] == 'true'){
+                    $item['note'] = $note;
+                    $item['time_note'] = $time_note;
+                }
+                
                 $event_lists[] = $item;
             }
         }

@@ -13,6 +13,7 @@ use Main\DataModel\Image;
 use Main\DB;
 use Main\Exception\Service\ServiceException;
 use Main\Helper\ResponseHelper;
+use Main\Helper\EventHelper;
 use Valitron\Validator;
 
 class GalleryService extends BaseService {
@@ -98,17 +99,25 @@ class GalleryService extends BaseService {
         
         $items = $this->getCollection()->find([
             'event_id' => $event_id
-        ]);
+        ],['user_id','picture','detail']);
         
         $item_lists = [];
         foreach ($items as $item) {
             $item['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
+            
+//            $item['picture'] = Image::load($item['picture'])->toArrayResponse();
+            $item['picture'] = Image::load_picture($item['picture']);
+            $item['detail'] = isset($item['detail']) ? $item['detail'] : '' ;
+            
+            $owner = EventHelper::get_owner($item['user_id']);
             unset($item['user_id']);
-            unset($item['event_id']);
-            
-            $item['picture'] = Image::load($item['picture'])->toArrayResponse();
-            
+
+            $item['user'] = $owner;
+            if($owner === null){
+                $item['user'] = '';
+            }
+                
             $item_lists[] = $item;
         }
         
