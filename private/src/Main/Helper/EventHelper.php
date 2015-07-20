@@ -37,13 +37,12 @@ class EventHelper {
     public static function get_sniffers($id, $count = false){
         $db = DB::getDB();
 //        $items = $db->sniffer->find(['event_id' => $id],['user_id'])->sort(['_id' => -1]);
-        $items = $db->event->find(['_id' => new \MongoId($id)],['sniffer']);
-//        $res['count'] = $items->count(true);
+        $items = $db->event->findOne(['_id' => new \MongoId($id)],['user_id','sniffer']);
         $res['count'] = count($items['sniffer']);
         
         $sniff_user = [];
         foreach($items['sniffer'] as $item){
-            $sniff_user[] = new \MongoId($item['user_id']);
+            $sniff_user[] = new \MongoId($item);
         }
         
         if($count === true){
