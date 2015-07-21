@@ -1520,10 +1520,15 @@ class EventService extends BaseService {
                 ->limit(15);
         
         $event_lists = [];
+        $user_id = $user['_id']->{'$id'};
         foreach($events as $item){
             
             $item['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
+            
+            if(!in_array($user_id, $item['categories'])){
+                continue;
+            }
             
             $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
             $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
