@@ -742,7 +742,7 @@ class EventService extends BaseService {
             $condition = array_merge_recursive($condition, $add_country);
         }
         
-        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end','cateogries'])
+        $events = $this->getCollection()->find($condition,['name', 'date_start', 'date_end','categories'])
                 ->sort(['date_start' => -1])
                 ->limit(15);
         $test_category_set = [];
@@ -785,8 +785,8 @@ class EventService extends BaseService {
             $event['total_sniffer'] = $sniff['count'];
             
 //            $tag = $this->getEventTagCollection()->findOne(['event_id' => $event['id']]);
-            $tag = $event['cateogries']['0'];
-            unset($event['cateogries']);
+            $tag = $event['categories']['0'];
+            unset($event['categories']);
             $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag)]);
             $event['category_id'] = $category['_id']->{'$id'};
             $cat_id = $event['category_id'];
@@ -894,7 +894,7 @@ class EventService extends BaseService {
             $sniffers = $item['sniffer'];
             $sniff_users = [];
             foreach($sniffers as $sniff){
-                $one_user = $this->getUsersCollection()->findOne(['_id' => new \MongoId($sniff['user_id'])],['display_name','picture']);
+                $one_user = $this->getUsersCollection()->findOne(['_id' => new \MongoId($sniff)],['display_name','picture']);
                 $one_user['id'] = $one_user['_id']->{'$id'};
                 $one_user['picture'] = Image::load_picture($one_user['picture']);
                 unset($one_user['_id']);
@@ -1505,7 +1505,7 @@ class EventService extends BaseService {
         }
         
         $events = $this->getCollection()
-                ->find($where, ['name','detail','date_start','date_end','user_id','check_in','note','time_note','time_stamp','time_edit','cateogries'])
+                ->find($where, ['name','detail','date_start','date_end','user_id','check_in','note','time_note','time_stamp','time_edit','categories'])
                 ->sort(['date_end' => -1])
                 ->limit(15);
         
@@ -1534,8 +1534,8 @@ class EventService extends BaseService {
             $item['node'] = [ "share"=> URL::share('index.php?page=share&id='.$item['id']) ];
             
 //            $tag = $this->getEventTagCollection()->findOne(['event_id' => $item['id']]);
-            if(count($item['cateogries']) > 0){
-                $tag = $item['cateogries']['0'];
+            if(count($item['categories']) > 0){
+                $tag = $item['categories']['0'];
                 $category = $this->getTagCollection()->findOne(['_id' => new \MongoId($tag)]);
                 
                 unset($category['_id']);
