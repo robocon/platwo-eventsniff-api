@@ -901,12 +901,13 @@ class EventService extends BaseService {
                 $sniff_users[] = $one_user;
             }
             $item['sniffer'] = $sniff_users;
-            $item['total_sniffer'] = $sniffers->count(true);
+            $item['total_sniffer'] = count($sniffers);
             
             // For random an item
 //            $item['rand'] = rand(100000, 199999);
             $res[] = $item;
         }
+        
         return $res;
     }
     
