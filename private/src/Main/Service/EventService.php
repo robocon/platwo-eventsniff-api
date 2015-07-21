@@ -244,7 +244,7 @@ class EventService extends BaseService {
         $user['id'] = (string) $user['_id']->{'$id'};
         
         $id = MongoHelper::mongoId($id);
-        $item = $this->getCollection()->findOne(['_id' => $id],['_id','name','detail','credit','alarm','date_end','date_start','time_edit','time_stamp','user_id','note','time_note','sniffer']);
+        $item = $this->getCollection()->findOne(['_id' => $id],['_id','name','detail','credit','alarm','date_end','date_start','time_edit','time_stamp','user_id','note','time_note','check_in','sniffer']);
 
         $item['id'] = $item['_id']->{'$id'};
         unset($item['_id']);
@@ -265,6 +265,15 @@ class EventService extends BaseService {
         
         if($set_alarm === false){
             $item['alarm'] = new \stdClass();
+        }
+        
+        // Check Check-In after upload photo
+        $item['event_checkin'] = 'false';
+        if(isset($item['check_in'])){
+            if(in_array($user['id'], $item['check_in'])){
+                $item['event_checkin'] = 'true';
+            }
+            unset($item['check_in']);
         }
         
         // Get location

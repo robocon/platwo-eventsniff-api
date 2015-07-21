@@ -3,7 +3,7 @@
 // Get test image and convert into base64
 $image = base64_encode(file_get_contents(dirname(dirname(__FILE__)).'/test.png'));
 $user_id = '5582a28110f0ed08048b4567';
-$event_id = '558e5626ef72597c048b456b';
+$event_id = '55aca58cf232e58c2c42266b';
 
 $I = new ApiTester($scenario);
 $I->wantTo('Add picture into event');
