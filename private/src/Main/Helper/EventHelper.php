@@ -149,7 +149,8 @@ class EventHelper {
             if(isset($item['picture'])){
                 $item['picture'] = Image::load_picture($item['picture']);
             }else{
-                $item['picture'] = Image::default_profile_picture();
+                $default = Image::default_profile_picture();
+                $item['picture'] = Image::load_picture($default);
             }
             
         }
