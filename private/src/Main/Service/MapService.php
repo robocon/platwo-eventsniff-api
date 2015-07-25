@@ -29,15 +29,15 @@ class MapService extends BaseService{
         $set_time = $date->getTimestamp();
         $now = new \MongoDate($set_time);
         
-        $category = null;
-        if (is_array($params['category'])) {
-            $category = $params['category'];
-        }
+//        $category = null;
+//        if (is_array($params['category'])) {
+//            $category = $params['category'];
+//        }
         
         $db = DB::getDB();
         list($lng, $lat) = explode(',', $params['location']);
         
-        $items = $db->event->find([
+        $where = [
             'build' => 1,
             'approve' => 1,
             '$and' => [
@@ -56,10 +56,16 @@ class MapService extends BaseService{
                     ]
                 ]]
             ]
-            
-        ],['name','date_start','picture','location'])->sort(['date_start' => 1]);
+        ];
+        
+        if (is_array($params['category'])) {
+            $where['categories'] = ['$in' => $params['category']];
+        }
+        
+        $items = $db->event->find($where,['name','date_start','picture','location','sniffer'])->sort(['date_start' => 1]);
         
         $event_lists = [];
+        $user_id = $user['_id']->{'$id'};
         foreach($items as $item){
             
             $item['id'] = $item['_id']->{'$id'};
@@ -75,17 +81,23 @@ class MapService extends BaseService{
             $location = $db->location->findOne(['event_id' => $item['id']],['position']);
             $item['location'] = $location['position'];
             
-            if($category !== null){
-                
-                $tag_count = $db->event_tag->find([
-                    'tag_id' => ['$in' => $category],
-                    'event_id' => $item['id']
-                ],['event_id'])->count();
-                
-                if($tag_count === 0){
-                    continue;
-                }
+//            if($category !== null){
+//                
+//                $tag_count = $db->event_tag->find([
+//                    'tag_id' => ['$in' => $category],
+//                    'event_id' => $item['id']
+//                ],['event_id'])->count();
+//                
+//                if($tag_count === 0){
+//                    continue;
+//                }
+//            }
+            $item['sniffed'] = 'false';
+            if(in_array($user_id, $item['sniffer'])){
+                $item['sniffed'] = 'true';
             }
+            unset($item['sniffer']);
+            
             $event_lists[] = $item;
         }
         
