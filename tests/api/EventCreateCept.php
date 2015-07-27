@@ -68,13 +68,14 @@ $I->seeResponseContainsJson([
 $test_time = time();
 //$test_date_start = date('Y-m-d H:i:s');
 //$test_date_end = date('Y-m-d H:i:s', strtotime('+2 week'));
-$test_date_start = date('Y-m-d H:i:s', strtotime('+1 week'));
-$test_date_end = date('Y-m-d H:i:s', strtotime('+2 week'));
-
+//$test_date_start = date('Y-m-d H:i:s', strtotime('+1 week'));
+//$test_date_end = date('Y-m-d H:i:s', strtotime('+2 week'));
+$test_date_start = date('Y-m-d H:i:s', strtotime('-2 week'));
+$test_date_end = date('Y-m-d H:i:s');
 $I->wantTo('Update an event data');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
 $put = [
-    'name' => 'ABBabcd test add name '.$test_time,
+    'name' => 'TEST -2 week until now '.$test_time,
     'detail' => 'test add detail '.$test_time,
     'date_start' => $test_date_start,
     'date_end' => $test_date_end,

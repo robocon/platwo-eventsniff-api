@@ -477,7 +477,9 @@ class EventService extends BaseService {
         $params['build'] = 0;
         $params['approve'] = 0;
         $params['time_stamp'] = new \MongoDate();
+        $params['time_edit'] = new \MongoDate();
         $params['alarm'] = [];
+        $params['sniffer'] = [];
         $params['advertise'] = [
             'status' => 0
         ];
@@ -505,7 +507,7 @@ class EventService extends BaseService {
         $set['date_start'] = new \MongoDate(strtotime($params['date_start']));
         $set['date_end'] = new \MongoDate(strtotime($params['date_end']));
         $set['credit'] = $params['credit'];
-        $set['time_edit'] = new \MongoDate(time());
+//        $set['time_edit'] = new \MongoDate(time());
         $set['build'] = 1;
         $set['country'] = $params['country'];
         $set['city'] = $params['city'];
@@ -1438,6 +1440,7 @@ class EventService extends BaseService {
         $conclution_start = new \MongoDate($current_timestamp);
         $conclution_end = new \MongoDate($pre_conclution_end);
         
+        $user_id = $user['_id']->{'$id'};
         
         // Find conclution
         $where = [
@@ -1447,6 +1450,7 @@ class EventService extends BaseService {
                 [ 'date_end' => [ '$lte' => $conclution_start ] ],
                 [ 'date_end' => [ '$gte' => $conclution_end ] ]
             ],
+            'sniffer' => $user_id
         ];
         
         if(isset($user['sniffing_around']) && !empty($user['sniffing_around'])){
@@ -1463,6 +1467,12 @@ class EventService extends BaseService {
             
             $item['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
+            
+//            $item['sniffed'] = EventHelper::check_sniffed($user['_id']->{'$id'}, $item['id']);
+//            $sniffed_event = boolval($item['sniffed']);
+//            if($sniffed_event == false){
+//                continue;
+//            }
             
             $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
             $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
@@ -1520,15 +1530,12 @@ class EventService extends BaseService {
                 ->limit(15);
         
         $event_lists = [];
-        $user_id = $user['_id']->{'$id'};
+        $categories_events = [];
+
         foreach($events as $item){
             
             $item['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
-            
-            if(!in_array($user_id, $item['categories'])){
-                continue;
-            }
             
             $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
             $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
@@ -1558,14 +1565,35 @@ class EventService extends BaseService {
             }else{
                 $item['category_name'] = '';
             }
-            unset($item['categories']);
             
-            if($item['user']['type'] == 'admin'){
-                $item['type'] = 'admin';
-            }else{
-                $item['type'] = 'suggest';
+            $check_cat = false;
+            foreach($item['categories'] as $key => $cat_id){
+                if(in_array($cat_id, $user['sniff_category'])){
+                    $check_cat = true;
+                }
+            }
+            unset($item['categories']);
+            $time_save = $item['time_stamp']->sec;
+            $time_edit = $item['time_edit']->sec;
+            
+            // Sniff category
+            if($check_cat === true){
+                
+                if($item['user']['type'] == 'admin'){
+                    $item['type'] = 'admin';
+                }else{
+                    $item['type'] = 'suggest';
+                }
+                unset($item['time_stamp']);
+                unset($item['time_edit']);
+                $categories_events[] = $item;
             }
             
+            if($item['sniffed'] == 'false'){
+                continue;
+            }
+            
+            // Active event
             $test_date_start = strtotime($item['date_start']);
             $test_date_end = strtotime($item['date_end']);
             if($test_date_start <= $time_stamp && $test_date_end >= $time_stamp){
@@ -1590,8 +1618,7 @@ class EventService extends BaseService {
                 $note = $item['note'];
                 $time_note = $item['time_note'];
             }
-            $time_save = $item['time_stamp']->sec;
-            $time_edit = $item['time_edit']->sec;
+            
             unset($item['time_stamp']);
             unset($item['time_edit']);
             unset($item['note']);
@@ -1612,11 +1639,12 @@ class EventService extends BaseService {
             }
         }
         
-        $final_feed = array_merge($conclution_lists, $event_lists);
+        $final_feed = array_merge($conclution_lists, $categories_events, $event_lists);
         $res = [
             'data' => $final_feed,
             'length' => count($final_feed),
         ];
+        
         return $res;
     }
 }

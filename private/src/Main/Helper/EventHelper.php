@@ -38,6 +38,11 @@ class EventHelper {
         $db = DB::getDB();
 //        $items = $db->sniffer->find(['event_id' => $id],['user_id'])->sort(['_id' => -1]);
         $items = $db->event->findOne(['_id' => new \MongoId($id)],['user_id','sniffer']);
+        
+        if(!isset($items['sniffer'])){
+            $items['sniffer'] = [];
+        }
+        
         $res['count'] = count($items['sniffer']);
         
         $sniff_user = [];
@@ -160,9 +165,9 @@ class EventHelper {
     
     public static function check_sniffed($user_id, $event_id){
         $db = DB::getDB();
-        $test_sniff = $db->sniffer->findOne([
-            'event_id' => $event_id,
-            'user_id' => $user_id
+        $test_sniff = $db->event->findOne([
+            '_id' => new \MongoId($event_id),
+            'sniffer' => $user_id
         ],['_id']);
         $check = 'false';
         if($test_sniff != null){
