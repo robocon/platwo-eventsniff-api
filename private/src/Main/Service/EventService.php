@@ -292,7 +292,7 @@ class EventService extends BaseService {
         // Get latest 5 pictures
         $gallery = $this->getGalleryCollection()
             ->find(['event_id' => $item['id']],['picture','detail','user_id'])
-            ->sort(['_id' => -1])
+            ->sort(['_id' => 1])
             ->limit(5);
         
         $item['pictures'] = [];
