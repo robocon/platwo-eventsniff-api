@@ -18,9 +18,9 @@ class EventHelper {
         $items = $db->gallery->find(['event_id' => $id],['picture','detail']);
         $pictures = [];
         foreach($items as $item){
-            $item['id'] = $item['_id']->{'$id'};
+            $pic['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
-            $pic = Image::load_picture($item['picture']);
+            $pic['picture'] = Image::load_picture($item['picture']);
             $pic['detail'] = isset($item['detail']) ? $item['detail'] : '' ;
             $pictures[] = $pic;
         }
