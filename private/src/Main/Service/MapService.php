@@ -43,7 +43,7 @@ class MapService extends BaseService{
             '$and' => [
                 ['location' => [
                     '$geoWithin' => [
-                        '$center' => [ [(float)$lng, (float)$lat], 20000]
+                        '$center' => [ [(float)$lng, (float)$lat], 10000]
                     ]
                 ]],
                 ['$or' => [
