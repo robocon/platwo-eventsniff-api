@@ -19,6 +19,7 @@ use Main\Context\Context,
     Main\Helper\URL,
     Main\Helper\UserHelper,
     Main\Http\RequestInfo,
+    Main\Helper\EventHelper,
     Valitron\Validator;
 
 class UserService extends BaseService {
@@ -588,7 +589,7 @@ HTML;
         $user_category = $user['sniff_category'];
         
         $date = new \DateTime();
-        $current_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_time = $date->getTimestamp();
         $current_day = new \MongoDate($current_time);
         
         $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
@@ -669,50 +670,58 @@ HTML;
         return $item_lists;
     }
     
-    public function past($user_id, Context $ctx) {
+    public function past( Context $ctx ) {
+        
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        $user_id = $user['_id']->{'$id'};
+        $user_category = $user['sniff_category'];
         
         $date = new \DateTime();
-        $current_time = strtotime($date->format('Y-m-d H:i:s'));
+        $current_time = $date->getTimestamp();
         $current_day = new \MongoDate($current_time);
         
-//        $items = $this->getSnifferCollection()->find([
-//            'user_id' => $user_id,
-//        ],['event_id']);
-        
-        $items = $this->getEventCollection()->findOne([
+        $items = $this->getEventCollection()->find([
             'approve' => 1,
             'build' => 1,
-//            '_id' => new \MongoId($item['event_id']),
-            'sniffer' => $user_id,
-            'date_end' => ['$lt' => $current_day]
-        ],['name','date_start','date_end','sniffer']);
+            'date_end' => ['$lt' => $current_day],
+            '$or' => [
+                ['categories' => ['$in' => $user_category] ],
+                ['sniffer' => $user_id]
+            ],
+        ],['name','date_start','date_end','sniffer','user_id','check_in'])->limit(10);
         
         $item_lists = [];
         if ($items->count() > 0) {
             foreach($items as $event){
                 
+                $event['id'] = $event['_id']->{'$id'};
+                unset($event['_id']);
                 
+                $event['owner'] = EventHelper::get_owner($event['user_id']);
+
+                $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+                $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
+
+                $event['pictures'] = EventHelper::get_gallery($event['id']);
+
+                $event['total_sniffer'] = count($event['sniffer']);
                 
-//                if ($event !== null) {
-                    $event['id'] = $event['_id']->{'$id'};
-                    unset($event['_id']);
-
-                    $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
-                    $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
-
-                    $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
-                    $event['picture'] = Image::load($picture['picture'])->toArrayResponse();
-
-//                    $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $event['id']])->count();
-                    $event['total_sniffer'] = $event['sniffer'];
-                    unset($event['sniffer']);
-                    $item_lists[] = $event;
-//                }
+                $comment = EventHelper::get_comments( $event['id'] );
+                $event['total_comment'] = $comment['count'];
+                
+                $event['total_checkin'] = 0;
+                if(isset($event['check_in'])){
+                    $event['total_checkin'] = count($event['check_in']);
+                }
+                
+                unset($event['sniffer']);
+                $item_lists[] = $event;
             }
-            
             $item_lists = array_reverse($item_lists);
         }
-        
         return $item_lists;
     }
     

@@ -298,11 +298,11 @@ class UserCTL extends BaseCTL {
     "length": 4
 }
      * @GET
-     * @uri /event/past/[h:user_id]
+     * @uri /event/past
      */
     public function past(){
         try {
-            $items['data'] = UserService::getInstance()->past($this->reqInfo->urlParam('user_id'), $this->getCtx());
+            $items['data'] = UserService::getInstance()->past( $this->getCtx() );
             $items['length'] = count($items['data']);
             return $items;
         } catch (ServiceException $e) {
