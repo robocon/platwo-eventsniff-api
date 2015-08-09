@@ -578,7 +578,14 @@ HTML;
         return array("success"=> true);
     }
     
-    public function event($user_id, Context $ctx) {
+    public function event( Context $ctx ) {
+        
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        $user_id = $user['_id']->{'$id'};
+        $user_category = $user['sniff_category'];
         
         $date = new \DateTime();
         $current_time = strtotime($date->format('Y-m-d H:i:s'));
@@ -591,9 +598,15 @@ HTML;
 //            'user_id' => $user_id,
 //        ],['event_id']);
         
-        $items = $this->getEventCollection()->findOne([
+        $items = $this->getEventCollection()->find([
 //            '_id' => new \MongoId($item['event_id']),
-            'sniffer' => $user_id,
+//            'sniffer' => $user_id,
+            
+            '$or' => [
+                ['categories' => ['$in' => $user_category] ],
+                ['sniffer' => $user_id]
+            ],
+            
             '$or' => [
                 ['date_start' => ['$gte' => $current_day]],
                 [
@@ -607,45 +620,52 @@ HTML;
         
         $item_lists = [];
         foreach ($items as $event) {
-            // dump($item);
-            
+//            dump($event);
+//            exit;
             
 //            if ($event !== null) {
-                $event['id'] = $event['_id']->{'$id'};
-                unset($event['_id']);
+            $event['id'] = $event['_id']->{'$id'};
+            unset($event['_id']);
 
-                $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
-                $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
-                
-                $picture = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
-                $event['picture'] = Image::load($picture['picture'])->toArrayResponse();
+            $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+            $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
 
-//                $event['total_sniffer'] = $this->getSnifferCollection()->find(['event_id' => $event['id']])->count();
-                $event['total_sniffer'] = count($event['sniffer']);
-                unset($event['sniffer']);
-                
-                if($event['alarm'] != 0 && count($event['alarm']) > 0){
-                    $test_alarm = false;
-                    foreach($event['alarm'] as $alarm){
-                        if($user_id == $alarm['user_id']){
-                            $event['alarm'] = $alarm;
-                            $test_alarm = true;
-                        }
+            $pic = $this->getGalleryCollection()->findOne(['event_id' => $event['id']],['picture']);
+            $pic['id'] = $pic['_id']->{'$id'};
+            unset($pic['_id']);
+            $pic['picture'] = Image::load_picture($pic['picture']);
+            $pic['detail'] = isset($pic['detail']) ? $pic['detail'] : '' ;
+            $event['thumb'] = $pic;
+            
+            $event['sniffed'] = 'false';
+            if(in_array($user_id, $event['sniffer']) ){
+                $event['sniffed'] = 'true';
+            }
+            
+            $event['total_sniffer'] = count($event['sniffer']);
+            unset($event['sniffer']);
+
+            if($event['alarm'] != 0 && count($event['alarm']) > 0){
+                $test_alarm = false;
+                foreach($event['alarm'] as $alarm){
+                    if($user_id == $alarm['user_id']){
+                        $event['alarm'] = $alarm;
+                        $test_alarm = true;
                     }
-                    
-                    if($test_alarm === false){
-                        $event['alarm'] =  new \stdClass();
-                    }
+                }
 
-                }else{
+                if($test_alarm === false){
                     $event['alarm'] =  new \stdClass();
                 }
-                
-                $item_lists[] = $event;
+
+            }else{
+                $event['alarm'] =  new \stdClass();
+            }
+
+            $item_lists[] = $event;
 //            }
         }
         
-        // exit;
         return $item_lists;
     }
     

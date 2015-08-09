@@ -258,11 +258,11 @@ class UserCTL extends BaseCTL {
     "length": 4
 }
      * @GET
-     * @uri /event/[h:user_id]
+     * @uri /event
      */
     public function event() {
         try {
-            $items['data'] = UserService::getInstance()->event($this->reqInfo->urlParam('user_id'), $this->getCtx());
+            $items['data'] = UserService::getInstance()->event( $this->getCtx() );
             $items['length'] = count($items['data']);
             
             return $items;
