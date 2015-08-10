@@ -37,7 +37,7 @@ class MapService extends BaseService{
         $db = DB::getDB();
         list($lng, $lat) = explode(',', $params['location']);
         
-        $max_distance = 10/111.12;
+        $max_distance = 10 / 6378.1;
         
         $where = [
             'build' => 1,
@@ -45,7 +45,7 @@ class MapService extends BaseService{
             '$and' => [
                 ['location' => [
                     '$geoWithin' => [
-                        '$center' => [ [(float)$lng, (float)$lat], $max_distance]
+                        '$centerSphere' => [ [(float)$lng, (float)$lat], $max_distance]
                     ]
                 ]],
                 ['$or' => [
@@ -113,17 +113,17 @@ db.event.find({"location":
     } 
 })
 
-### $near
-db.event.createIndex( { location : "2dsphere" } );
-db.event.find({
-    "location": {
-        "$near": {
-            "$geometry": { type: "Point",  coordinates: [ 98.98527145, 18.78842372 ] },
-            $minDistance: 100,
-            $maxDistance: 20000
-        }
-    }
-});
+### Calculate Distance Using Spherical Geometry
+### http://docs.mongodb.org/manual/tutorial/calculate-distances-using-spherical-geometry-with-2d-geospatial-indexes/
+db.event.find( { "location": 
+    { $geoWithin: 
+        { $centerSphere: [ 
+            [ 98.9733419,18.7977019 ] ,
+            10 / 6378.1 ] 
+        } 
+    } 
+},{"name":1, "location":1})
          */
+        
     }
 }
