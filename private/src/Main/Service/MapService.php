@@ -37,13 +37,15 @@ class MapService extends BaseService{
         $db = DB::getDB();
         list($lng, $lat) = explode(',', $params['location']);
         
+        $max_distance = 10/111.12;
+        
         $where = [
             'build' => 1,
             'approve' => 1,
             '$and' => [
                 ['location' => [
                     '$geoWithin' => [
-                        '$center' => [ [(float)$lng, (float)$lat], 10000]
+                        '$center' => [ [(float)$lng, (float)$lat], $max_distance]
                     ]
                 ]],
                 ['$or' => [

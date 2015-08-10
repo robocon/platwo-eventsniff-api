@@ -16,7 +16,7 @@ $I->sendPOST('map/minimap', [
 //    'radius' => 2000,
     
     // Test location with box
-    'location' => '98.987160,18.788342', // Lng, Lat
+    'location' => '98.9733419,18.7977019', // Lng, Lat
 ]);
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
