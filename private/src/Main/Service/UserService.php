@@ -726,56 +726,68 @@ HTML;
     }
     
 //    public $prev = null;
-    public function pictures($user_id, Context $ctx) {
+    public function pictures( Context $ctx ) {
         
-        $date = new \DateTime();
-        $current_time = strtotime($date->format('Y-m-d H:i:s'));
-        $current_day = new \MongoDate($current_time);
-        
-        $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
-        $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
-                
-//        $ops = [
-//            ['$match' => [
-//                'user_id' => '54ba29c210f0edb8048b457a'
-//            ]],
-//            ['$group' => [
-//                '_id' => ['id' => '$event_id']
-//            ]]
-//        ];
-//        $g = $this->getGalleryCollection()->aggregate($ops);
-//        dump($g['result']);
-        
-        $items = $this->getGalleryCollection()->find([
-            'user_id' => $user_id
-        ])->sort(['event_id' => -1]);
-        
-        $item_lists = [];
-        foreach($items as $item){
-            $item['picture'] = Image::load($item['picture'])->toArrayResponse();
-            $item_lists[$item['event_id']][] = $item['picture'];
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
         }
+        $user_id = $user['_id']->{'$id'};
         
+//        $date = new \DateTime();
+//        $current_time = $date->getTimestamp();
+//        $current_day = new \MongoDate($current_time);
+//        
+//        $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
+//        $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
+        
+        $items = $this->getEventCollection()->find([
+            'approve' => 1,
+            'build' => 1,
+            'check_in' => $user_id
+        ],['name','date_start','date_end','user_id'])
+        ->sort(['date_start' => -1])
+        ->limit(10);
+        
+        $db = DB::getDB();
         $item_pictures = [];
-        foreach ($item_lists as $item => $value) {
+        foreach ($items as $key => $item) {
             
-            $event = $this->getEventCollection()->findOne([
-                'approve' => 1,
-                'build' => 1,
-                '_id' => new \MongoId($item)
-                ],['name','date_start','date_end']);
+            $item['id'] = $item['_id']->{'$id'};
+            unset($item['_id']);
             
-            if($event !== null){
-                $event['id'] = $event['_id']->{'$id'};
-                unset($event['_id']);
+            $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
+            $item['date_end'] = MongoHelper::dateToYmd($item['date_end']);
+            $pictures = $db->gallery->find([
+                'event_id' => $item['id'], 
+                'user_id' => $user_id 
+                ],['picture','user_id','detail']);
+            
+            $picture_lists = [];
+            $pic_count = 0;
+            foreach($pictures as $pic){
+
+                $pic['id'] = $pic['_id']->{'$id'};
+                unset($pic['_id']);
+                $pic['picture'] = Image::load_picture($pic['picture']);
+                $pic['detail'] = isset($item['detail']) ? $item['detail'] : '' ;
                 
-                $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
-                $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
-                $event['picture_count'] = count($value);
-                $event['pictures'] = $value;
+                $pic_user = $db->users->findOne(['_id' => new \MongoId($pic['user_id']) ],['display_name']);
+                $pic_user['id'] = $pic_user['_id']->{'$id'};
+                unset($pic_user['_id']);
+                $pic['user'] = $pic_user;
+                unset($pic['user_id']);
                 
-                $item_pictures[] = $event;
+                $picture_lists[] = $pic;
+                $pic_count++;
             }
+            $item['pictures'] = $picture_lists;
+            $item['total_picture'] = $pic_count;
+            
+            $item['owner'] = EventHelper::get_owner($item['user_id']);
+            unset($item['user_id']);
+            
+            $item_pictures[] = $item;
         }
         
         return $item_pictures;

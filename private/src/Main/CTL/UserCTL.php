@@ -340,11 +340,11 @@ class UserCTL extends BaseCTL {
     "length": 2
 }
      * @GET
-     * @uri /event/pictures/[h:user_id]
+     * @uri /event/pictures
      */
     public function pictures() {
         try {
-            $items['data'] = UserService::getInstance()->pictures($this->reqInfo->urlParam('user_id'), $this->getCtx());
+            $items['data'] = UserService::getInstance()->pictures( $this->getCtx() );
             $items['length'] = count($items['data']);
             return $items;
         } catch (ServiceException $e) {
