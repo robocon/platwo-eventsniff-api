@@ -585,15 +585,25 @@ HTML;
         if(!$user){
             throw new ServiceException(ResponseHelper::error('Invalid token'));
         }
+        
+        $read_user = isset($_GET['user_id']) ? trim($_GET['user_id']) : false ;
+        if( $read_user !== false ){
+            $db = DB::getDB();
+            $user = $db->users->findOne([ '_id' => new \MongoId($read_user) ]);
+            if( $user === null ){
+                throw new ServiceException(ResponseHelper::error('Invalid user'));
+            }
+        }
+        
         $user_id = $user['_id']->{'$id'};
-        $user_category = $user['sniff_category'];
+        $user_category = isset($user['sniff_category']) ? $user['sniff_category'] : [] ;
         
         $date = new \DateTime();
         $current_time = $date->getTimestamp();
         $current_day = new \MongoDate($current_time);
         
-        $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
-        $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
+//        $start_time = strtotime($date->format('Y-m-d').' 00:00:00');
+//        $end_time = strtotime($date->format('Y-m-d').' 23:59:59');
         
 //        $items = $this->getSnifferCollection()->find([
 //            'user_id' => $user_id,
@@ -602,20 +612,20 @@ HTML;
         $items = $this->getEventCollection()->find([
 //            '_id' => new \MongoId($item['event_id']),
 //            'sniffer' => $user_id,
-            
-            '$or' => [
-                ['categories' => ['$in' => $user_category] ],
-                ['sniffer' => $user_id]
-            ],
-            
-            '$or' => [
-                ['date_start' => ['$gte' => $current_day]],
-                [
-                    '$and' => [
-                        ['date_start' => ['$lte' => $current_day]],
-                        ['date_end' => ['$gte' => $current_day]]
+            '$and' => [
+                ['$or' => [
+                    ['categories' => ['$in' => $user_category] ],
+                    ['sniffer' => $user_id]
+                ]],
+                ['$or' => [
+                    ['date_start' => ['$gte' => $current_day]],
+                    [
+                        '$and' => [
+                            ['date_start' => ['$lte' => $current_day]],
+                            ['date_end' => ['$gte' => $current_day]]
+                        ]
                     ]
-                ]
+                ]]
             ]
         ],['name','date_start','date_end','alarm','sniffer']);
         
