@@ -686,8 +686,18 @@ HTML;
         if(!$user){
             throw new ServiceException(ResponseHelper::error('Invalid token'));
         }
+        
+        $read_user = isset($_GET['user_id']) ? trim($_GET['user_id']) : false ;
+        if( $read_user !== false ){
+            $db = DB::getDB();
+            $user = $db->users->findOne([ '_id' => new \MongoId($read_user) ]);
+            if( $user === null ){
+                throw new ServiceException(ResponseHelper::error('Invalid user'));
+            }
+        }
+        
         $user_id = $user['_id']->{'$id'};
-        $user_category = $user['sniff_category'];
+        $user_category = isset($user['sniff_category']) ? $user['sniff_category'] : [] ;
         
         $date = new \DateTime();
         $current_time = $date->getTimestamp();
@@ -696,11 +706,14 @@ HTML;
         $items = $this->getEventCollection()->find([
             'approve' => 1,
             'build' => 1,
-            'date_end' => ['$lt' => $current_day],
-            '$or' => [
-                ['categories' => ['$in' => $user_category] ],
-                ['sniffer' => $user_id]
+            '$and' => [
+                ['date_end' => ['$lt' => $current_day]],
+                ['$or' => [
+                    ['categories' => ['$in' => $user_category] ],
+                    ['sniffer' => $user_id]
+                ]]
             ],
+            
         ],['name','date_start','date_end','sniffer','user_id','check_in'])->limit(10);
         
         $item_lists = [];
@@ -728,6 +741,9 @@ HTML;
                 }
                 
                 unset($event['sniffer']);
+                
+                $event['node'] = [ "share"=> URL::share('index.php?page=share&id='.$event['id']) ];
+                
                 $item_lists[] = $event;
             }
             $item_lists = array_reverse($item_lists);
