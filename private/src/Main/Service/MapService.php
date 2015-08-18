@@ -64,7 +64,7 @@ class MapService extends BaseService{
             $where['categories'] = ['$in' => $params['category']];
         }
         
-        $items = $db->event->find($where,['name','date_start','picture','location','sniffer'])->sort(['date_start' => 1]);
+        $items = $db->event->find($where,['name','date_start','date_end','picture','location','sniffer','categories'])->sort(['date_start' => 1]);
         
         $event_lists = [];
         $user_id = $user['_id']->{'$id'};
@@ -72,7 +72,17 @@ class MapService extends BaseService{
             
             $item['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
-
+            
+            // Default active to false
+            $item['active'] = false;
+            $test_date_end = $item['date_end']->sec;
+            $test_date_start = $item['date_start']->sec;
+            if ( $test_date_start <= $set_time && $test_date_end >= $set_time ) {
+                $item['active'] = true;
+            }
+            
+            unset($item['date_end']);
+            
             $item['date_start'] = MongoHelper::dateToYmd($item['date_start']);
             
             $picture = $db->gallery->findOne(['event_id' => $item['id']],['picture']);
