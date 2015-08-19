@@ -165,22 +165,22 @@ class UserService extends BaseService {
     
     public function noneuser($params, Context $ctx) {
         
-        $device_token = isset($params['ios_device_token']) ? $params['ios_device_token']['key'] : ( isset($params['android_token']) ? $params['android_token'] : null ) ; 
+//        $device_token = isset($params['ios_device_token']) ? $params['ios_device_token']['key'] : ( isset($params['android_token']) ? $params['android_token'] : null ) ; 
+//        
+//        if($device_token === null){
+//            throw new ServiceException(ResponseHelper::error('Required device token'));
+//        }
         
-        if($device_token === null){
-            throw new ServiceException(ResponseHelper::error('Required device token'));
-        }
-        
-        $user = $this->getCollection()->findOne([
-            '$or' => [
-                ['ios_device_token.key' => $device_token],
-                ['android_token' => $device_token]
-            ]
-        ]);
+//        $user = $this->getCollection()->findOne([
+//            '$or' => [
+//                ['ios_device_token.key' => $device_token],
+//                ['android_token' => $device_token]
+//            ]
+//        ]);
         
         $now = new \MongoDate();
         
-        if($user === null){
+//        if($user === null){
             
             $user_private_key = UserHelper::generate_key();
             
@@ -215,20 +215,20 @@ class UserService extends BaseService {
                 'access_token' => $data['access_token'],
                 'type' => $data['type'],
             ];
-        }else{
+//        }else{
             
-            $data = [
-                'access_token' => UserHelper::generate_token($user['_id']->{'$id'}, $user['private_key']),
-                'last_login' => $now,
-            ];
-            
-            $this->getCollection()->update(['_id' => $user['_id']], ['$set' => $data]);
-            $res = [
-                'user_id' => $user['_id']->{'$id'},
-                'access_token' => $user['access_token'],
-                'type' => $user['type'],
-            ];
-        }
+//            $data = [
+//                'access_token' => UserHelper::generate_token($user['_id']->{'$id'}, $user['private_key']),
+//                'last_login' => $now,
+//            ];
+//            
+//            $this->getCollection()->update(['_id' => $user['_id']], ['$set' => $data]);
+//            $res = [
+//                'user_id' => $user['_id']->{'$id'},
+//                'access_token' => $user['access_token'],
+//                'type' => $user['type'],
+//            ];
+//        }
         
         return $res;
     }
