@@ -310,4 +310,55 @@ class CategoryService extends BaseService {
         
         
     }
+    
+    public function now($category_id, Context $ctx) {
+        
+        $user = $ctx->getUser();
+        if(!$user){
+            throw new ServiceException(ResponseHelper::error('Invalid token'));
+        }
+        $user_id = $user['_id']->{'$id'};
+        
+        $date = new \DateTime();
+        $current_day = new \MongoDate($date->getTimestamp());
+        
+        $condition = [
+            'approve' => 1,
+            'build' => 1,
+            '$and' => [
+                ['date_start' => ['$lte' => $current_day]],
+                ['date_end' => ['$gte' => $current_day]]
+            ]
+        ];
+        $db = $this->connect();
+        $events = $db->event->find($condition,['name', 'date_start', 'date_end','categories','sniffer'])
+                    ->sort(['date_start' => -1]);
+        
+        $event_lists = [];
+        foreach ($events as $key => $event) {
+            $event['id'] = $event['_id']->{'$id'};
+            unset($event['_id']);
+            
+            $event['date_start'] = MongoHelper::dateToYmd($event['date_start']);
+            $event['date_end'] = MongoHelper::dateToYmd($event['date_end']);
+            
+            $event['thumb'] = EventHelper::get_event_thumbnail($event['id']);
+//            dump($event);
+            
+            $sniffer = EventHelper::get_sniffers($event['id']);
+            $event['total_sniffer'] = $sniffer['count'];
+            
+            $event['sniffed'] = 'false';
+            if(in_array($user_id, $event['sniffer'])){
+                $event['sniffed'] = 'true';
+            }
+            unset($event['sniffer']);
+//            dump($event);
+            
+            $event_lists[] = $event;
+        }
+//        exit;
+        $res = ['data' => $event_lists, 'length' => count($event_lists)];
+        return $res;
+    }
 }

@@ -65,4 +65,17 @@ class CategoryCTL extends BaseCTL{
             return $e->getResponse();
         }
     }
+    
+    /**
+     * @GET
+     * @uri /now/[h:category_id]
+     */
+    public function now() {
+        try {
+            $item = CategoryService::getInstance()->now($this->reqInfo->param('category_id'), $this->getCtx());
+            return $item;
+        } catch (ServiceException $e) {
+            return $e->getResponse();
+        }
+    }
 }
