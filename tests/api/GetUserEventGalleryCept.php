@@ -1,8 +1,8 @@
 <?php 
 $I = new ApiTester($scenario);
 $I->wantTo('Show event and picture for user');
-$I->setHeader('access-token', '45dca74e9c85731e846d0ec5527c876af8ec6a63492b8d5fdf559e71537b8925');
-$I->sendGET('user/event/pictures');
+$I->setHeader('access-token', 'ae3cceee925199efb7c98fc50e8285ff88d5a0506156533362ed288b35c5d373');
+$I->sendGET('user/event/pictures?user_id=54d9bc4dda354d757b8b4569');
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
 $data = $I->grabDataFromJsonResponse('data');

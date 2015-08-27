@@ -758,8 +758,18 @@ HTML;
         if(!$user){
             throw new ServiceException(ResponseHelper::error('Invalid token'));
         }
-        $user_id = $user['_id']->{'$id'};
         
+        $read_user = isset($_GET['user_id']) ? trim($_GET['user_id']) : false ;
+        if( $read_user !== false ){
+            $db = DB::getDB();
+            $user = $db->users->findOne([ '_id' => new \MongoId($read_user) ]);
+            if( $user === null ){
+                throw new ServiceException(ResponseHelper::error('Invalid user'));
+            }
+        }
+        
+        $user_id = $user['_id']->{'$id'};
+
 //        $date = new \DateTime();
 //        $current_time = $date->getTimestamp();
 //        $current_day = new \MongoDate($current_time);
