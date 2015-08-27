@@ -37,8 +37,17 @@ class CityService extends BaseService {
         $date = new \DateTime();
         $current_time = new \MongoDate($date->getTimestamp());
         
+        $sort = isset($_GET['sort']) ? trim($_GET['sort']) : false ;
+        
         $data = [];
-        $items = $db->cities->find(array("country_id"=> $country_id));
+        
+        // Default sort by en
+        $sort_by = 'name.en';
+        if( $sort !== false ){
+            $sort_by = 'name.'.$sort;
+        }
+        
+        $items = $db->cities->find(array("country_id"=> $country_id))->sort([$sort_by => 1]);
         foreach($items as $item){
             
             $count = $db->event->find([

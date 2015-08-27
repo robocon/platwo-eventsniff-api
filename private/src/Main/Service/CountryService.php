@@ -32,8 +32,17 @@ class CountryService extends BaseService {
         $date = new \DateTime();
         $current_time = new \MongoDate($date->getTimestamp());
         
+        $sort = isset($_GET['sort']) ? trim($_GET['sort']) : false ;
+        
         $data = [];
-        $items = $db->countries->find();
+        
+        // Default sort by en
+        $sort_by = 'name.en';
+        if( $sort !== false ){
+            $sort_by = 'name.'.$sort;
+        }
+        
+        $items = $db->countries->find()->sort([$sort_by => 1]);
         foreach($items as $item){
             
             $count = $db->event->find([
