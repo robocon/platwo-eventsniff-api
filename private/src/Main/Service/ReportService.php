@@ -13,20 +13,25 @@ use Main\Context\Context,
     Main\Exception\Service\ServiceException,
     Main\Helper\MongoHelper,
     Main\Helper\ResponseHelper,
+    Main\Helper\NotifyHelper,
     Valitron\Validator;
 
 
 class ReportService extends BaseService {
     
-    public function getReportCollection(){
-        $db = DB::getDB();
-        return $db->report;
+    private $db = null;
+    public function getDB(){
+        
+        if( $this->db === null ){
+            $this->db = DB::getDB();
+        }
+        return $this->db;
     }
     
     public function save($params, Context $ctx) {
         
-        $user = $ctx->getUser();
-        if(!$user){
+        $check_user = $ctx->getUser();
+        if(!$check_user){
             throw new ServiceException(ResponseHelper::error('Invalid token'));
         }
         
@@ -36,12 +41,30 @@ class ReportService extends BaseService {
         if(!$v->validate()){
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
-        unset($params['user_id']); // remove old parameter
-        $params['user_id'] = $user['_id']->{'$id'};
         
-        $this->getReportCollection()->insert($params);
-        
+        $db = $this->getDB();
+        $db->report->insert($params);
         $params['id'] = $params['_id']->{'$id'};
+        $user = $db->users->findOne(['_id' => new \MongoId($params['user_id'])]);
+        
+        // SEND NOTIFICATION
+        $entity = NotifyHelper::create($params['reference_id'], $params['type'], "ข้อความจากระบบ", $params['detail'], $user['_id']);
+        NotifyHelper::incBadge($user['_id']->{'$id'});
+        $user['display_notification_number']++;
+
+        $args = [
+            'id'=> MongoHelper::standardId($entity['_id']),
+            'object_id'=> MongoHelper::standardId($params['_id']),
+            'type'=> "event_approve"
+        ];
+
+        if(!$user['setting']['notify_message']){
+            ResponseHelper::error('Notification message not enable');
+        }
+
+        NotifyHelper::send($user, $entity['preview_content'], $args);
+        // END SEND NOTIFICATION
+        
         unset($params['_id']);
         
         return $params;

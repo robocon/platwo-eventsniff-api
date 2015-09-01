@@ -1,11 +1,11 @@
 <?php 
-$user_id = '54ba29c210f0edb8048b457a';
-$event_id = '54cb466710f0ed24048b4567';
+$user_id = '54d9bc4dda354d757b8b4569';
+$event_id = '55ded638f232e512693dcea7';
 
 $I = new ApiTester($scenario);
 $I->wantTo('Add Report');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-$I->setHeader('access-token', '54045a1c5e4acd555ed07c0a0cdc497a2099ef5ef347331144e5450b491fe74d');
+$I->setHeader('access-token', 'f1501fa3347169a033b2240c5466a8af4c69e6c37f23eb15304de6b8649512cd');
 $I->sendPOST('report', [
     'detail' => 'Testing message detail '.time(),
     'type' => 'event',

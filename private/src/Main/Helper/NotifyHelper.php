@@ -79,10 +79,16 @@ class NotifyHelper {
         if(isset($user['ios_device_token'])){
             foreach($user['ios_device_token'] as $token){
                 try {
-                    if($token['type'] == "dev"){
+                    
+                    $token_type = isset($token['type']) ? $token['type'] : false ;
+                    if( $token_type === false ){
+                        continue;
+                    }
+                    
+                    if($token_type == "dev"){
                         self::getApnHelperDev()->send($token['key'], $pushMessage, $args, $user['display_notification_number']);
                     }
-                    else if($token['type'] == "product"){
+                    else if($token_type == "product"){
                         self::getApnHelperProduct()->send($token['key'], $pushMessage, $args, $user['display_notification_number']);
                     }
                 }
