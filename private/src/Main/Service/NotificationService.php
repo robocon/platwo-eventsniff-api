@@ -7,7 +7,9 @@ use Main\Context\Context,
     Main\Exception\Service\ServiceException,
     Main\Helper\MongoHelper,
     Main\Helper\ResponseHelper,
-    Main\Helper\NotifyHelper;
+    Main\Helper\NotifyHelper,
+    Main\Helper\EventHelper,
+    Main\DataModel\Image;
 
 class NotificationService extends BaseService {
     
@@ -62,13 +64,19 @@ class NotificationService extends BaseService {
         ]);
         foreach ($items as $key => $item) {
             $set_key = $item['created_at']->{'sec'};
+            $type = $item['object']['type'];
+            
+            $thumb = '';
+            if( $type == 'edit' OR $type == 'approve' ){
+                $thumb = EventHelper::get_event_thumbnail($item['object']['id']->{'$id'});
+            }
             $pre_item = [
                 'id' => $item['_id']->{'$id'},
                 'title' => (isset($item['preview_header'])) ? $item['preview_header'] : '' ,
                 'detail' => (isset($item['preview_content'])) ? $item['preview_content'] : '' ,
                 'date' => date('Y-m-d H:i:s', $item['created_at']->{'sec'}),
-                'thumb' => '',
-                'type' => $item['object']['type']
+                'thumb' => $thumb,
+                'type' => $type
             ];
             $noti_items[$set_key] = $pre_item;
             
@@ -101,13 +109,16 @@ class NotificationService extends BaseService {
         
         $report_items = [];
         foreach ($items as $key => $item) {
-
+            
+            $thumb = $db->users->findOne(['_id' => $item['user_id']],['picture']);
+            $thumb['picture'] = Image::load_picture($thumb['picture']);
+            
             $pre_item = [
                 'id' => $item['_id']->{'$id'},
                 'title' => (isset($item['preview_header'])) ? $item['preview_header'] : '' ,
                 'detail' => (isset($item['preview_content'])) ? $item['preview_content'] : '' ,
                 'date' => date('Y-m-d H:i:s', $item['created_at']->{'sec'}),
-                'thumb' => '',
+                'thumb' => $thumb['picture'],
                 'type' => $item['object']['type']
             ];
             $report_items[] = $pre_item;

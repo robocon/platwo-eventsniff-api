@@ -150,13 +150,11 @@ class NotifyHelper {
             $entity['event_id'] = $event_id;
         }
         
-        if( $type == 'event' OR $type == 'alarm' ){
-            $event = $db->event->findOne(['_id' => $object_id],['user_id']);
-            $entity['owner'] = $event['user_id'];
-        }
-        
         if( $type == 'picture' ){
             $event = $db->gallery->findOne(['_id' => $object_id],['user_id']);
+            $entity['owner'] = $event['user_id'];
+        }else{
+            $event = $db->event->findOne(['_id' => $object_id],['user_id']);
             $entity['owner'] = $event['user_id'];
         }
 
