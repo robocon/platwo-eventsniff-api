@@ -40,6 +40,10 @@ class NotificationService extends BaseService {
         ])->sort(['created_at' => -1])->limit(1);
         
         $noti_items = [];
+        /**
+         * README: Type 'report' has only in this query
+         * because I need to tell mobile app to check and replace thumbnail by themself
+         */
         foreach ($last_report as $key => $item) {
 
             $set_key =$item['created_at']->{'sec'};
@@ -49,7 +53,7 @@ class NotificationService extends BaseService {
                 'detail' => (isset($item['preview_content'])) ? $item['preview_content'] : '' ,
                 'date' => date('Y-m-d H:i:s', $item['created_at']->{'sec'}),
                 'thumb' => '',
-                'type' => $item['object']['type']
+                'type' => 'report'
             ];
             $noti_items[$set_key] = $pre_item;
         }
