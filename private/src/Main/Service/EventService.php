@@ -606,18 +606,18 @@ class EventService extends BaseService {
         $insert = ArrayHelper::filterKey(['message'], [ 'message' => $message ]);
         MongoHelper::setCreatedAt($insert);
 
-        DB::getDB()->messages->insert($insert);
+//        DB::getDB()->messages->insert($insert);
         
 //        $user_id = new \MongoId($item['user_id']);
 //        $user = $this->getUsersCollection()->findOne(['_id' => $user_id]);
 
-        $entity = NotifyHelper::create($insert['_id'], "alarm", "ข้อความจากระบบ", $message, $user['_id']->{'$id'}, $item['_id']);
+        $entity = NotifyHelper::create($item['_id'], "alarm", "ข้อความจากระบบ", $message, $user['_id']->{'$id'});
         NotifyHelper::incBadge($user['_id']->{'$id'});
         $user['display_notification_number']++;
 
         $args = [
             'id'=> MongoHelper::standardId($entity['_id']),
-            'object_id'=> MongoHelper::standardId($insert['_id']),
+            'object_id'=> MongoHelper::standardId($item['_id']),
             'type'=> "alarm"
         ];
 

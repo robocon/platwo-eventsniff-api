@@ -30,16 +30,16 @@ class WebadminService extends BaseService {
         }
         
         $user = $db->users->findOne(['_id' => new \MongoId($item['user_id'])]);
-        $msg = 'กิจกรรม "'.$item['name'].'" ได้รับการอนุมัติแล้ว';
+        $msg = 'Event Sniff Approved your Suggest Event '.$item['name'];
         
-        $entity = NotifyHelper::create($item['_id'], "event_approve", "ข้อความจากระบบ", $msg, $user['_id']);
+        $entity = NotifyHelper::create($item['_id'], "admin_approve", "ข้อความจากระบบ", $msg, $user['_id']);
         NotifyHelper::incBadge($user['_id']->{'$id'});
         $user['display_notification_number']++;
 
         $args = [
             'id'=> MongoHelper::standardId($entity['_id']),
             'object_id'=> MongoHelper::standardId($item['_id']),
-            'type'=> "event_approve"
+            'type'=> "admin_approve"
         ];
 
         if(!$user['setting']['notify_message']){

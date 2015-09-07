@@ -1,16 +1,16 @@
 <?php 
-$user_id = '54d9bc4dda354d757b8b4569';
-$event_id = '55ded638f232e512693dcea7';
+$user_id = '5582a28110f0ed08048b4567';
+$reference_id = '55ded78cf232e511693dcea3';
 
 $I = new ApiTester($scenario);
 $I->wantTo('Add Report');
 $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-$I->setHeader('access-token', 'f1501fa3347169a033b2240c5466a8af4c69e6c37f23eb15304de6b8649512cd');
+$I->setHeader('access-token', '54045a1c5e4acd555ed07c0a0cdc497a2099ef5ef347331144e5450b491fe74d');
 $I->sendPOST('report', [
-    'detail' => 'Testing message detail '.time(),
-    'type' => 'event',
+    'detail' => 'Testing report details '.time(),
+    'type' => 'picture',
     'user_id' => $user_id,
-    'reference_id' => $event_id
+    'reference_id' => $reference_id
 ]);
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();

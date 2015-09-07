@@ -116,11 +116,22 @@ class NotifyHelper {
             }
         }
     }
-
+    
+    /**
+     * Insert Notification into database
+     * 
+     * @param type $objectId    Id of an event or picture
+     * @param type $type        Type of report E.g. event picture
+     * @param type $header      Report Title
+     * @param type $message     Report Message
+     * @param type $userId      Who's report
+     * @param type $event_id    (Optional) Event Id
+     * @return type
+     */
     public static function create($objectId, $type, $header, $message, $userId, $event_id = null){
         $db = DB::getDB();
-        $objectId = MongoHelper::mongoId($objectId);
-        $userId = MongoHelper::mongoId($userId);
+        $object_id = MongoHelper::mongoId($objectId);
+        $user_id = MongoHelper::mongoId($userId);
 
         $now = new \MongoTimestamp();
         $entity = array(
@@ -128,15 +139,25 @@ class NotifyHelper {
             'preview_content'=> $message,
             'object'=> array(
                 'type'=> $type,
-                'id'=> $objectId
+                'id'=> $object_id
             ),
-            'user_id'=> $userId,
+            'user_id'=> $user_id,
             'opened'=> false,
             'created_at'=> $now
         );
         
         if($event_id != null){
             $entity['event_id'] = $event_id;
+        }
+        
+        if( $type == 'event' OR $type == 'alarm' ){
+            $event = $db->event->findOne(['_id' => $object_id],['user_id']);
+            $entity['owner'] = $event['user_id'];
+        }
+        
+        if( $type == 'picture' ){
+            $event = $db->gallery->findOne(['_id' => $object_id],['user_id']);
+            $entity['owner'] = $event['user_id'];
         }
 
         $db->notify->insert($entity);

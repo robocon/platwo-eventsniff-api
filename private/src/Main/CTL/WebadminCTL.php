@@ -10,7 +10,6 @@ use Main\Exception\Service\ServiceException,
  * @uri /webadmin
  */
 class WebadminCTL extends BaseCTL {
-    //put your code here
     
     /**
      * Send notification after approve

@@ -36,7 +36,7 @@ class ReportService extends BaseService {
         }
         
         $v = new Validator($params);
-        $v->rule('required', ['detail', 'type', 'reference_id']);
+        $v->rule('required', ['title','detail', 'type', 'reference_id']);
 
         if(!$v->validate()){
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
@@ -48,20 +48,22 @@ class ReportService extends BaseService {
         $user = $db->users->findOne(['_id' => new \MongoId($params['user_id'])]);
         
         // SEND NOTIFICATION
-        $entity = NotifyHelper::create($params['reference_id'], $params['type'], "ข้อความจากระบบ", $params['detail'], $user['_id']);
+        // Store into database
+        $entity = NotifyHelper::create($params['reference_id'], $params['type'], $params['title'], $params['detail'], $user['_id']);
+        // Increase Number of Notification
         NotifyHelper::incBadge($user['_id']->{'$id'});
         $user['display_notification_number']++;
 
         $args = [
             'id'=> MongoHelper::standardId($entity['_id']),
-            'object_id'=> MongoHelper::standardId($params['_id']),
-            'type'=> "event_approve"
+            'object_id'=> MongoHelper::standardId($params['reference_id']),
+            'type'=> $params['type']
         ];
 
         if(!$user['setting']['notify_message']){
             ResponseHelper::error('Notification message not enable');
         }
-
+        // Send notification
         NotifyHelper::send($user, $entity['preview_content'], $args);
         // END SEND NOTIFICATION
         
