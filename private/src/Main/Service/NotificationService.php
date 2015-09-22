@@ -53,9 +53,13 @@ class NotificationService extends BaseService {
                 'detail' => (isset($item['preview_content'])) ? $item['preview_content'] : '' ,
                 'date' => date('Y-m-d H:i:s', $item['created_at']->{'sec'}),
                 'thumb' => '',
-                'type' => 'report',
-                'user' => EventHelper::get_owner($item['user_id'])
+                'type' => 'report'
             ];
+            
+            if( isset($item['user_id']) ){
+                $pre_item['user'] = EventHelper::get_owner($item['user_id']);
+            }
+            
             $noti_items[$set_key] = $pre_item;
         }
         
@@ -82,9 +86,13 @@ class NotificationService extends BaseService {
                 'detail' => (isset($item['preview_content'])) ? $item['preview_content'] : '' ,
                 'date' => date('Y-m-d H:i:s', $item['created_at']->{'sec'}),
                 'thumb' => $thumb,
-                'type' => $type,
-                'user' => EventHelper::get_owner($item['user_id'])
+                'type' => $type
             ];
+            
+            if( isset($item['user_id']) ){
+                $pre_item['user'] = EventHelper::get_owner($item['user_id']);
+            }
+
             $noti_items[$set_key] = $pre_item;
             
         }
@@ -126,9 +134,13 @@ class NotificationService extends BaseService {
                 'detail' => (isset($item['preview_content'])) ? $item['preview_content'] : '' ,
                 'date' => date('Y-m-d H:i:s', $item['created_at']->{'sec'}),
                 'thumb' => $thumb['picture'],
-                'type' => $item['object']['type'],
-                'user' => EventHelper::get_owner($item['user_id'])
+                'type' => $item['object']['type']
             ];
+                
+            if( isset($item['user_id']) ){
+                $pre_item['user'] = EventHelper::get_owner($item['user_id']);
+            }
+        
             $report_items[] = $pre_item;
         }
         return ['data' => $report_items, 'length' => count($report_items)];
@@ -154,9 +166,12 @@ class NotificationService extends BaseService {
             'detail' => (isset($item['preview_content'])) ? $item['preview_content'] : '' ,
             'date' => date('Y-m-d H:i:s', $item['created_at']->{'sec'}),
             'thumb' => '',
-            'type' => $item['object']['type'],
-            'user' => EventHelper::get_owner($item['user_id'])
+            'type' => $item['object']['type']
         ];
+            
+        if( isset($item['user_id']) ){
+            $pre_item['user'] = EventHelper::get_owner($item['user_id']);
+        }
             
         return $pre_item;
     }
