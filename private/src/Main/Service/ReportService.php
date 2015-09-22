@@ -42,6 +42,8 @@ class ReportService extends BaseService {
             throw new ServiceException(ResponseHelper::validateError($v->errors()));
         }
         
+        $params['user_id'] = $check_user['_id']->{'$id'};
+        
         $db = $this->getDB();
         $db->report->insert($params);
         $params['id'] = $params['_id']->{'$id'};

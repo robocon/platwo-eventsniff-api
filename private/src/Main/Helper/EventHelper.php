@@ -148,7 +148,7 @@ class EventHelper {
         $db = DB::getDB();
         $item = $db->users->findOne(['_id' => new \MongoId($id)],['display_name','picture','type']);
         if($item !== null){
-            $item['id'] = $id;
+            $item['id'] = $item['_id']->{'$id'};
             unset($item['_id']);
             
             if(isset($item['picture'])){

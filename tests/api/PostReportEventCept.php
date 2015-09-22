@@ -10,7 +10,7 @@ $I->sendPOST('report', [
     'title' => 'Test edit event title',
     'detail' => 'Test edit event details '.time(),
     'type' => 'e',
-    'user_id' => $user_id,
+//    'user_id' => $user_id,
     'reference_id' => $reference_id
 ]);
 $I->seeResponseCodeIs(200);

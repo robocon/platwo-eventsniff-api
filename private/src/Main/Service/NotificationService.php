@@ -53,7 +53,8 @@ class NotificationService extends BaseService {
                 'detail' => (isset($item['preview_content'])) ? $item['preview_content'] : '' ,
                 'date' => date('Y-m-d H:i:s', $item['created_at']->{'sec'}),
                 'thumb' => '',
-                'type' => 'report'
+                'type' => 'report',
+                'user' => EventHelper::get_owner($item['user_id'])
             ];
             $noti_items[$set_key] = $pre_item;
         }
@@ -74,13 +75,15 @@ class NotificationService extends BaseService {
             if( $type == 'edit' OR $type == 'approve' ){
                 $thumb = EventHelper::get_event_thumbnail($item['object']['id']->{'$id'});
             }
+            
             $pre_item = [
                 'id' => $item['_id']->{'$id'},
                 'title' => (isset($item['preview_header'])) ? $item['preview_header'] : '' ,
                 'detail' => (isset($item['preview_content'])) ? $item['preview_content'] : '' ,
                 'date' => date('Y-m-d H:i:s', $item['created_at']->{'sec'}),
                 'thumb' => $thumb,
-                'type' => $type
+                'type' => $type,
+                'user' => EventHelper::get_owner($item['user_id'])
             ];
             $noti_items[$set_key] = $pre_item;
             
@@ -123,11 +126,11 @@ class NotificationService extends BaseService {
                 'detail' => (isset($item['preview_content'])) ? $item['preview_content'] : '' ,
                 'date' => date('Y-m-d H:i:s', $item['created_at']->{'sec'}),
                 'thumb' => $thumb['picture'],
-                'type' => $item['object']['type']
+                'type' => $item['object']['type'],
+                'user' => EventHelper::get_owner($item['user_id'])
             ];
             $report_items[] = $pre_item;
         }
-        
         return ['data' => $report_items, 'length' => count($report_items)];
     }
     
@@ -151,7 +154,8 @@ class NotificationService extends BaseService {
             'detail' => (isset($item['preview_content'])) ? $item['preview_content'] : '' ,
             'date' => date('Y-m-d H:i:s', $item['created_at']->{'sec'}),
             'thumb' => '',
-            'type' => $item['object']['type']
+            'type' => $item['object']['type'],
+            'user' => EventHelper::get_owner($item['user_id'])
         ];
             
         return $pre_item;
